@@ -1,0 +1,15 @@
+package samples
+
+const bob: Party = 'Bob';
+const alice: Party = 'Alice';
+
+function demoIou() {
+    Iou[bob, alice](100);
+}
+
+function demoSettle() {
+    car: Car = Car[bob]("VW Beetle", Color.Red);
+    iou: Iou = Iou[bob, alice](5000);
+
+    Settle[alice, bob](iou, car);
+};

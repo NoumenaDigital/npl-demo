@@ -1,0 +1,11 @@
+package samples
+
+@api
+protocol[iouOwner, carOwner] Settle(iou: Iou, car: Car) {
+    @api
+    permission[iouOwner | carOwner] swap() {
+        // Transfer logic.
+        iou.forgive[iouOwner]();
+        car.transfer[carOwner, iouOwner]();
+    };
+};
