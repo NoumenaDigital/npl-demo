@@ -7,7 +7,7 @@ const PAYEE: Party = 'payee';
 function test_initial_amount_owed(test: Test) {
     iou: Iou = Iou[ISSUER, PAYEE](100);
 
-    test.ok(iou.getAmountOwed[ISSUER]() == 100, "Amount owed should equal initial value");
+    test.assertEquals(100, iou.getAmountOwed[ISSUER](), "Amount owed should equal initial value");
 };
 
 @test
@@ -15,27 +15,19 @@ function test_amount_owed_after_pay(test: Test) {
     iou: Iou = Iou[ISSUER, PAYEE](100);
     iou.pay[ISSUER](50);
 
-    test.ok(iou.getAmountOwed[ISSUER]() == 50, "Amount owed should reflect payment");
+    test.assertEquals(50, iou.getAmountOwed[ISSUER](), "Amount owed should reflect payment");
 };
 
 @test
 function test_pay_negative_amount(test: Test) {
     iou: Iou = Iou[ISSUER, PAYEE](100);
-    result: PcallResult<Unit> = test.pcall(\() returns Unit -> iou.pay[ISSUER](-10));
 
-    match (result) {
-        is PcallFail -> test.ok(true, "Paying negative amounts should fail")
-        else -> test.ok(false, "Expected failure")
-    };
+    test.assertFails(\() returns Unit -> iou.pay[ISSUER](-10), "Paying negative amounts should fail");
 };
 
 @test
 function test_overpaying(test: Test) {
     iou: Iou = Iou[ISSUER, PAYEE](100);
-    result: PcallResult<Unit> = test.pcall(\() returns Unit -> iou.pay[ISSUER](101));
 
-    match (result) {
-        is PcallFail -> test.ok(true, "Overpaying should fail")
-        else -> test.ok(false, "Expected failure")
-    };
+    test.assertFails(\() returns Unit -> iou.pay[ISSUER](101), "Overpaying should fail");
 };
