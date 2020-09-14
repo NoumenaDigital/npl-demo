@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>npl-demo</artifactId>
+    <groupId>com.noumenadigital</groupId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+            <version>1.3.72</version>
+        </dependency>
+        <dependency>
+            <groupId>com.noumenadigital.platform</groupId>
+            <artifactId>engine-client</artifactId>
+            <version>1.0.38100</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.noumenadigital.platform</groupId>
+                <artifactId>npl-maven-plugin</artifactId>
+                <version>1.0.38100</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>npl-test</goal>
+                            <goal>npl-codegen</goal>
+                        </goals>
+                        <configuration>
+                            <sources>${project.basedir}/src/main/npl</sources>
+                            <testSources>${project.basedir}/src/test/npl</testSources>
+                            <codegenInputDirectory>${project.basedir}/src/main/npl</codegenInputDirectory>
+                            <codegenOutputDirectory>${project.build.directory}/generated-sources/npl-codegen</codegenOutputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <version>1.3.72</version>
+                <executions>
+                    <execution>
+                        <id>compile</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>
+                                <source>target/generated-sources/npl-codegen</source>
+                            </sourceDirs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

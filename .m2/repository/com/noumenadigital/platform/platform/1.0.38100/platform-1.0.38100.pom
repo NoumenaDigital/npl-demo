@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.noumenadigital.platform</groupId>
+    <artifactId>platform</artifactId>
+    <version>1.0.38100</version>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>com.noumenadigital</groupId>
+        <artifactId>parent-pom</artifactId>
+        <version>1.5.1.RELEASE</version>
+    </parent>
+
+    <modules>
+        <module>monitoring</module>
+        <module>api</module>
+        <module>values-proto</module>
+        <module>values</module>
+        <module>grammar</module>
+        <module>storage</module>
+        <module>language-builtins</module>
+        <module>language-compiler</module>
+        <module>language-runtime</module>
+        <module>language-testing</module>
+        <module>spring-util</module>
+        <module>engine</module>
+        <module>engine-dev</module>
+        <module>engine-values</module>
+        <module>engine-client</module>
+        <module>engine-client-auth</module>
+        <module>engine-client-codegen</module>
+        <module>engine-client-dev</module>
+        <module>integration-tests</module>
+        <module>json-mapper</module>
+        <module>npl-maven-plugin</module>
+        <module>stress-tests</module>
+        <module>testing</module>
+        <module>testing-app</module>
+        <module>migration-runner</module>
+        <module>migration-dsl</module>
+        <module>read-streams</module>
+        <module>read-streams-client</module>
+        <module>values-generators</module>
+        <module>values-equals</module>
+        <module>values-serialization</module>
+        <module>topic-migration</module>
+        <module>coverage</module>
+    </modules>
+
+    <properties>
+        <docker-repository/> <!-- Empty because locally no prefix is required -->
+    </properties>
+
+    <profiles>
+        <profile>
+            <id>gitlab</id>
+            <properties>
+                <docker-repository>registry.noumenadigital.com/</docker-repository>
+            </properties>
+        </profile>
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.github.gantsign.maven</groupId>
+                <artifactId>ktlint-maven-plugin</artifactId>
+                <version>1.4.2</version>
+                <executions>
+                    <execution>
+                        <id>check</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <configuration>
+                        <testSourceDirectory>src/it/kotlin</testSourceDirectory>
+                        <skipAfterFailureCount>1</skipAfterFailureCount>
+                        <trimStackTrace>false</trimStackTrace> <!-- false will become the default in the stalled 3.x version of failsafe. -->
+                        <includes>
+                            <include>**/*IT*</include>
+                        </includes>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <configuration>
+                        <trimStackTrace>false</trimStackTrace>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <!-- Make Kotlin and the de facto standard components Guava and SLF4J (Logback) available to all modules. -->
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <optional>true</optional> <!-- Don't force on downstream projects. -->
+        </dependency>
+        <dependency>
+            <groupId>io.github.microutils</groupId>
+            <artifactId>kotlin-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.nhaarman.mockitokotlin2</groupId>
+            <artifactId>mockito-kotlin</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.noumenadigital.app-sec</groupId>
+            <artifactId>keycloak-customization</artifactId>
+            <version>1.1.30860</version>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.noumenadigital.infra</groupId>
+                <artifactId>kotlin</artifactId>
+                <version>1.0.25396</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

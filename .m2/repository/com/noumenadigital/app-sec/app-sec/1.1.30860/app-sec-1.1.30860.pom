@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.noumenadigital.app-sec</groupId>
+    <artifactId>app-sec</artifactId>
+    <version>1.1.30860</version>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>com.noumenadigital</groupId>
+        <artifactId>parent-pom</artifactId>
+        <version>1.4.6.RELEASE</version>
+    </parent>
+
+    <modules>
+        <module>keycloak-customization</module>
+    </modules>
+
+    <!-- Make Kotlin and the de facto standard components Guava and SLF4J (Logback) available to all modules. -->
+    <dependencies>
+        <dependency>
+            <groupId>io.github.microutils</groupId>
+            <artifactId>kotlin-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-reflect</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-test-junit5</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.nhaarman.mockitokotlin2</groupId>
+            <artifactId>mockito-kotlin</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.noumenadigital.infra</groupId>
+                <artifactId>kotlin</artifactId>
+                <version>1.0.25396</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

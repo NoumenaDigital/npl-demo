@@ -1,0 +1,44 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>values-proto</artifactId>
+
+  <parent>
+    <groupId>com.noumenadigital.platform</groupId>
+    <artifactId>platform</artifactId>
+    <version>1.0.38100</version>
+  </parent>
+
+  <properties>
+    <protobuf.version>3.11.4</protobuf.version>
+  </properties>
+
+  <build>
+    <plugins>
+      <plugin>
+        <!-- There are two main competing Protobuf plugins (neither directly supported by Google) - this one by Os72 and another by Xolstice. -->
+        <groupId>com.github.os72</groupId>
+        <artifactId>protoc-jar-maven-plugin</artifactId>
+        <version>${protobuf.version}</version>
+        <executions>
+          <execution>
+            <phase>generate-sources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>${protobuf.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>

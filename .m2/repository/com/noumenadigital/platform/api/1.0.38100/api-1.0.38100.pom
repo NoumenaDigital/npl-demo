@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>api</artifactId>
+
+    <parent>
+        <groupId>com.noumenadigital.platform</groupId>
+        <artifactId>platform</artifactId>
+        <version>1.0.38100</version>
+    </parent>
+
+    <properties>
+        <version.roaster>2.21.2.Final</version.roaster>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-swagger2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.forge.roaster</groupId>
+            <artifactId>roaster-api</artifactId>
+            <version>${version.roaster}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.forge.roaster</groupId>
+            <artifactId>roaster-jdt</artifactId>
+            <version>${version.roaster}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>4.3.1</version>
+                <configuration>
+                    <generatorName>spring</generatorName>
+                    <apiPackage>com.noumenadigital.platform.api</apiPackage>
+                    <modelPackage>com.noumenadigital.platform.api.models</modelPackage>
+                    <generateApiDocumentation>false</generateApiDocumentation>
+                    <generateApiTests>false</generateApiTests>
+                    <generateModelDocumentation>false</generateModelDocumentation>
+                    <generateModelTests>false</generateModelTests>
+                    <generateSupportingFiles>false</generateSupportingFiles>
+                    <typeMappings>
+                        <typeMapping>OffsetDateTime=java.time.ZonedDateTime</typeMapping>
+                    </typeMappings>
+                    <configOptions>
+                        <!-- Do not generate implementations. -->
+                        <interfaceOnly>true</interfaceOnly>
+                        <!-- Do not generate default implementations. -->
+                        <skipDefaultInterface>true</skipDefaultInterface>
+                        <!-- Use Java8 DateTime. -->
+                        <dateLibrary>java8</dateLibrary>
+                        <!-- Saner naming using tags. -->
+                        <useTags>true</useTags>
+                        <!-- Do not show the @Generator annotation. -->
+                        <hideGenerationTimestamp>true</hideGenerationTimestamp>
+                    </configOptions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-engine</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/engine.yml</inputSpec>
+                            <configOptions>
+                                <!-- Wrap everything in CompletableFuture. -->
+                                <async>true</async>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-streams</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/streams.yml</inputSpec>
+                            <configOptions>
+                                <!-- Wrap everything in Flux. -->
+                                <responseWrapper>reactor.core.publisher.Flux</responseWrapper>
+                                <reactive>true</reactive>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-debug</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/debug.yml</inputSpec>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>generate-debug-streams</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/debug-streams.yml</inputSpec>
+                            <configOptions>
+                                <!-- Wrap everything in Flux. -->
+                                <responseWrapper>reactor.core.publisher.Flux</responseWrapper>
+                                <reactive>true</reactive>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+            </plugin>
+            <plugin>
+                <artifactId>kotlin-maven-plugin</artifactId>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <executions>
+                    <execution>
+                        <!--
+                            Here, we do an additional Kotlin compile in the generate-sources phase so that
+                            `PostProcessor` is available for use below. `sourceDirs` is not automatically constructed
+                            until the compile phase (so that other plugins can contribute to the process) so we have to
+                            specify it explicitly here.
+                        -->
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirs>src/main/kotlin</sourceDirs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>post-process-openapi-sources</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>com.noumenadigital.platform.api.postprocessor.PostProcessorKt</mainClass>
+                        </configuration>
+                    </execution>
+                    <!-- Generate the API docs using redoc-cli. -->
+                    <execution>
+                        <id>generate-api-docs</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>./api-docs</executable>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Create a separate JAR. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>pack-api-docs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <classifier>docs</classifier>
+                            <classesDirectory>${project.build.directory}/docs</classesDirectory>
+                            <includes>
+                                <include>**/*</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

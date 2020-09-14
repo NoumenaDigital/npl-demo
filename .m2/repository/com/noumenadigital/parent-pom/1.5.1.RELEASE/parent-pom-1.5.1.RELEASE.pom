@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.noumenadigital</groupId>
+    <artifactId>parent-pom</artifactId>
+    <version>1.5.1.RELEASE</version>
+    <packaging>pom</packaging>
+
+    <!-- Use Spring to manage versioning for a huge curated set of mutually compatible dependencies. -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.3.0.RELEASE</version> <!-- IMPORTANT: remember to also update 'spring-boot.version' below. -->
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+        <!--
+        java.version is a Spring specific property.
+        maven.compiler.{source|target} are maven-compiler-plugin specific properties.
+        Setting the maven-compiler-plugin properties here rather than in the plugin's configuration block later makes them simpler to override in submodules (see grammar submodule).
+        -->
+        <java.version>11</java.version>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+
+        <kotlin.version>1.3.72</kotlin.version>
+        <!-- Currently (June 26th, 2018) the the Kotlin compiler defaults to 1.6 as its JVM target
+         which causes interop issues for Java 8 features like default interface methods. -->
+        <kotlin.compiler.jvmTarget>1.8</kotlin.compiler.jvmTarget>
+
+        <build.number>non-CI build</build.number> <!-- CI environment should override this value. -->
+        <swagger.version>2.9.2</swagger.version>
+
+        <io-arrow-version>0.10.5</io-arrow-version>
+        <guava.version>29.0-jre</guava.version>
+        <keycloak.version>6.0.1</keycloak.version>
+        <io-prometheus-version>0.9.0</io-prometheus-version>
+
+        <!-- This property used to be defined for us but was removed - see https://github.com/spring-projects/spring-boot/issues/5014 -->
+        <spring-boot.version>2.3.0.RELEASE</spring-boot.version>
+    </properties>
+
+    <dependencyManagement>
+        <!-- Make Kotlin and the de facto standard components Guava and SLF4J (Logback) available to all modules. -->
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-test</artifactId>
+                <version>${spring-boot.version}</version>
+                <exclusions>
+                    <!--
+                         Kotlin, via kotlin-test-junit5, depends on JUnit5 to support tests with autowired val constructor arguments and other Kotlin specific features.
+                         Spring Boot prior to 2.2.x pulled in JUnit4 directly - with 2.2.x it uses JUnit5
+                         However Spring 2.2.x pulls in junit-vintage-engine to provide support for existing JUnit4 tests but this requires you to pull in JUnit4 as a direct dependency.
+                         If you don't Surefire will fail with "java.lang.NoClassDefFoundError: junit/runner/Version" (junit.runner.Version is a JUnit4 class).
+                         With Gradle you can simple turn off the Vintage Engine - see https://junit.org/junit5/docs/current/user-guide/#running-tests-build-gradle
+                         But Maven's Surefire works off automagic discovery - if it sees junit-vintage-engine it assumes JUnit4 must also be present.
+                         So we exclude it here to avoid Surefire failures.
+                    -->
+                    <exclusion>
+                        <groupId>org.junit.vintage</groupId>
+                        <artifactId>junit-vintage-engine</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient</artifactId>
+                <version>${io-prometheus-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.prometheus</groupId>
+                <artifactId>simpleclient_httpserver</artifactId>
+                <version>${io-prometheus-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava-testlib</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.arrow-kt</groupId>
+                <artifactId>arrow-core-data</artifactId>
+                <version>${io-arrow-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.arrow-kt</groupId>
+                <artifactId>arrow-data</artifactId>
+                <version>${io-arrow-version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+                <optional>true</optional>                <!-- Don't force on downstream projects. -->
+            </dependency>
+            <dependency>
+                <groupId>io.github.microutils</groupId>
+                <artifactId>kotlin-logging</artifactId>
+                <version>1.7.9</version>
+                <exclusions>
+                    <!-- Exclude old version of kotlin-stdlib-common. -->
+                    <exclusion>
+                        <groupId>org.jetbrains.kotlin</groupId>
+                        <artifactId>kotlin-stdlib-common</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-stdlib-jdk8</artifactId>                <!-- https://kotlinlang.org/docs/reference/using-maven.html#dependencies -->
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <!-- kotlin-reflect is mandatory when using Spring (and essentially mandatory anyway). -->
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-reflect</artifactId>
+                <version>${kotlin.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jetbrains.kotlin</groupId>
+                <artifactId>kotlin-test-junit5</artifactId>
+                <version>${kotlin.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit-jupiter.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <!-- Plain Mockito doesn't play well with Kotlin - see:
+                    * https://github.com/mockito/mockito/issues/1255
+                    * https://github.com/nhaarman/mockito-kotlin/wiki
+                    -->
+                <groupId>com.nhaarman.mockitokotlin2</groupId>
+                <artifactId>mockito-kotlin</artifactId>
+                <version>2.2.0</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <!-- The validators allow Swagger to understand nullability constraints. -->
+                <artifactId>springfox-bean-validators</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis</artifactId>
+                <version>3.5.4</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak.bom</groupId>
+                <artifactId>keycloak-adapter-bom</artifactId>
+                <version>${keycloak.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>6.3</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <artifactId>kotlin-maven-plugin</artifactId>
+                    <groupId>org.jetbrains.kotlin</groupId>
+                    <version>${kotlin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>compile</id>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirs>
+                                    <sourceDir>${project.basedir}/src/main/kotlin</sourceDir>
+                                </sourceDirs>
+                            </configuration>
+                        </execution>
+                        <execution>
+                            <id>test-compile</id>
+                            <goals>
+                                <goal>test-compile</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirs>
+                                    <sourceDir>${project.basedir}/src/test/kotlin</sourceDir>
+                                </sourceDirs>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <args>
+                            <arg>-Xjvm-default=enable</arg>                            <!-- See https://stackoverflow.com/a/49933841/245602 -->
+                            <!-- https://docs.spring.io/spring/docs/current/spring-framework-reference/languages.html#kotlin-null-safety -->
+                            <arg>-Xjsr305=strict</arg>
+                        </args>
+                        <jvmTarget>${kotlin.compiler.jvmTarget}</jvmTarget>
+                        <!-- See https://kotlinlang.org/docs/reference/compiler-plugins.html-->
+                        <compilerPlugins>
+                            <plugin>spring</plugin>
+                            <plugin>jpa</plugin>
+                            <plugin>no-arg</plugin>
+                        </compilerPlugins>
+                        <pluginOptions>
+                            <option>no-arg:annotation=com.noumenadigital.dpl.lang.NoArg</option>
+                            <option>no-arg:invokeInitializers=true</option>
+                        </pluginOptions>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <!-- Required by spring plugin. -->
+                            <groupId>org.jetbrains.kotlin</groupId>
+                            <artifactId>kotlin-maven-allopen</artifactId>
+                            <version>${kotlin.version}</version>
+                        </dependency>
+                        <dependency>
+                            <!-- Required by jpa plugin. -->
+                            <groupId>org.jetbrains.kotlin</groupId>
+                            <artifactId>kotlin-maven-noarg</artifactId>
+                            <version>${kotlin.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                    <configuration>
+                        <compilerArgs>
+                            <arg>-Xlint:unchecked</arg>                            <!-- Show more that default "Some input files use unchecked or unsafe operations." -->
+                        </compilerArgs>
+                    </configuration>
+                    <executions>
+                        <!-- Replacing default-compile as it is treated specially by maven -->
+                        <execution>
+                            <id>default-compile</id>
+                            <phase>none</phase>
+                        </execution>
+                        <!-- Replacing default-testCompile as it is treated specially by maven -->
+                        <execution>
+                            <id>default-testCompile</id>
+                            <phase>none</phase>
+                        </execution>
+                        <execution>
+                            <id>java-compile</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>compile</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>java-test-compile</id>
+                            <phase>test-compile</phase>
+                            <goals>
+                                <goal>testCompile</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>com.spotify</groupId>
+                    <artifactId>dockerfile-maven-plugin</artifactId>
+                    <version>1.4.13</version>
+                    <executions>
+                        <execution>
+                            <id>docker-build</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>build</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>docker-push</id>
+                            <phase>deploy</phase>
+                            <goals>
+                                <goal>push</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <!-- Include build-info.properties (consumed by actuator) in all fat jars. -->
+                                <goal>build-info</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>license-maven-plugin</artifactId>
+                    <version>2.0.0</version>
+                    <executions>
+                        <execution>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>aggregate-download-licenses</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <includedScopes>runtime</includedScopes>
+                        <excludeTransitiveDependencies>true</excludeTransitiveDependencies>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>3.7.0.1746</version>
+                    <executions>
+                        <execution>
+                            <id>sonar</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sonar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.8.5</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        <plugins>
+            <plugin>
+                <!-- Add git.properties file to all jars. -->
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+                <version>${git-commit-id-plugin.version}</version>
+                <configuration>
+                    <injectAllReactorProjects>true</injectAllReactorProjects> <!-- reuse calculated properties for each module that is being built -->
+                    <excludeProperties>
+                        <!-- Exclude properties that otherwise result in a lot of "noise" in the build output. -->
+                        <excludeProperty>git.commit.id.describe</excludeProperty>
+                        <excludeProperty>git.closest.tag.name</excludeProperty>
+                        <excludeProperty>git.closest.tag.commit.count</excludeProperty>
+                        <excludeProperty>git.commit.message.full</excludeProperty> <!-- only noisy for big multiline commits. -->
+
+                        <!-- Exclude properties that result in fetches (which the CI builds don't have permission to do). -->
+                        <excludeProperty>git.local.branch.ahead</excludeProperty>
+                        <excludeProperty>git.local.branch.behind</excludeProperty>
+                    </excludeProperties>
+                    <verbose>false</verbose>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifestSections>
+                            <manifestSection>
+                                <!-- Include CI details in MANIFEST.MF. -->
+                                <name>CI details</name>
+                                <manifestEntries>
+                                    <Build-Number>${build.number}</Build-Number>
+                                </manifestEntries>
+                            </manifestSection>
+                        </manifestSections>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${build-helper-maven-plugin.version}</version>
+                <executions>
+                    <!--
+                      src/main/java and src/test/main are the default known source directories. Additional source roots need to be specified here
+                      in order for plugins like maven-source-plugin and com.github.gantsign.maven:ktlint-maven-plugin to be aware of them.
+                      See also https://stackoverflow.com/a/42748502
+                      Note: plugins can add source roots - so ideally the kotlin-maven-plugin would do this for us. Howerver, it neither does this
+                      nor respects roots added by other plugins - see https://youtrack.jetbrains.com/issue/KT-13995
+                    -->
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/src/main/kotlin</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.basedir}/src/test/kotlin</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.2.1</version>
+                <executions>
+                  <execution>
+                    <id>attach-sources</id>
+                    <inherited>true</inherited>
+                    <phase>generate-sources</phase>
+                    <goals>
+                      <!--
+                        This fixes an issue where generated sources may be generated twice - once for compilation and once for the source jar.
+                        Not only is this redundant but it also means the source jar can potentially end up with different source to the source used for compilation.
+                        See http://blog.peterlynch.ca/2010/05/maven-how-to-prevent-generate-sources.htmls
+                        Note: this blog also covers a similar issue on doing releases - we _may_ also need to incorporate that fix.
+                      -->
+                      <goal>jar-no-fork</goal>
+                    </goals>
+                  </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>licenses-and-versions</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>test-coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>sonar</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <distributionManagement>
+        <repository>
+            <id>nexus</id>
+            <name>Releases</name>
+            <url>http://nexus.noumenadigital.com/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>nexus</id>
+            <name>Snapshot</name>
+            <url>http://nexus.noumenadigital.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>noumena</id>
+            <name>Noumena Digital Nexus</name>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+            <url>http://nexus.noumenadigital.com/repository/maven-public/</url>
+            <layout>default</layout>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>noumena</id>
+            <name>Noumena Digital Nexus</name>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+            <url>http://nexus.noumenadigital.com/repository/maven-public/</url>
+            <layout>default</layout>
+        </pluginRepository>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>
