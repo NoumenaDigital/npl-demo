@@ -1,0 +1,28 @@
+@startuml
+actor       chairman        as C
+actor       board_members   as BM
+actor       secretary       as S
+actor       board           as B
+
+S -> B: present topic(s)
+C -> B: initiate vote
+note over B: check for board quorum
+note over B: check for topic validity, structure, documentation
+BM -> B: vote (all at the same time, hidden)
+C -> B: announce the end of the vote
+note over B: counts the votes and outputs the result
+C -> BM: announce result of the vote
+
+@enduml
+
+pre-requisites: topics exist and the board is gathered
+quorum
+secretary not part of the board
+majority as 50%, 60%
+case of equality, vote result?
+chairman decides in case of equality
+topic?
+order of votes, parallel voting
+voting weight, chairman has more vote, proportional to shares in the company
+proof of voting, not compromised system
+obligation to vote in specific amount of time?

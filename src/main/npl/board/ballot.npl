@@ -1,0 +1,9 @@
+package board
+
+protocol[chairman, board_member] Ballot(
+    var topic: Text
+) {
+
+
+
+};

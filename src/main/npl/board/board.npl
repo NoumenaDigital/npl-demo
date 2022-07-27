@@ -1,0 +1,23 @@
+package board
+
+protocol[chairman, board_member, secretary] Board(
+    var board_size: Number
+) {
+
+    ballots: List<Ballot> = listOf<Ballot>();
+    suggested_voting_topics: Set<Text> = setOf<Text>();
+
+    permission[secretary] suggestTopic(topic: Text) {
+        this.suggested_voting_topics = this.suggested_voting_topics.with(topic);
+    };
+
+    permission[chairman] selectedTopicForVote(topic: Text) {
+        guard(this.suggested_voting_topics.contains(topic), "Selected topic should be in list of suggested topics.");
+
+        this.suggested_voting_topics = this.suggested_voting_topics.without(topic);
+
+        ballot: Ballot = Ballot[chairman, board_member](topic);
+
+        this.ballots = this.ballots.with(ballot);
+    };
+};

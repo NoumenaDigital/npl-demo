@@ -1,0 +1,12 @@
+package board
+
+const BOARD_MEMBER: Party = 'board_member';
+const CHAIRMAN: Party = 'chairman';
+
+@test
+function test_board_creation(test: Test) {
+    test.assertEquals(1, 1);
+
+
+
+};

@@ -1,0 +1,28 @@
+@startuml
+class Board {
+    List<Ballot> ballots
+    Number board_size
+    [secretary] suggestTopic()
+    [chairman] selectTopicForVote(): Ballot
+}
+class Ballot {
+    states: initial VOTING, COUNTING, COUNTED, final COUNTED
+
+    String topic
+    List<Vote> votes
+    Number yay_count
+    Number nay_count
+    Option<Boolean> accepted
+    [board_members] vote(Vote) | VOTING
+    [chairman] castDecidingVote() | COUNTED
+    [chairman] endVote() |
+}
+class Vote {
+    Option<Boolean> decision
+}
+
+Board *--- Ballot
+Ballot *--- Vote
+@enduml
+
+chairman has board member rights

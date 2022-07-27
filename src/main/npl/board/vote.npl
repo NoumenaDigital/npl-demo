@@ -1,0 +1,5 @@
+package board
+
+protocol[voter] Vote() {
+
+};
