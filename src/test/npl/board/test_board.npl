@@ -1,12 +1,56 @@
 package board
 
+const SECRETARY: Party = 'secretary';
 const BOARD_MEMBER: Party = 'board_member';
 const CHAIRMAN: Party = 'chairman';
 
 @test
-function test_board_creation(test: Test) {
-    test.assertEquals(1, 1);
+function test_new_board_creation(test: Test) returns Unit {
+
+    var board = Board[CHAIRMAN, BOARD_MEMBER, SECRETARY](4);
+
+    board.suggestTopic[SECRETARY]("Should we go eat lunch?");
+
+    test.assertFails(\() -> board.selectedTopicForVote[SECRETARY]("Should we go eat lunch?"));
+
+    var ballot = board.selectedTopicForVote[CHAIRMAN]("Should we go eat lunch?");
+
+    // how to change branches, push & MR on specific branch
+
+    /* ************ Task to complete *********************** */
+    // The board has conveined and your task is to decided
+    // if it should go for lunch. A ballot has been created
+    // for that purpose.
+    //
+    // Your task is to
+    //  - submit 4 votes to the ballot such that it gets
+    //    accepted
+    //  - count the votes & close the ballot
+    //  - analyse the state machine and send Jean a
+    //    screenshot thereof
+    //
+    // For those of you willing to go steps further, it is
+    // encouraged to work as a team to define and augment
+    // the board features with some (but not limited to)
+    // of the following ideas:
+    //  - ballot-specific quorum number
+    //  - enforce the one-person one-vote equivalence
+    //    (people can be represented by their name)
+    //  - chairman casting the  decisive vote in case of
+    //    tie-break
+    //  - super-majority requirements for ballots labelled
+    //    as 'budget-relevant'
+    //  - any of your idea ;-)
+    //
+    // For all those features, test should also be implemented!
+
+    /* ************ Implementation starts here ************* */
 
 
 
+    /* ************ Implementation ends here ************** */
+
+    test.assertEquals(4, ballot.votes.size(), "All four members should have voted.");
+    test.assertEquals(ballot.states.COUNTED, ballot.currentState, "Ballot should be in state COUNTED at this stage.");
+    test.assertTrue(ballot.accepted.isPresent() && ballot.accepted.getOrFail(), "Vote to go for lunch should be accepted.");
 };

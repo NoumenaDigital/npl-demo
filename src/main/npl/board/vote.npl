@@ -1,5 +1,11 @@
 package board
 
-protocol[voter] Vote() {
+enum VotePossibilities {
+    YAY, NAY, BLANK
+};
+
+protocol[voter] Vote(
+    var member_decision: VotePossibilities
+) {
 
 };

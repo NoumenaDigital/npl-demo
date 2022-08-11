@@ -1,9 +1,49 @@
 package board
 
 protocol[chairman, board_member] Ballot(
-    var topic: Text
+    var topic: Text,
+    var board_size: Number
 ) {
+    guard(board_size > 0, "Board size should be bigger than zero");
 
+    initial state VOTING;
+    state COUNTING;
+    final state COUNTED;
 
+    var votes : List<Vote> = listOf<Vote>(); // TODO make sure no one votes twice
 
+    // Yay and Nay votes are counted in the COUNTING state
+    var yay_count : Option<Number> = optionOf<Number>();
+    var nay_count : Option<Number> = optionOf<Number>();
+
+    var accepted : Option<Boolean> = optionOf<Boolean>();
+
+    permission[board_member] vote(board_member_vote: Vote) | VOTING {
+        this.votes = this.votes.with(board_member_vote);
+
+        if (votes.size() == this.board_size) { // everyone has voted
+            become COUNTING;
+        };
+    };
+
+    permission[chairman] endVote() | VOTING {
+        guard(this.votes.size() > 0.6 * board_size, "Cannot end vote before the quorum is reach");
+
+        become COUNTING;
+    };
+
+    permission[chairman] triggerCounting() | COUNTING {
+        this.yay_count = optionOf(
+            this.votes
+            .filter(
+                \(vote_i : Vote) -> vote_i.member_decision == VotePossibilities.YAY
+            ).size());
+        this.nay_count = optionOf(this.votes.filter(\(vote_i : Vote) -> vote_i.member_decision == VotePossibilities.NAY).size());
+
+        if(this.yay_count.isPresent() && this.nay_count.isPresent()) {
+            this.accepted = optionOf(this.yay_count.getOrFail() > this.nay_count.getOrFail());
+        };
+
+        become COUNTED;
+    };
 };

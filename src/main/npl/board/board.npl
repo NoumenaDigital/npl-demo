@@ -11,13 +11,15 @@ protocol[chairman, board_member, secretary] Board(
         this.suggested_voting_topics = this.suggested_voting_topics.with(topic);
     };
 
-    permission[chairman] selectedTopicForVote(topic: Text) {
+    permission[chairman] selectedTopicForVote(topic: Text) returns Ballot {
         guard(this.suggested_voting_topics.contains(topic), "Selected topic should be in list of suggested topics.");
 
         this.suggested_voting_topics = this.suggested_voting_topics.without(topic);
 
-        ballot: Ballot = Ballot[chairman, board_member](topic);
+        ballot: Ballot = Ballot[chairman, board_member](topic, this.board_size);
 
         this.ballots = this.ballots.with(ballot);
+
+        return ballot;
     };
 };
