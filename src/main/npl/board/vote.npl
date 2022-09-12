@@ -8,4 +8,7 @@ protocol[voter] Vote(
     var member_decision: VotePossibilities
 ) {
 
+    init {
+        member_decision = VotePossibilities.NAY;
+    }
 };

@@ -7,7 +7,7 @@ const CHAIRMAN: Party = 'chairman';
 @test
 function test_new_board_creation(test: Test) returns Unit {
 
-    var board = Board[CHAIRMAN, BOARD_MEMBER, SECRETARY](4);
+    var board = Board[CHAIRMAN, BOARD_MEMBER, SECRETARY](12);
 
     board.suggestTopic[SECRETARY]("Should we go eat lunch?");
 
@@ -46,11 +46,19 @@ function test_new_board_creation(test: Test) returns Unit {
 
     /* ************ Implementation starts here ************* */
 
+    for (vote in listOf(1, 2, 3, 4, 5, 6, 7)) {
+        ballot.vote[BOARD_MEMBER](Vote[BOARD_MEMBER](if (vote % 2 == 1) { VotePossibilities.YAY; } else { VotePossibilities.NAY; }));
+    };
 
+    ballot.changeNothing[BOARD_MEMBER](); // This command does nothing but updating the protocol version twice!
+
+    ballot.endVote[CHAIRMAN]();
+
+    ballot.triggerCounting[CHAIRMAN]();
 
     /* ************ Implementation ends here ************** */
 
-    test.assertEquals(4, ballot.votes.size(), "All four members should have voted.");
+    test.assertEquals(7, ballot.votes.size(), "All four members should have voted.");
     test.assertEquals(ballot.states.COUNTED, ballot.currentState, "Ballot should be in state COUNTED at this stage.");
     test.assertTrue(ballot.accepted.isPresent() && ballot.accepted.getOrFail(), "Vote to go for lunch should be accepted.");
 };

@@ -1,5 +1,12 @@
 package board
 
+/*
+ * Describes a notification for receipient outside of the current NPL scope.
+ * Notifications also contain the protocol state (platform name, as seen in
+ * the sandbox pretty-viewer).
+ */
+notification helloWorld(vote: Vote) returns Text;
+
 protocol[chairman, board_member] Ballot(
     var topic: Text,
     var board_size: Number
@@ -10,16 +17,23 @@ protocol[chairman, board_member] Ballot(
     state COUNTING;
     final state COUNTED;
 
-    var votes : List<Vote> = listOf<Vote>(); // TODO make sure no one votes twice
+    var votes: List<Vote> = listOf<Vote>(); // TODO make sure no one votes twice
 
     // Yay and Nay votes are counted in the COUNTING state
-    var yay_count : Option<Number> = optionOf<Number>();
-    var nay_count : Option<Number> = optionOf<Number>();
+    var yay_count: Option<Number> = optionOf<Number>();
+    var nay_count: Option<Number> = optionOf<Number>();
 
-    var accepted : Option<Boolean> = optionOf<Boolean>();
+    var accepted: Option<Boolean> = optionOf<Boolean>();
+
+    permission[board_member] helloWorldCallback(message: NotifyResult<Text>) returns Unit {
+        /* can execute some code when the notification receipient sends an answer back */
+    };
 
     permission[board_member] vote(board_member_vote: Vote) | VOTING {
         this.votes = this.votes.with(board_member_vote);
+
+        /* triggers the notification outflow */
+        notify helloWorld(board_member_vote) resume helloWorldCallback;
 
         if (votes.size() == this.board_size) { // everyone has voted
             become COUNTING;
@@ -34,16 +48,23 @@ protocol[chairman, board_member] Ballot(
 
     permission[chairman] triggerCounting() | COUNTING {
         this.yay_count = optionOf(
-            this.votes
-            .filter(
-                \(vote_i : Vote) -> vote_i.member_decision == VotePossibilities.YAY
+            this.votes.filter(
+                \(vote_i: Vote) -> vote_i.member_decision == VotePossibilities.YAY
             ).size());
-        this.nay_count = optionOf(this.votes.filter(\(vote_i : Vote) -> vote_i.member_decision == VotePossibilities.NAY).size());
+        this.nay_count = optionOf(
+            this.votes.filter(
+                \(vote_i: Vote) -> vote_i.member_decision == VotePossibilities.NAY
+            ).size());
 
-        if(this.yay_count.isPresent() && this.nay_count.isPresent()) {
+        if (this.yay_count.isPresent() && this.nay_count.isPresent()) {
             this.accepted = optionOf(this.yay_count.getOrFail() > this.nay_count.getOrFail());
         };
 
         become COUNTED;
+    };
+
+    permission[chairman | board_member] changeNothing() {
+        this.topic = this.topic;
+        this.topic = this.topic;
     };
 };
