@@ -25,11 +25,20 @@ protocol[chairman, board_member] Ballot(
 
     var accepted: Option<Boolean> = optionOf<Boolean>();
 
-    permission[board_member] helloWorldCallback(message: NotifyResult<Text>) returns Unit {
+    permission[*anyone] helloWorldCallback(message: NotifyResult<Text>) returns Unit {
         /* can execute some code when the notification receipient sends an answer back */
     };
 
-    permission[board_member] vote(board_member_vote: Vote) | VOTING {
+    permission[*voter] vote(board_member_vote: Vote) | VOTING {
+        guard(voter.mayRepresent(board_member), "Only board members can vote");
+        guard(
+            this.votes.noneMatch(\(vote_i: Vote) returns Boolean -> vote_i.isVotingParty[voter]()),
+            "Board member cannot vote twice");
+
+        guard(
+            this.votes.filter(\(vote_i: Vote) returns Boolean -> vote_i.isVotingParty[voter]()).isEmpty(),
+            "Keeps only votes that are form the voting party and making sure the list is empty");
+
         this.votes = this.votes.with(board_member_vote);
 
         /* triggers the notification outflow */
@@ -40,7 +49,8 @@ protocol[chairman, board_member] Ballot(
         };
     };
 
-    permission[chairman] endVote() | VOTING {
+    permission[*random] endVote() | VOTING {
+        guard(random.mayRepresent(chairman), "Only Chairman can end vote");
         guard(this.votes.size() > 0.6 * board_size, "Cannot end vote before the quorum is reach");
 
         become COUNTING;

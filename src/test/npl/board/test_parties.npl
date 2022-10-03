@@ -1,0 +1,176 @@
+package board
+
+function getKrzysClaims() returns Party {
+    // @start:simpleParty
+    return partyOf(
+        mapOf<Text, Set<Text>>( // entity
+            Pair("company", setOf("cookieCompany"))
+        ),
+        mapOf<Text, Set<Text>>( // access
+            Pair("name", setOf("Krzys")),
+            Pair("roles", setOf("Chairman", "Board Member"))
+        )
+    );
+    // @end:simpleParty
+}
+
+function getJeanClaims() returns Party {
+    // @start:simpleParty
+    return partyOf(
+        mapOf(
+            Pair("company", setOf("cookieCompany"))
+        ),
+        // board member
+        mapOf<Text, Set<Text>>(
+            Pair("name", setOf("Jean")),
+            Pair("roles", setOf("Secretary"))
+        )
+    );
+    // @end:simpleParty
+}
+
+function getMatthiasClaims() returns Party {
+    // @start:simpleParty
+    return partyOf(
+        mapOf(
+            Pair("company", setOf("cookieCompany"))
+        ),
+        mapOf<Text, Set<Text>>(
+            Pair("name", setOf("Matthias")),
+            Pair("roles", setOf("Board Member"))
+        )
+    );
+    // @end:simpleParty
+}
+
+function getAleksasClaims() returns Party {
+    // @start:simpleParty
+    return partyOf(
+        mapOf(
+            Pair("company", setOf("cookieCompany"))
+        ),
+        mapOf<Text, Set<Text>>(
+            Pair("name", setOf("Aleksas")),
+            Pair("roles", setOf("Board Member"))
+        )
+    );
+    // @end:simpleParty
+}
+
+function getDraganaClaims() returns Party {
+    // @start:simpleParty
+    return partyOf(
+        mapOf(
+            Pair("company", setOf("cookieCompany"))
+        ),
+        mapOf<Text, Set<Text>>(
+            Pair("name", setOf("Dragana")),
+            Pair("roles", setOf("Board Member"))
+        )
+    );
+    // @end:simpleParty
+}
+
+function getBoardMemberClaims() returns Party {
+    // @start:simpleParty
+    return partyOf(
+        mapOf(
+            Pair("company", setOf("cookieCompany"))
+        ),
+        mapOf<Text, Set<Text>>(
+            Pair("name", setOf("Krzys", "Dragana", "Aleksas", "Matthias")),
+            Pair("roles", setOf("Board Member"))
+        )
+    );
+    // @end:simpleParty
+}
+
+function getSecretaryClaims() returns Party {
+    // @start:simpleParty
+    return partyOf(
+        mapOf(
+            Pair("company", setOf("cookieCompany"))
+        ),
+        mapOf<Text, Set<Text>>(
+            Pair("name", setOf("Jean")),
+            Pair("roles", setOf("Secretary"))
+        )
+    );
+    // @end:simpleParty
+}
+
+function getChairmanClaims() returns Party {
+    // @start:simpleParty
+    return partyOf(
+        mapOf(
+            Pair("company", setOf("cookieCompany"))
+        ),
+        mapOf<Text, Set<Text>>(
+            Pair("roles", setOf("Chairman"))
+        )
+    );
+    // @end:simpleParty
+}
+
+@test
+function test_simple(test: Test) returns Unit -> {
+
+    test.assertTrue(getJeanClaims().sameEntityAs(getBoardMemberClaims()));  // true
+    test.assertFalse(getJeanClaims().mayRepresent(getBoardMemberClaims())); // false
+    test.assertTrue(getDraganaClaims().mayRepresent(getBoardMemberClaims())); // true
+    test.assertTrue(getKrzysClaims().mayRepresent(getBoardMemberClaims())); // true
+    test.assertTrue(getKrzysClaims().mayRepresent(getChairmanClaims())); // true
+
+    var chairman: Party = getChairmanClaims();
+    var board_member: Party = getBoardMemberClaims();
+    var secretary: Party = getSecretaryClaims();
+
+    var board = Board[chairman, board_member, secretary](5);
+
+    var topic = "some topic";
+    var jean = getJeanClaims();
+    board.suggestTopic[jean](topic); // don't care
+
+    var krzys = getKrzysClaims();
+    var aleksas = getAleksasClaims();
+    var dragana = getDraganaClaims();
+    var matthias = getMatthiasClaims();
+
+    test.assertFails(\() -> board.selectedTopicForVote[dragana](topic)); // fails successfully
+    test.assertFails(\() -> board.selectedTopicForVote[jean](topic)); // fails successfully
+
+    var ballot = board.selectedTopicForVote[krzys](topic); // chairman only, how can Mike also be a chairman?
+
+    ballot.vote[krzys](Vote[krzys](VotePossibilities.YAY));
+    ballot.vote[dragana](Vote[dragana](VotePossibilities.BLANK));
+
+    test.assertFails(\() -> ballot.vote[dragana](Vote[dragana](VotePossibilities.BLANK)));
+
+    /* ************ Task description starts here ************* */
+    // Having implemented code and tests that ensure each
+    // person votes only once, we have noticed that participants
+    // can still impersonate someone else.
+    // Can you find a way to prevent this from happening?
+    //
+    // For this task you do not need to modify the tests
+    //
+    // Hint: we recently implemented other gurards in
+    // protocol board, permission vote that also constrain
+    // voting possibilities, can you reuse the pattern?
+    /* ************ Task description ends here ************* */
+
+    test.assertFails(\() -> ballot.vote[matthias](Vote[aleksas](VotePossibilities.BLANK)));
+
+    ballot.vote[matthias](Vote[matthias](VotePossibilities.YAY));
+    ballot.vote[aleksas](Vote[aleksas](VotePossibilities.NAY));
+
+    test.assertFails(\() -> ballot.endVote[jean]());
+    test.assertFails(\() -> ballot.endVote[matthias]());
+    ballot.endVote[krzys]();
+};
+
+// Open questions:
+// Deployed system
+// how to create a jwt with specific access and entity?
+// How to add an access or entity to an existing jwt?
+// How to create a protocol from outside NPL
