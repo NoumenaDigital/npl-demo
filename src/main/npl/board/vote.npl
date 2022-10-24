@@ -7,11 +7,6 @@ enum VotePossibilities {
 protocol[voter] Vote(
     var member_decision: VotePossibilities
 ) {
-
-    init {
-        member_decision = VotePossibilities.NAY;
-    }
-
     permission[*anyone] isVotingParty() returns Boolean {
         return getName(voter) == getName(anyone);
     };

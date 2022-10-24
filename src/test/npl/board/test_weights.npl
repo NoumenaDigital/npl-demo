@@ -1,0 +1,57 @@
+package board
+
+@test
+function test_weights(test: Test) -> {
+
+    /* ***********************   Final Quizz   *********************** */
+
+    // Hi there, welcome to the final exam for this first package
+    // We will implement a new functionality, it will be challenging
+    // yet all of you are capable to complete it successfully!
+
+    // The task at hand is allow to consider the democratic weight of
+    // each person in the voting process. This vote can represent the
+    // number of constituents it represents, or the share of the
+    // company it owns. You get the idea.
+
+    // For this task, we can assume the registry of those weights is
+    // centralised, i.e. the board knows about it. Upon board creation
+    // all weights are set and cannot be changed afterwards.
+
+    // 1. Everyone having a weight > 1 has to be registered on the board
+    // 2. No weight can be < 1
+    // 3. People not registered in the board can vote with a weight = 1
+    // 4. The vote count takes into account the weight to define the
+    //    yay and nay count, and acceptance
+    // 5. Each person still can vote only once
+    // 6. Weights are represented by a symbol (see docs: symbol)
+
+    // You can modify the board and ballot protocols to enable this
+    // functionality. Vote should be weight-agnostic. Board size and
+    // quorum are weight-agnostic.
+
+    // Please complete this test with the following setup:
+    // 1. registration of the following weights
+    //    1, 2, 10, 5, 5
+    // 2. Board size 9, Quorum is 6/9
+    // 3. each participant votes randomly
+    // 4. vote is ended by chairman and counting triggered
+
+    // and the following tests:
+    // 1. Ballot yay_count, nay_count, acceptance are as you expect them
+    //    to be.
+    // 2. The number of votes is as expected.
+    // 3. What meaniful test could be added?
+
+    // Bonus question: The quorum is weight-agnostic and the acceptance
+    // is weight-dependant.
+    // What are the implication of such a mechanism and how could
+    // it be used to prevent due voting?
+    // What constraints on weights could there be to mitigate that effect?
+
+    // When done, feel free to send me your code :)
+
+    /* *********************** End Final Quizz *********************** */
+
+    test.assertEquals(1, 2, "This test obviously has to be changed");
+};

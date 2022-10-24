@@ -71,14 +71,28 @@ function getDraganaClaims() returns Party {
     // @end:simpleParty
 }
 
-function getBoardMemberClaims() returns Party {
+function getBoardMemberClaims(names: Set<Text>) returns Party {
     // @start:simpleParty
     return partyOf(
         mapOf(
             Pair("company", setOf("cookieCompany"))
         ),
         mapOf<Text, Set<Text>>(
-            Pair("name", setOf("Krzys", "Dragana", "Aleksas", "Matthias")),
+            Pair("name", names),
+            Pair("roles", setOf("Board Member"))
+        )
+    );
+    // @end:simpleParty
+}
+
+function getNamedBoardMemberClaims(name: Text) returns Party {
+    // @start:simpleParty
+    return partyOf(
+        mapOf(
+            Pair("company", setOf("cookieCompany"))
+        ),
+        mapOf<Text, Set<Text>>(
+            Pair("name", setOf(name)),
             Pair("roles", setOf("Board Member"))
         )
     );
@@ -115,14 +129,16 @@ function getChairmanClaims() returns Party {
 @test
 function test_simple(test: Test) returns Unit -> {
 
-    test.assertTrue(getJeanClaims().sameEntityAs(getBoardMemberClaims()));  // true
-    test.assertFalse(getJeanClaims().mayRepresent(getBoardMemberClaims())); // false
-    test.assertTrue(getDraganaClaims().mayRepresent(getBoardMemberClaims())); // true
-    test.assertTrue(getKrzysClaims().mayRepresent(getBoardMemberClaims())); // true
+    var board_members = setOf("Krzys", "Dragana", "Aleksas", "Matthias");
+    var board_member_claims = getBoardMemberClaims(board_members);
+    test.assertTrue(getJeanClaims().sameEntityAs(board_member_claims));  // true
+    test.assertFalse(getJeanClaims().mayRepresent(board_member_claims)); // false
+    test.assertTrue(getDraganaClaims().mayRepresent(board_member_claims)); // true
+    test.assertTrue(getKrzysClaims().mayRepresent(board_member_claims)); // true
     test.assertTrue(getKrzysClaims().mayRepresent(getChairmanClaims())); // true
 
     var chairman: Party = getChairmanClaims();
-    var board_member: Party = getBoardMemberClaims();
+    var board_member: Party = getBoardMemberClaims(board_members);
     var secretary: Party = getSecretaryClaims();
 
     var board = Board[chairman, board_member, secretary](5);

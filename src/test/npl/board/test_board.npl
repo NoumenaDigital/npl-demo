@@ -1,11 +1,13 @@
 package board
 
-const SECRETARY: Party = 'secretary';
-const BOARD_MEMBER: Party = 'board_member';
-const CHAIRMAN: Party = 'chairman';
-
 @test
 function test_new_board_creation(test: Test) returns Unit {
+
+    var names = listOf(0, 1, 2, 3, 4, 5, 6).map(\(n: Number) returns Text -> n.toText()).toSet();
+
+    var SECRETARY = getSecretaryClaims();
+    var BOARD_MEMBER: Party = getBoardMemberClaims(names);
+    var CHAIRMAN: Party = getChairmanClaims();
 
     var board = Board[CHAIRMAN, BOARD_MEMBER, SECRETARY](12);
 
@@ -46,8 +48,12 @@ function test_new_board_creation(test: Test) returns Unit {
 
     /* ************ Implementation starts here ************* */
 
-    for (vote in listOf(1, 2, 3, 4, 5, 6, 7)) {
-        ballot.vote[BOARD_MEMBER](Vote[BOARD_MEMBER](if (vote % 2 == 1) { VotePossibilities.YAY; } else { VotePossibilities.NAY; }));
+    for (i in listOfSize(names.size(), \(n: Number) returns Number -> n)) {
+        var name = names.toList().get(i);
+        var currentParty = getNamedBoardMemberClaims(name);
+
+        var vote_p = Vote[currentParty](if ((i + 1) % 2 == 1) { VotePossibilities.YAY; } else { VotePossibilities.NAY; });
+        ballot.vote[currentParty](vote_p);
     };
 
     ballot.changeNothing[BOARD_MEMBER](); // This command does nothing but updating the protocol version twice!
