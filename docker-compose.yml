@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:14.13-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: welcome123
+
+  engine:
+    image: ghcr.io/noumenadigital/packages/engine:latest
+    ports:
+      - "11000:11000"
+      - "12000:12000"
+      - "12400:12400"
+      - "12700:12700"
+    environment:
+      ENGINE_DB_PASSWORD: welcome123
+      ENGINE_DEV_MODE: true
