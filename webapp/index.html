@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hello World App</title>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <!-- App structure template -->
+    <template id="appTemplate">
+      <div class="split-container">
+        <div class="code-panel">
+          <div class="code-tab">demo/helloWorld.npl</div>
+          <div id="codeContent" class="code-container"></div>
+        </div>
+        <div class="app-panel" id="stepContainer">
+          <!-- Content will be dynamically replaced based on current step -->
+        </div>
+      </div>
+    </template>
+
+    <!-- Step 1: Greeting message template -->
+    <template id="greetingTemplate">
+      <div class="step-content">
+        <h1>Hello World Protocol Demo</h1>
+        <p>Welcome to the Hello World Protocol demonstration!</p>
+        <p>This demo will guide you through the process of:</p>
+        <ul class="feature-list">
+          <li>Authenticating with the service</li>
+          <li>Creating a new protocol instance</li>
+          <li>Interacting with the protocol</li>
+        </ul>
+        <div class="input-container">
+          <button id="startDemoButton">Start Demo</button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Step 2: Login screen template -->
+    <template id="loginTemplate">
+      <div class="step-content">
+        <h1>Authentication</h1>
+        <p>Login to access the Hello World Protocol API</p>
+        <div class="form-container">
+          <div class="form-group">
+            <label for="usernameInput">Username:</label>
+            <input type="text" id="usernameInput" value="alice">
+          </div>
+          <div class="form-group">
+            <label for="passwordInput">Password:</label>
+            <input type="password" id="passwordInput" value="password123">
+          </div>
+          <div class="input-container">
+            <button id="loginButton">Login</button>
+          </div>
+        </div>
+        <div id="tokenResult" class="result-box"></div>
+      </div>
+    </template>
+
+    <!-- Step 3: Protocol creation template -->
+    <template id="protocolTemplate">
+      <div class="step-content">
+        <h1>Create Protocol</h1>
+        <p id="protocolCount">Create a new instance of the Hello World Protocol</p>
+        <div class="input-container">
+          <button id="createProtocolButton">Create Protocol</button>
+        </div>
+        <div id="protocolResult" class="result-box"></div>
+      </div>
+    </template>
+
+    <!-- Step 4: Say Hello template -->
+    <template id="sayHelloTemplate">
+      <div class="step-content">
+        <h1>Call the permission</h1>
+        <div class="input-container">
+          <input type="text" id="nameInput" placeholder="Enter your name">
+          <button id="sayHelloButton">Say Hello</button>
+        </div>
+        <div id="greetingResult"></div>
+      </div>
+    </template>
+
+    <!-- Code content to display -->
+    <template id="codeTemplate">
+        <div class="code-block">
+            <div class="code-line"><span class="keyword">package</span> demo;</div>
+            <div class="code-line"></div>
+            <div class="code-line"><span class="annotation">@api</span></div>
+            <div class="code-line"><span class="keyword">protocol</span>[<span class="party">innovator</span>] <span class="name">HelloWorld</span>() {</div>
+            <div class="code-line"></div>
+            <div class="code-line indent"><span class="keyword">initial</span> <span class="keyword">state</span> <span class="state">greeting</span>;</div>
+            <div class="code-line indent"><span class="keyword">final</span> <span class="keyword">state</span> <span class="state">greeted</span>;</div>
+            <div class="code-line"></div>
+            <div class="code-line indent"><span class="keyword">private</span> <span class="keyword">var</span> <span class="variable">validNames</span> = <span class="function">listOf</span>(<span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>);</div>
+            <div class="code-line"></div>
+            <div class="code-line indent"><span class="annotation">@api</span></div>
+            <div class="code-line indent"><span class="keyword">permission</span>[<span class="party">innovator</span>] <span class="name">sayHello</span>(<span class="variable">name</span>: <span class="type">Text</span>) <span class="keyword">returns</span> <span class="type">Text</span> | <span class="state">greeting</span> {</div>
+            <div class="code-line indent2"><span class="function">require</span>(</div>
+            <div class="code-line indent3"><span class="variable">validNames</span>.<span class="function">contains</span>(<span class="variable">name</span>),</div>
+            <div class="code-line indent3"><span class="string">"Name must be part of the list of valid users"</span></div>
+            <div class="code-line indent2">);</div>
+            <div class="code-line indent2"><span class="keyword">become</span> <span class="state">greeted</span>;</div>
+            <div class="code-line indent2"><span class="keyword">return</span> <span class="string">"Hello "</span> <span class="operator">+</span> <span class="variable">name</span> <span class="operator">+</span> <span class="string">"!"</span>;</div>
+            <div class="code-line indent">};</div>
+            <div class="code-line">};</div>
+        </div>
+    </template>
+
+    <script type="module" src="/src/app.ts"></script>
+  </body>
+</html>
