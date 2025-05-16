@@ -1,14 +1,17 @@
 
 // Environment variables
 const SERVER_URL = `${import.meta.env.VITE_SERVER_URL}/npl/demo/HelloWorld`;
-const AUTH_URL = `${import.meta.env.VITE_AUTH_URL}/token`;
+const AUTH_URL = import.meta.env.VITE_AUTH_URL;
+const AUTH_CLIENT_ID = import.meta.env.VITE_AUTH_CLIENT_ID;
+const USER_USERNAME = import.meta.env.VITE_USER_USERNAME;
+const USER_PASSWORD = import.meta.env.VITE_USER_PASSWORD;
 
 export const getAccessToken = async (username: string, password: string): Promise<EnhancedResponse> => {
     const payload = {
         grant_type: 'password',
         username: username,
         password: password,
-        client_id: 'test-client',
+        client_id: AUTH_CLIENT_ID,
     }
 
     const urlParams = new URLSearchParams(payload)
@@ -41,7 +44,7 @@ const enhanceResponse = async (response: Response, method: string, endpoint: str
 };
 
 export const getHelloWorldsCount = async (): Promise<EnhancedResponse> => {
-    const tokenResponse = await getAccessToken('alice', 'password123');
+    const tokenResponse = await getAccessToken(USER_USERNAME, USER_PASSWORD);
     const tokenBody = await tokenResponse.json();
     const accessToken = tokenBody.access_token as string;
 
@@ -58,7 +61,7 @@ export const getHelloWorldsCount = async (): Promise<EnhancedResponse> => {
 }
 
 export const getHelloWorld = async (id: string): Promise<EnhancedResponse> => {
-    const tokenResponse = await getAccessToken('alice', 'password123');
+    const tokenResponse = await getAccessToken(USER_USERNAME, USER_PASSWORD);
     const tokenBody = await tokenResponse.json();
     const accessToken = tokenBody.access_token as string;
 
@@ -75,7 +78,7 @@ export const getHelloWorld = async (id: string): Promise<EnhancedResponse> => {
 }
 
 export const postHelloWorld = async (): Promise<EnhancedResponse> => {
-    const tokenResponse = await getAccessToken('alice', 'password123');
+    const tokenResponse = await getAccessToken(USER_USERNAME, USER_PASSWORD);
     const tokenBody = await tokenResponse.json();
     const accessToken = tokenBody.access_token as string;
 
@@ -103,7 +106,7 @@ export const postHelloWorld = async (): Promise<EnhancedResponse> => {
 }
 
 export const sayHello = async (helloWorldId: string, name: string): Promise<EnhancedResponse> => {
-    const tokenResponse = await getAccessToken('alice', 'password123');
+    const tokenResponse = await getAccessToken(USER_USERNAME, USER_PASSWORD);
     const tokenBody = await tokenResponse.json();
     const accessToken = tokenBody.access_token as string;
 

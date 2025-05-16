@@ -14,3 +14,6 @@ cd webapp && npm i
 
 # run dev server
 cd webapp && npm run dev
+
+# build frontend (change webapp/.env for the target)
+cd webapp && npm run build

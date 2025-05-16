@@ -1,19 +1,21 @@
 import './style.css';
-import {getAccessToken, getHelloWorld, getHelloWorldsCount, postHelloWorld, sayHello} from "./service.ts";
+import {getAccessToken, getHelloWorldsCount, postHelloWorld, sayHello} from "./service.ts";
 import type {HelloWorld} from "./models.ts";
 import { jwtDecode } from "jwt-decode";
 
 // Step management
-enum Step {
-  GREETING = 0,
-  LOGIN = 1,
-  CREATE_PROTOCOL = 2,
-  SAY_HELLO = 3
-}
+const Step = {
+  GREETING: 0,
+  LOGIN: 1,
+  CREATE_PROTOCOL: 2,
+  SAY_HELLO: 3
+} as const;
+
+type StepType = typeof Step[keyof typeof Step];
 
 // Application state
 interface AppState {
-  currentStep: Step;
+  currentStep: StepType;
   accessToken: string | null;
   protocolId: string | null;
   protocol: HelloWorld | null;
@@ -154,9 +156,10 @@ const renderLoginStep = (container: HTMLElement) => {
     container.appendChild(content);
 
     // Set up event listener for the login button
-    const loginButton = document.getElementById('loginButton');
+    const loginButton = document.getElementById('loginButton') as HTMLButtonElement;
     const usernameInput = document.getElementById('usernameInput') as HTMLInputElement;
     const passwordInput = document.getElementById('passwordInput') as HTMLInputElement;
+    passwordInput.value = import.meta.env.VITE_USER_PASSWORD;
 
     if (loginButton && usernameInput && passwordInput) {
       loginButton.addEventListener('click', async () => {
@@ -377,7 +380,7 @@ const renderCreateProtocolStep = (container: HTMLElement) => {
     }
 
     // Set up event listener for the create protocol button
-    const createButton = document.getElementById('createProtocolButton');
+    const createButton = document.getElementById('createProtocolButton') as HTMLButtonElement;
 
     if (createButton) {
       createButton.addEventListener('click', async () => {
@@ -509,6 +512,10 @@ const setupSayHelloEventListeners = () => {
         showResponseContainer(loadingElement);
 
         try {
+          // Ensure protocolId is not null before calling sayHello
+          if (!appState.protocolId) {
+            throw new Error("Protocol ID is missing");
+          }
           const greetingResponse = await sayHello(appState.protocolId, name);
           const { method, endpoint, statusCode } = greetingResponse.requestInfo;
           const greetingBody = await greetingResponse.json();
@@ -516,11 +523,6 @@ const setupSayHelloEventListeners = () => {
           // Create response info element
           const responseInfoElement = document.createElement('div');
           responseInfoElement.className = 'response-info';
-
-          // Determine message based on response type
-          const message = typeof greetingBody === 'string' 
-            ? greetingBody 
-            : 'Hello request processed successfully!';
 
           // Format JSON body for display
           const jsonBody = typeof greetingBody === 'string' 
