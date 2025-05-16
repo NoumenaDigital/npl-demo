@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hello World App</title>
   </head>
@@ -11,14 +10,17 @@
 
     <!-- App structure template -->
     <template id="appTemplate">
-      <div class="split-container">
-        <div class="code-panel">
-          <div class="code-tab">demo/helloWorld.npl</div>
-          <div id="codeContent" class="code-container"></div>
+      <div class="app-layout">
+        <div class="split-container">
+          <div class="code-panel">
+            <div class="code-tab">demo/helloWorld.npl</div>
+            <div id="codeContent" class="code-container"></div>
+          </div>
+          <div class="app-panel" id="stepContainer">
+            <!-- Content will be dynamically replaced based on current step -->
+          </div>
         </div>
-        <div class="app-panel" id="stepContainer">
-          <!-- Content will be dynamically replaced based on current step -->
-        </div>
+        <div id="responseContainer" class="response-container-wrapper"></div>
       </div>
     </template>
 
@@ -57,7 +59,6 @@
             <button id="loginButton">Login</button>
           </div>
         </div>
-        <div id="tokenResult" class="result-box"></div>
       </div>
     </template>
 
@@ -65,11 +66,10 @@
     <template id="protocolTemplate">
       <div class="step-content">
         <h1>Create Protocol</h1>
-        <p id="protocolCount">Create a new instance of the Hello World Protocol</p>
+        <p>Create a new instance of the Hello World Protocol. Don't be scared, <button id="countButton" class="inline-button">n</button> people preceeded you!</p>
         <div class="input-container">
           <button id="createProtocolButton">Create Protocol</button>
         </div>
-        <div id="protocolResult" class="result-box"></div>
       </div>
     </template>
 
@@ -81,7 +81,6 @@
           <input type="text" id="nameInput" placeholder="Enter your name">
           <button id="sayHelloButton">Say Hello</button>
         </div>
-        <div id="greetingResult"></div>
       </div>
     </template>
 

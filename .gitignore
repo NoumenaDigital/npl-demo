@@ -2,3 +2,6 @@
 .idea
 
 webapp/node_modules
+# Environment variables
+.env
+webapp/.env

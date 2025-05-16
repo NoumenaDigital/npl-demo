@@ -13,6 +13,13 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
 a {
   font-weight: 500;
   color: #646cff;
@@ -26,8 +33,6 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  height: 100%;
-  margin: 0;
 }
 
 h1 {
@@ -41,6 +46,21 @@ h1 {
   padding: 2rem;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+/* App layout styling */
+.app-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 /* Split view styling */
@@ -48,6 +68,12 @@ h1 {
   display: flex;
   flex-direction: row;
   gap: 2rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+  flex: 0 0 auto;
 }
 
 .code-panel {
@@ -214,12 +240,34 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+/* Inline button styling */
+.inline-button {
+  padding: 0.1em 0.5em;
+  font-size: 1em;
+  border-radius: 4px;
+  background-color: #2a2a2a;
+  display: inline-block;
+  margin: 0 0.2em;
+  vertical-align: baseline;
+}
+
 /* Styles for the input container, input field, and greeting result */
 .input-container {
   margin: 2em 0;
   display: flex;
   justify-content: center;
   gap: 0.5em;
+}
+
+/* Fixed positioning for the input container in the Say Hello template */
+.step-content h1 + .input-container {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #242424; /* Match the page background */
+  padding: 1em 0;
+  margin-top: 0;
+  width: 100%;
 }
 
 input[type="text"],
@@ -252,6 +300,10 @@ input[type="password"]:focus {
   max-height: none;
 }
 
+#greetingResult:empty, .result-box:empty {
+  display: none;
+}
+
 /* Decoded token styling */
 .decoded-token {
   margin-top: 1em;
@@ -274,6 +326,9 @@ input[type="password"]:focus {
   color: #9cdcfe;
   white-space: pre-wrap;
   overflow-x: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 /* Error message styling */
@@ -298,6 +353,30 @@ input[type="password"]:focus {
   color: #e6e6e6;
 }
 
+/* Success message styling */
+.success-message, .protocol-created {
+  margin-top: 1em;
+  text-align: center;
+  background-color: rgba(56, 161, 105, 0.1);
+  border-radius: 8px;
+  padding: 0.8em;
+  border-left: 3px solid #38a169;
+  color: #e6e6e6;
+  font-weight: 500;
+}
+
+/* Loading message styling */
+.loading-message, .authenticating-message, .creating-message {
+  margin-top: 1em;
+  text-align: center;
+  background-color: rgba(66, 153, 225, 0.1);
+  border-radius: 8px;
+  padding: 0.8em;
+  border-left: 3px solid #4299e1;
+  color: #e6e6e6;
+  font-weight: 500;
+}
+
 /* Step content styling */
 .step-content {
   display: flex;
@@ -305,6 +384,10 @@ input[type="password"]:focus {
   align-items: center;
   width: 100%;
   flex-grow: 1;
+  height: 100%;
+  justify-content: flex-start;
+  position: relative;
+  padding-top: 1em;
 }
 
 .feature-list {
@@ -339,7 +422,14 @@ input[type="password"]:focus {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  margin-top: 2em;
+  margin-top: auto;
+  margin-bottom: 1.5em;
+}
+
+/* Proceed button styling */
+.proceed-button {
+  margin-top: auto;
+  margin-bottom: 1.5em;
 }
 
 .step-indicator {
@@ -360,20 +450,195 @@ input[type="password"]:focus {
   background-color: #646cff;
 }
 
+/* Response container wrapper */
+.response-container-wrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: 8px;
+  background-color: rgba(100, 108, 255, 0.02);
+  border: 1px solid rgba(100, 108, 255, 0.1);
+  padding: 1rem;
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  max-height: calc(100% - 2rem);
+}
+
+.response-container-wrapper:empty {
+  display: none;
+}
+
+.response-heading {
+  font-size: 1.5em;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  color: #646cff;
+  text-align: center;
+  border-bottom: 1px solid rgba(100, 108, 255, 0.2);
+  padding-bottom: 0.5rem;
+}
+
+/* Response info styling */
+.response-info, .response-container {
+  margin: 1em 0;
+  text-align: left;
+  max-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.request-details {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0.5em;
+  font-family: 'Courier New', monospace;
+  font-size: 0.85em;
+}
+
+.method, .endpoint, .status-code {
+  padding: 0.3em 0.6em;
+  border-radius: 4px;
+  margin-right: 0.5em;
+  margin-bottom: 0.3em;
+}
+
+.method {
+  background-color: #4a5568;
+  color: white;
+  font-weight: bold;
+  min-width: 50px;
+  text-align: center;
+}
+
+.endpoint {
+  background-color: #2d3748;
+  color: #9cdcfe;
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-all;
+}
+
+.status-code {
+  background-color: #38a169;
+  color: white;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Status code colors */
+.status-code[data-status^="2"] {
+  background-color: #38a169; /* Green for 2xx */
+}
+
+.status-code[data-status^="3"] {
+  background-color: #3182ce; /* Blue for 3xx */
+}
+
+.status-code[data-status^="4"] {
+  background-color: #dd6b20; /* Orange for 4xx */
+}
+
+.status-code[data-status^="5"] {
+  background-color: #e53e3e; /* Red for 5xx */
+}
+
+.response-body {
+  padding: 0;
+}
+
 /* JSON output styling */
 .json-output {
-  margin: 1em 0;
+  margin: 0;
   font-family: 'Courier New', monospace;
   font-size: 0.9em;
-  background-color: rgba(100, 108, 255, 0.05);
-  border-radius: 8px;
+  background-color: transparent;
   padding: 1em;
   color: #e6e6e6;
   white-space: pre-wrap;
   overflow-x: auto;
   text-align: left;
-  border-left: 3px solid #646cff;
+  border-left: none;
   max-height: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+
+/* Decode token button styling */
+.decode-token-btn {
+  display: inline-block;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+  background-color: rgba(100, 108, 255, 0.1);
+  color: #646cff;
+  border: 1px solid rgba(100, 108, 255, 0.3);
+  border-radius: 4px;
+  padding: 0.2em 0.5em;
+  margin: 0;
+  cursor: pointer;
+  transition: background-color 0.25s, border-color 0.25s;
+}
+
+.decode-token-btn:hover {
+  background-color: rgba(100, 108, 255, 0.2);
+  border-color: rgba(100, 108, 255, 0.5);
+}
+
+/* Additional section styling */
+.additional-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* Again button styling */
+.again-button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+  margin-top: 1em;
+}
+
+.again-button:hover {
+  border-color: #646cff;
+}
+
+/* Additional links styling */
+.additional-links {
+  width: 100%;
+  text-align: center;
+  padding: 1em;
+}
+
+.additional-links ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.additional-links li {
+  margin: 0.5em 0;
+}
+
+.additional-links a {
+  color: #646cff;
+  text-decoration: none;
+  transition: color 0.25s;
+}
+
+.additional-links a:hover {
+  color: #535bf2;
+  text-decoration: underline;
 }
 
 @media (prefers-color-scheme: light) {
