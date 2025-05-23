@@ -112,5 +112,23 @@
     </template>
 
     <script type="module" src="/src/app.ts"></script>
+    <script>
+      function copyCode() {
+        const codeLines = document.querySelectorAll('.line-code');
+        let codeText = '';
+        
+        codeLines.forEach(line => {
+          codeText += line.textContent + '\n';
+        });
+        
+        navigator.clipboard.writeText(codeText).then(() => {
+          const copyBtn = document.querySelector('.code-copy-btn');
+          copyBtn.textContent = 'Copied!';
+          setTimeout(() => {
+            copyBtn.textContent = 'Copy';
+          }, 2000);
+        });
+      }
+    </script>
   </body>
 </html>
