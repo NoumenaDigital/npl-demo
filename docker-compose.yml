@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: welcome123
 
   engine:
-    image: ghcr.io/noumenadigital/packages/engine:latest
+    image: ghcr.io/noumenadigital/images/engine:latest
     ports:
       - "11000:11000"
       - "12000:12000"

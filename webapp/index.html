@@ -12,10 +12,7 @@
     <template id="appTemplate">
       <div class="app-layout">
         <div class="split-container">
-          <div class="code-panel">
-            <div class="code-tab">demo/helloWorld.npl</div>
-            <div id="codeContent" class="code-container"></div>
-          </div>
+          <div id="codeContent" class="code-container"></div>
           <div class="app-panel" id="stepContainer">
             <!-- Content will be dynamically replaced based on current step -->
           </div>
@@ -66,7 +63,7 @@
     <template id="protocolTemplate">
       <div class="step-content">
         <h1>Create Protocol</h1>
-        <p>Create a new instance of the Hello World Protocol. Don't be scared, <button id="countButton" class="inline-button">n</button> people preceeded you!</p>
+        <p>Create a new instance of the Hello World Protocol. Don't be scared, <button id="countButton" class="inline-button">n</button> people preceded you!</p>
         <div class="input-container">
           <button id="createProtocolButton">Create Protocol</button>
         </div>
@@ -86,28 +83,32 @@
 
     <!-- Code content to display -->
     <template id="codeTemplate">
-        <div class="code-block">
-            <div class="code-line"><span class="keyword">package</span> demo;</div>
-            <div class="code-line"></div>
-            <div class="code-line"><span class="annotation">@api</span></div>
-            <div class="code-line"><span class="keyword">protocol</span>[<span class="party">innovator</span>] <span class="name">HelloWorld</span>() {</div>
-            <div class="code-line"></div>
-            <div class="code-line indent"><span class="keyword">initial</span> <span class="keyword">state</span> <span class="state">greeting</span>;</div>
-            <div class="code-line indent"><span class="keyword">final</span> <span class="keyword">state</span> <span class="state">greeted</span>;</div>
-            <div class="code-line"></div>
-            <div class="code-line indent"><span class="keyword">private</span> <span class="keyword">var</span> <span class="variable">validNames</span> = <span class="function">listOf</span>(<span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>);</div>
-            <div class="code-line"></div>
-            <div class="code-line indent"><span class="annotation">@api</span></div>
-            <div class="code-line indent"><span class="keyword">permission</span>[<span class="party">innovator</span>] <span class="name">sayHello</span>(<span class="variable">name</span>: <span class="type">Text</span>) <span class="keyword">returns</span> <span class="type">Text</span> | <span class="state">greeting</span> {</div>
-            <div class="code-line indent2"><span class="function">require</span>(</div>
-            <div class="code-line indent3"><span class="variable">validNames</span>.<span class="function">contains</span>(<span class="variable">name</span>),</div>
-            <div class="code-line indent3"><span class="string">"Name must be part of the list of valid users"</span></div>
-            <div class="code-line indent2">);</div>
-            <div class="code-line indent2"><span class="keyword">become</span> <span class="state">greeted</span>;</div>
-            <div class="code-line indent2"><span class="keyword">return</span> <span class="string">"Hello "</span> <span class="operator">+</span> <span class="variable">name</span> <span class="operator">+</span> <span class="string">"!"</span>;</div>
-            <div class="code-line indent">};</div>
-            <div class="code-line">};</div>
-        </div>
+      <div class="code-header">
+        <div class="code-title">demo/HelloWorld.npl</div>
+      </div>
+      <button class="code-copy-btn" onclick="copyCode()">Copy</button>
+      <div class="code-content">
+        <div class="code-line"><span class="line-number">1</span> <span class="line-code"><span class="keyword">package</span> demo;</span></div>
+        <div class="code-line"><span class="line-number">2</span> <span class="line-code"></span></div>
+        <div class="code-line"><span class="line-number">3</span> <span class="line-code"><span class="api-annotation">@api</span></span></div>
+        <div class="code-line"><span class="line-number">4</span> <span class="line-code"><span class="keyword">protocol</span>[innovator] HelloWorld() {</span></div>
+        <div class="code-line"><span class="line-number">5</span> <span class="line-code"></span></div>
+        <div class="code-line"><span class="line-number">6</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">initial</span> <span class="keyword">state</span> greeting;</span></div>
+        <div class="code-line"><span class="line-number">7</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span> <span class="keyword">state</span> greeted;</span></div>
+        <div class="code-line"><span class="line-number">8</span> <span class="line-code"></span></div>
+        <div class="code-line"><span class="line-number">9</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span> <span class="keyword">var</span> <span class="function">validNames</span> = <span class="function">listOf</span>(<span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>);</span></div>
+        <div class="code-line"><span class="line-number">10</span> <span class="line-code"></span></div>
+        <div class="code-line"><span class="line-number">11</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="api-annotation">@api</span></span></div>
+        <div class="code-line"><span class="line-number">12</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permission</span>[innovator] <span class="function">sayHello</span>(name: Text) <span class="keyword">returns</span> Text | greeting {</span></div>
+        <div class="code-line"><span class="line-number">13</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">require</span>(</span></div>
+        <div class="code-line"><span class="line-number">14</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">validNames</span>.<span class="function">contains</span>(name),</span></div>
+        <div class="code-line"><span class="line-number">15</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"Name must be part of the list of valid users"</span></span></div>
+        <div class="code-line"><span class="line-number">16</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);</span></div>
+        <div class="code-line"><span class="line-number">17</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">become</span> greeted;</span></div>
+        <div class="code-line"><span class="line-number">18</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Hello "</span> + name + <span class="string">"!"</span>;</span></div>
+        <div class="code-line"><span class="line-number">19</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;};</span></div>
+        <div class="code-line"><span class="line-number">20</span> <span class="line-code">};</span></div>
+      </div>
     </template>
 
     <script type="module" src="/src/app.ts"></script>

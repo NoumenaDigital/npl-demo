@@ -111,87 +111,6 @@ h1 {
 }
 
 /* Basic syntax highlighting */
-.code-panel code .keyword,
-.code-panel .keyword {
-  color: #569cd6;
-}
-
-.code-panel code .string,
-.code-panel .string {
-  color: #ce9178;
-}
-
-.code-panel code .comment,
-.code-panel .comment {
-  color: #6a9955;
-}
-
-.code-panel code .type,
-.code-panel .type {
-  color: #4ec9b0;
-}
-
-.code-panel code .function,
-.code-panel .function {
-  color: #dcdcaa;
-}
-
-/* New code block styling */
-.code-container {
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  color: #e6e6e6;
-  line-height: 1.2;
-}
-
-.code-block {
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  color: #e6e6e6;
-  line-height: 0.6;
-  white-space: pre-wrap;
-}
-
-.code-line {
-  display: block;
-}
-
-.annotation {
-  color: #b5cea8;
-}
-
-.name {
-  color: #dcdcaa;
-}
-
-.variable {
-  color: #9cdcfe;
-}
-
-.operator {
-  color: #d4d4d4;
-}
-
-.state {
-  color: #c586c0; /* Purple color for states */
-}
-
-.party {
-  color: #f8b862; /* Orange color for party */
-}
-
-.indent {
-  padding-left: 2em;
-}
-
-.indent2 {
-  padding-left: 4em;
-}
-
-.indent3 {
-  padding-left: 6em;
-}
-
 .app-panel {
   flex: 1;
   text-align: center;
@@ -642,3 +561,104 @@ input[type="password"]:focus {
 }
 
 /* Dark mode is enforced for all users regardless of system preferences */
+
+.code-container {
+  background-color: #1a1b26;
+  border-radius: 6px;
+  padding: 20px;
+  font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+  color: #f8f8f2;
+  margin: 20px 0;
+  overflow-x: auto;
+  position: relative;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.code-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #444;
+}
+
+
+.code-title {
+  color: #bd93f9;
+  font-size: 14px;
+}
+
+.code-copy-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #44475a;
+  color: #f8f8f2;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.code-container:hover .code-copy-btn {
+  opacity: 1;
+}
+
+.code-copy-btn:hover {
+  background-color: #6272a4;
+}
+
+.code-content {
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.code-line {
+  display: flex;
+}
+
+.line-number {
+  color: #6272a4;
+  text-align: right;
+  padding-right: 12px;
+  user-select: none;
+  min-width: 40px;
+}
+
+.line-code {
+  white-space: pre;
+}
+
+/* Syntax highlighting */
+.keyword {
+  color: #f7768e;
+}
+
+.function {
+  color: #bb9af7;
+}
+
+.string {
+  color: #9d7cd8;
+}
+
+.comment {
+  color: #565f89;
+  font-style: italic;
+}
+
+.number {
+  color: #ff9e64;
+}
+
+.operator {
+  color: #89ddff;
+}
+
+.api-annotation {
+  color: #7dcfff;
+}

@@ -1,3 +1,4 @@
+import { jwtDecode } from "jwt-decode";
 
 // Environment variables
 const SERVER_URL = `${import.meta.env.VITE_SERVER_URL}/npl/demo/HelloWorld`;
@@ -81,11 +82,12 @@ export const postHelloWorld = async (): Promise<EnhancedResponse> => {
     const tokenResponse = await getAccessToken(USER_USERNAME, USER_PASSWORD);
     const tokenBody = await tokenResponse.json();
     const accessToken = tokenBody.access_token as string;
+    const decodedToken = jwtDecode(accessToken);
 
     const payload = {
         "@parties": {
             innovator: {
-                entity: {},
+                entity: { preferred_username: [decodedToken.preferred_username] },
                 access: {}
             }
         }
