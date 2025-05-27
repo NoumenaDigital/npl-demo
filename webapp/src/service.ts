@@ -87,7 +87,7 @@ export const postHelloWorld = async (): Promise<EnhancedResponse> => {
     const payload = {
         "@parties": {
             innovator: {
-                entity: { preferred_username: [decodedToken.preferred_username] },
+                entity: { preferred_username: [(decodedToken as any).preferred_username] },
                 access: {}
             }
         }
