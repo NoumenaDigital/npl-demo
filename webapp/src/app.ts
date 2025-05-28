@@ -1,14 +1,17 @@
 import './style.css';
-import {getAccessToken, getHelloWorldsCount, postHelloWorld, sayHello} from "./service.ts";
-import type {HelloWorld} from "./models.ts";
+import { getAccessToken, getHelloWorldsCount, postHelloWorld, sayHello } from "./service.ts";
+import type { HelloWorld } from "./models.ts";
 import { jwtDecode } from "jwt-decode";
 
 // Step management
 const Step = {
   GREETING: 0,
   LOGIN: 1,
-  CREATE_PROTOCOL: 2,
-  SAY_HELLO: 3
+  LOGGED_IN: 2,
+  CREATE_PROTOCOL: 3,
+  PROTOCOL_CREATED: 4,
+  SAY_HELLO: 5,
+  SAID_HELL: 6,
 } as const;
 
 type StepType = typeof Step[keyof typeof Step];
@@ -120,11 +123,20 @@ const renderCurrentStep = () => {
     case Step.LOGIN:
       renderLoginStep(stepContainer);
       break;
+    case Step.LOGGED_IN:
+      renderLoggedInStep(stepContainer)
+      break
     case Step.CREATE_PROTOCOL:
       renderCreateProtocolStep(stepContainer);
       break;
+    case Step.PROTOCOL_CREATED:
+      renderProtocolCreatedStep(stepContainer);
+      break;
     case Step.SAY_HELLO:
       renderSayHelloStep(stepContainer);
+      break;
+    case Step.SAID_HELL:
+      renderSaidHelloStep(stepContainer);
       break;
   }
 };
@@ -215,7 +227,7 @@ const renderLoginStep = (container: HTMLElement) => {
             const decodedToken = jwtDecode(token);
 
             // Create a modified body object with a decode button for access_token
-            const modifiedBody = {...body};
+            const modifiedBody = { ...body };
 
             // Create the response HTML
             responseInfoElement.innerHTML = `
@@ -239,7 +251,7 @@ const renderLoginStep = (container: HTMLElement) => {
               if (match) {
                 const tokenValue = match[1];
                 jsonOutput.innerHTML = jsonOutput.innerHTML.replace(
-                  tokenRegex, 
+                  tokenRegex,
                   `"access_token": "${tokenValue}" <button id="decode-token-btn" class="decode-token-btn">Decode Token</button>`
                 );
 
@@ -264,21 +276,9 @@ const renderLoginStep = (container: HTMLElement) => {
               }
             }
 
-            // Add a button to proceed after successful authentication
-            const proceedButton = document.createElement('button');
-            proceedButton.textContent = 'Continue to Create Protocol';
-            proceedButton.className = 'proceed-button';
-            proceedButton.addEventListener('click', () => {
-              clearResponseContainer();
-              appState.currentStep = Step.CREATE_PROTOCOL;
-              renderCurrentStep();
-            });
-
-            // Add the button to the step content
-            const stepContent = document.querySelector('.step-content');
-            if (stepContent) {
-              stepContent.appendChild(proceedButton);
-            }
+            // Move to logged in step
+            appState.currentStep = Step.LOGGED_IN;
+            renderCurrentStep();
           } catch (error) {
             console.error('Authentication error:', error);
 
@@ -308,6 +308,35 @@ const renderLoginStep = (container: HTMLElement) => {
           `;
           showResponseContainer(validationElement);
         }
+      });
+    }
+  }
+};
+
+// Step 2.5: Render logged-in screen
+const renderLoggedInStep = (container: HTMLElement) => {
+  const template = document.getElementById('loggedInTemplate') as HTMLTemplateElement;
+  if (template) {
+    const content = template.content.cloneNode(true) as DocumentFragment;
+    container.appendChild(content);
+
+    // Display the decoded token information
+    const tokenInfoContainer = document.getElementById('logged-in-token-info');
+    if (tokenInfoContainer && appState.accessToken) {
+      const decodedToken = jwtDecode(appState.accessToken);
+      const tokenInfo = document.createElement('pre');
+      tokenInfo.className = 'token-info';
+      tokenInfo.textContent = JSON.stringify(decodedToken, null, 2);
+      tokenInfoContainer.appendChild(tokenInfo);
+    }
+
+    // Set up event listener for the logged in button
+    const loggedInButton = document.getElementById('loggedInButton');
+    if (loggedInButton) {
+      loggedInButton.addEventListener('click', () => {
+        clearResponseContainer();
+        appState.currentStep = Step.CREATE_PROTOCOL;
+        renderCurrentStep();
       });
     }
   }
@@ -443,21 +472,9 @@ const renderCreateProtocolStep = (container: HTMLElement) => {
 
           showResponseContainer(responseInfoElement);
 
-          // Add a button to proceed after showing the protocol
-          const proceedButton = document.createElement('button');
-          proceedButton.textContent = 'Continue to Say Hello';
-          proceedButton.className = 'proceed-button';
-          proceedButton.addEventListener('click', () => {
-            clearResponseContainer();
-            appState.currentStep = Step.SAY_HELLO;
-            renderCurrentStep();
-          });
-
-          // Add the button to the step content
-          const stepContent = document.querySelector('.step-content');
-          if (stepContent) {
-            stepContent.appendChild(proceedButton);
-          }
+          // Move to logged in step
+          appState.currentStep = Step.PROTOCOL_CREATED;
+          renderCurrentStep();
         } catch (error) {
           console.error('Protocol creation error:', error);
 
@@ -478,6 +495,24 @@ const renderCreateProtocolStep = (container: HTMLElement) => {
     }
   }
 };
+
+const renderProtocolCreatedStep = (container: HTMLElement) => {
+  const template = document.getElementById('createdProtocolTemplate') as HTMLTemplateElement;
+  if (template) {
+    const content = template.content.cloneNode(true) as DocumentFragment;
+    container.appendChild(content);
+
+    // Set up event listener for the logged in button
+    const createProtocolButton = document.getElementById('createProtocolButton');
+    if (createProtocolButton) {
+      createProtocolButton.addEventListener('click', () => {
+        clearResponseContainer();
+        appState.currentStep = Step.SAY_HELLO;
+        renderCurrentStep();
+      });
+    }
+  }
+}
 
 // Step 4: Render say hello screen
 const renderSayHelloStep = (container: HTMLElement) => {
@@ -525,8 +560,8 @@ const setupSayHelloEventListeners = () => {
           responseInfoElement.className = 'response-info';
 
           // Format JSON body for display
-          const jsonBody = typeof greetingBody === 'string' 
-            ? { message: greetingBody } 
+          const jsonBody = typeof greetingBody === 'string'
+            ? { message: greetingBody }
             : greetingBody;
 
           // Build HTML content based on response status
@@ -552,43 +587,9 @@ const setupSayHelloEventListeners = () => {
             // Add "Again!" button and additional links section underneath the say hello bit after a successful 200 response
             if (statusCode === 200) {
               // Find the step content container
-              const stepContent = document.querySelector('.step-content');
-              if (stepContent) {
-                // Remove any existing additional section to prevent duplicates
-                const existingSection = stepContent.querySelector('.additional-section');
-                if (existingSection) {
-                  stepContent.removeChild(existingSection);
-                }
 
-                // Create the additional section
-                const additionalSection = document.createElement('div');
-                additionalSection.className = 'additional-section';
-                additionalSection.innerHTML = `
-                  <div class="additional-links">
-                    <ul>
-                      <li><a href="${import.meta.env.VITE_SERVER_URL}/swagger-ui/" target="_blank">Explore the other endpoints with Swagger</a></li>
-                      <li><a href="https://documentation.noumenadigital.com/" target="_blank">Read the docs</a></li>
-                    </ul>
-                  </div>
-                  <button id="startAgainButton" class="again-button">Take me to the start</button>
-                `;
-
-                // Append the additional section to the step content
-                stepContent.appendChild(additionalSection);
-
-                // Add event listener to the "Again!" button after it's added to the DOM
-                setTimeout(() => {
-                  const startAgainButton = document.getElementById('startAgainButton');
-                  if (startAgainButton) {
-                    startAgainButton.addEventListener('click', () => {
-                      // Reset app state to initial step
-                      appState.currentStep = Step.GREETING;
-                      clearResponseContainer();
-                      renderCurrentStep();
-                    });
-                  }
-                }, 0);
-              }
+              appState.currentStep = Step.SAID_HELL
+              renderCurrentStep()
             }
           }
 
@@ -623,6 +624,54 @@ const setupSayHelloEventListeners = () => {
     });
   }
 };
+
+const renderSaidHelloStep = (container: HTMLElement) => {
+  const template = document.getElementById('saidHelloTemplate') as HTMLTemplateElement;
+  if (template) {
+    const content = template.content.cloneNode(true) as DocumentFragment;
+    container.appendChild(content);
+
+
+    /*const stepContent = document.querySelector('.step-content');
+    if (stepContent) {
+      // Remove any existing additional section to prevent duplicates
+      const existingSection = stepContent.querySelector('.additional-section');
+      if (existingSection) {
+        stepContent.removeChild(existingSection);
+      }
+
+      // Create the additional section
+      const additionalSection = document.createElement('div');
+      additionalSection.className = 'additional-section';
+      additionalSection.innerHTML = `
+                  <div class="additional-links">
+                    <ul>
+                      <li><a href="${import.meta.env.VITE_SERVER_URL}/swagger-ui/?urls.primaryName=NPL%20Application%20-%20demo" target="_blank">Explore the other endpoints with Swagger</a></li>
+                      <li><a href="https://documentation.noumenadigital.com/" target="_blank">Read the docs</a></li>
+                    </ul>
+                  </div>
+                  <button id="startAgainButton" class="again-button">Take me to the start</button>
+                `;
+
+      // Append the additional section to the step content
+      stepContent.appendChild(additionalSection);
+
+      // Add event listener to the "Again!" button after it's added to the DOM
+      setTimeout(() => {
+        const startAgainButton = document.getElementById('startAgainButton');
+        if (startAgainButton) {
+          startAgainButton.addEventListener('click', () => {
+            // Reset app state to initial step
+            appState.currentStep = Step.GREETING;
+            clearResponseContainer();
+            renderCurrentStep();
+          });
+        }
+      }, 0);
+    }*/
+  }
+
+}
 
 // Start the application
 initApp();

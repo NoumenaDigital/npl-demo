@@ -25,12 +25,11 @@
     <template id="greetingTemplate">
       <div class="step-content">
         <h1>Hello World Protocol Demo</h1>
-        <p>Welcome to the Hello World Protocol demonstration!</p>
-        <p>This demo will guide you through the process of:</p>
+        <p>An illustration in 20 lines of how to build a secure application with NPL:</p>
         <ul class="feature-list">
-          <li>Authenticating with the service</li>
-          <li>Creating a new protocol instance</li>
-          <li>Interacting with the protocol</li>
+          <li>Secure: fine-grained access rights based on JWT</li>
+          <li>Convenient: generated endpoints and openAPI specs</li>
+          <li>Persisted: data schema and persistence managed automatically</li>
         </ul>
         <div class="input-container">
           <button id="startDemoButton">Start Demo</button>
@@ -59,13 +58,41 @@
       </div>
     </template>
 
+    <!-- Step 2.5: Logged-in screen template -->
+    <template id="loggedInTemplate">
+      <div class="step-content">
+        <h1>You are logged in</h1>
+        <p>Your attributes included in the authentication token (JWT)</p>
+        <div id="logged-in-token-info"></div>
+        <div class="form-container">
+          <div class="input-container">
+            <button id="loggedInButton">Continue to Create Protocol</button>
+          </div>
+        </div>
+      </div>
+    </template>
+
     <!-- Step 3: Protocol creation template -->
     <template id="protocolTemplate">
       <div class="step-content">
         <h1>Create Protocol</h1>
-        <p>Create a new instance of the Hello World Protocol. Don't be scared, <button id="countButton" class="inline-button">n</button> people preceded you!</p>
+        <p>Create a new instance of the Hello World protocol. It will live in the npl-demo app on NOUMENA Cloud. But you can also run it locally.</p>
+        <p>Don't be scared, <button id="countButton" class="inline-button">n</button> people preceded you as Alice!</p>
+        <p>It uses the generated endpoint to instantiate a Hello World protocol. Your preferred_username will be bound to the innovator party to prevent access to everyone else.</p>
         <div class="input-container">
           <button id="createProtocolButton">Create Protocol</button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Step 3.5: Created protocol template -->
+    <template id="createdProtocolTemplate">
+      <div class="step-content">
+        <h1>Protocol created</h1>
+        <p>Well done!</p>
+        <p>The protocol is now ready for you. The protocol is in state greeting, ready for you and the sayHello action is available.</p>
+        <div class="input-container">
+          <button id="createProtocolButton">Go to Say Hello</button>
         </div>
       </div>
     </template>
@@ -74,9 +101,23 @@
     <template id="sayHelloTemplate">
       <div class="step-content">
         <h1>Call the permission</h1>
+        <p>Are you ready for your first Hello World in NPL?</p>
+        <p>The endpoint generated from the permission will allow you to say hello. But only you can, other users cannot access your Hello World protocol. And be sure to use one of the valid names.</p>
         <div class="input-container">
-          <input type="text" id="nameInput" placeholder="Enter your name">
+          <input type="text" id="nameInput" placeholder="Enter your name:">
           <button id="sayHelloButton">Say Hello</button>
+        </div>
+      </div>
+    </template>
+
+    <!-- Step 4.5: Said Hello template -->
+    <template id="saidHelloTemplate">
+      <div class="step-content">
+        <h1>Success!</h1>
+        <p>See below, you've done it! You are now part of the <a href="https://community.noumenadigital.com/">NOUMENA Community</a>!</p>
+        <p>You have used most of the <a href="">NPL API</a> for this example. It comes out of the box when you <a href="/tracks/developing-NPL-local/">run the NOUMENA Runtime locally</a> and on <a href="https://portal.noumena.cloud/">NOUMENA Cloud</a>.</p>
+        <div class="input-container">
+          <button id="restartButton">Start Over</button>
         </div>
       </div>
     </template>
