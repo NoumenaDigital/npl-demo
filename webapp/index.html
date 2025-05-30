@@ -27,9 +27,9 @@
         <h1>Hello World Protocol Demo</h1>
         <p>An illustration in 20 lines of how to build a secure application with NPL:</p>
         <ul class="feature-list">
-          <li>Secure: fine-grained access rights based on JWT</li>
-          <li>Convenient: generated endpoints and openAPI specs</li>
-          <li>Persisted: data schema and persistence managed automatically</li>
+          <li><strong>Secure</strong>: fine-grained access rights based on JWT</li>
+          <li><strong>Convenient</strong>: generated endpoints and openAPI specs</li>
+          <li><strong>Persisted</strong>: data schema and persistence managed automatically</li>
         </ul>
         <div class="input-container">
           <button id="startDemoButton">Start Demo</button>
@@ -42,6 +42,7 @@
       <div class="step-content">
         <h1>Authentication</h1>
         <p>Login to access the Hello World Protocol API</p>
+        <p>alice, bob and charlie are valid users for this demo. They share the same password.</p>
         <div class="form-container">
           <div class="form-group">
             <label for="usernameInput">Username:</label>
@@ -64,6 +65,7 @@
         <h1>You are logged in</h1>
         <p>Your attributes included in the authentication token (JWT)</p>
         <div id="logged-in-token-info"></div>
+        <p>The token includes a preferred_username attribute, which is used to identify the user.</p>
         <div class="form-container">
           <div class="input-container">
             <button id="loggedInButton">Continue to Create Protocol</button>
@@ -91,6 +93,7 @@
         <h1>Protocol created</h1>
         <p>Well done!</p>
         <p>The protocol is now ready for you. The protocol is in state greeting, ready for you and the sayHello action is available.</p>
+        <p>The protocol's innovator party is bound to your preferred_username, so only you can access it.</p>
         <div class="input-container">
           <button id="createProtocolButton">Go to Say Hello</button>
         </div>
@@ -117,7 +120,7 @@
         <p>See below, you've done it! You are now part of the <a href="https://community.noumenadigital.com/">NOUMENA Community</a>!</p>
         <p>You have used most of the <a href="">NPL API</a> for this example. It comes out of the box when you <a href="/tracks/developing-NPL-local/">run the NOUMENA Runtime locally</a> and on <a href="https://portal.noumena.cloud/">NOUMENA Cloud</a>.</p>
         <div class="input-container">
-          <button id="restartButton">Start Over</button>
+          <button id="startAgainButton" class="again-button">Take me to the start</button>
         </div>
       </div>
     </template>

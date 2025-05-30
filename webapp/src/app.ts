@@ -1,29 +1,7 @@
 import './style.css';
-import { getAccessToken, getHelloWorldsCount, postHelloWorld, sayHello } from "./service.ts";
-import type { HelloWorld } from "./models.ts";
-import { jwtDecode } from "jwt-decode";
-
-// Step management
-const Step = {
-  GREETING: 0,
-  LOGIN: 1,
-  LOGGED_IN: 2,
-  CREATE_PROTOCOL: 3,
-  PROTOCOL_CREATED: 4,
-  SAY_HELLO: 5,
-  SAID_HELL: 6,
-} as const;
-
-type StepType = typeof Step[keyof typeof Step];
-
-// Application state
-interface AppState {
-  currentStep: StepType;
-  accessToken: string | null;
-  protocolId: string | null;
-  protocol: HelloWorld | null;
-  protocolCount: number | null;
-}
+import { Step, type AppComponents, type AppState, type StepType } from './types.ts';
+import { StepsComponent } from './components/steps.ts';
+import { ResponseComponent } from './components/response.ts';
 
 // Initialize app state
 const appState: AppState = {
@@ -34,10 +12,19 @@ const appState: AppState = {
   protocolCount: null
 };
 
+const appComponents: AppComponents = {
+  responseComponent: null,
+  stepsComponent: null,
+  codeComponent: null,
+};
+
 // Initialize the application
 const initApp = () => {
   // Render the initial app structure
   renderAppStructure();
+
+  // Initialize the current step
+  initCurrentStep();
 
   // Render the first step
   renderCurrentStep();
@@ -46,36 +33,24 @@ const initApp = () => {
   initResponseContainer();
 };
 
+const initCurrentStep = () => {
+  appComponents.stepsComponent = new StepsComponent(appState, setStepAndRender, showResponseContainer, clearResponseContainer, setProtocolCount, setProtocol, setAccessToken);
+}
+
 // Initialize the response container
 const initResponseContainer = () => {
-  // No longer initializing with content - container should be empty initially
+  appComponents.responseComponent = new ResponseComponent();
 };
 
 // Clear the response container completely
 const clearResponseContainer = () => {
-  const responseContainer = document.getElementById('responseContainer');
-  if (responseContainer) {
-    responseContainer.innerHTML = '';
-  }
+  appComponents.responseComponent?.clear();
 };
 
 // Show the response container with heading and content
 const showResponseContainer = (content: HTMLElement) => {
-  const responseContainer = document.getElementById('responseContainer');
-  if (responseContainer) {
-    // Clear any existing content
-    responseContainer.innerHTML = '';
-
-    // Add the heading
-    const heading = document.createElement('h2');
-    heading.className = 'response-heading';
-    heading.textContent = 'Server Response';
-    responseContainer.appendChild(heading);
-
-    // Add the new content
-    responseContainer.appendChild(content);
-  }
-};
+  appComponents.responseComponent?.render(content);
+};  
 
 // Render the app structure (code panel and step container)
 const renderAppStructure = () => {
@@ -107,570 +82,26 @@ const renderAppStructure = () => {
   }
 };
 
-// Render the current step based on app state
 const renderCurrentStep = () => {
-  const stepContainer = document.getElementById('stepContainer');
-  if (!stepContainer) return;
-
-  // Clear the step container
-  stepContainer.innerHTML = '';
-
-  // Render the appropriate step content
-  switch (appState.currentStep) {
-    case Step.GREETING:
-      renderGreetingStep(stepContainer);
-      break;
-    case Step.LOGIN:
-      renderLoginStep(stepContainer);
-      break;
-    case Step.LOGGED_IN:
-      renderLoggedInStep(stepContainer)
-      break
-    case Step.CREATE_PROTOCOL:
-      renderCreateProtocolStep(stepContainer);
-      break;
-    case Step.PROTOCOL_CREATED:
-      renderProtocolCreatedStep(stepContainer);
-      break;
-    case Step.SAY_HELLO:
-      renderSayHelloStep(stepContainer);
-      break;
-    case Step.SAID_HELL:
-      renderSaidHelloStep(stepContainer);
-      break;
-  }
-};
-
-// Step 1: Render greeting message
-const renderGreetingStep = (container: HTMLElement) => {
-  const template = document.getElementById('greetingTemplate') as HTMLTemplateElement;
-  if (template) {
-    const content = template.content.cloneNode(true) as DocumentFragment;
-    container.appendChild(content);
-
-    // Set up event listener for the start button
-    const startButton = document.getElementById('startDemoButton');
-    if (startButton) {
-      startButton.addEventListener('click', () => {
-        clearResponseContainer();
-        appState.currentStep = Step.LOGIN;
-        renderCurrentStep();
-      });
-    }
-  }
-};
-
-// Step 2: Render login screen
-const renderLoginStep = (container: HTMLElement) => {
-  const template = document.getElementById('loginTemplate') as HTMLTemplateElement;
-  if (template) {
-    const content = template.content.cloneNode(true) as DocumentFragment;
-    container.appendChild(content);
-
-    // Set up event listener for the login button
-    const loginButton = document.getElementById('loginButton') as HTMLButtonElement;
-    const usernameInput = document.getElementById('usernameInput') as HTMLInputElement;
-    const passwordInput = document.getElementById('passwordInput') as HTMLInputElement;
-    passwordInput.value = import.meta.env.VITE_USER_PASSWORD;
-
-    if (loginButton && usernameInput && passwordInput) {
-      loginButton.addEventListener('click', async () => {
-        const username = usernameInput.value.trim();
-        const password = passwordInput.value.trim();
-
-        if (username && password) {
-          loginButton.disabled = true;
-
-          // Show authenticating status in the response container
-          const statusElement = document.createElement('div');
-          statusElement.className = 'response-info';
-          statusElement.innerHTML = `
-            <div class="loading-message">
-              <h3>Authenticating...</h3>
-              <p>Please wait while we authenticate your credentials.</p>
-            </div>
-          `;
-          showResponseContainer(statusElement);
-
-          try {
-            const response = await getAccessToken(username, password);
-            const { method, endpoint, statusCode } = response.requestInfo;
-
-            // Create response info element
-            const responseInfoElement = document.createElement('div');
-            responseInfoElement.className = 'response-info';
-
-            if (!response.ok) {
-              // For unsuccessful responses, display the error response
-              const errorBody = await response.json().catch(() => ({ error: response.statusText }));
-
-              // Create the response HTML with error details
-              responseInfoElement.innerHTML = `
-                <div class="request-details">
-                  <span class="method">${method}</span>
-                  <span class="endpoint">${endpoint}</span>
-                  <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-                </div>
-                <pre class="json-output">${JSON.stringify(errorBody, null, 2)}</pre>
-              `;
-
-              showResponseContainer(responseInfoElement);
-              loginButton.disabled = false;
-              return;
-            }
-
-            const body = await response.json();
-            const token = body.access_token as string;
-            appState.accessToken = token;
-
-            // Decode the JWT token
-            const decodedToken = jwtDecode(token);
-
-            // Create a modified body object with a decode button for access_token
-            const modifiedBody = { ...body };
-
-            // Create the response HTML
-            responseInfoElement.innerHTML = `
-              <div class="request-details">
-                <span class="method">${method}</span>
-                <span class="endpoint">${endpoint}</span>
-                <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-              </div>
-              <pre id="json-output" class="json-output">${JSON.stringify(modifiedBody, null, 2)}</pre>
-            `;
-
-            showResponseContainer(responseInfoElement);
-
-            // Add decode button functionality after the element is added to DOM
-            const jsonOutput = document.getElementById('json-output');
-            if (jsonOutput) {
-              // Add a decode button next to the access_token
-              const tokenRegex = /"access_token": "([^"]*)"/;
-              const match = jsonOutput.innerHTML.match(tokenRegex);
-
-              if (match) {
-                const tokenValue = match[1];
-                jsonOutput.innerHTML = jsonOutput.innerHTML.replace(
-                  tokenRegex,
-                  `"access_token": "${tokenValue}" <button id="decode-token-btn" class="decode-token-btn">Decode Token</button>`
-                );
-
-                // Add event listener to the decode button
-                setTimeout(() => {
-                  const decodeButton = document.getElementById('decode-token-btn');
-                  if (decodeButton) {
-                    decodeButton.addEventListener('click', () => {
-                      // Replace the token with the decoded token in proper JSON format
-                      const formattedDecodedToken = JSON.stringify(decodedToken, null, 2)
-                        .split('\n')
-                        .map((line, index) => index === 0 ? line : '  ' + line)
-                        .join('\n');
-
-                      jsonOutput.innerHTML = jsonOutput.innerHTML.replace(
-                        new RegExp(`"access_token": "${tokenValue}" <button[^>]*>Decode Token<\\/button>`),
-                        `"access_token": ${formattedDecodedToken}`
-                      );
-                    });
-                  }
-                }, 0);
-              }
-            }
-
-            // Move to logged in step
-            appState.currentStep = Step.LOGGED_IN;
-            renderCurrentStep();
-          } catch (error) {
-            console.error('Authentication error:', error);
-
-            // Display error in the response container
-            const errorElement = document.createElement('div');
-            errorElement.className = 'response-info';
-            errorElement.innerHTML = `
-              <div class="error-message">
-                <h3>Authentication Error</h3>
-                <p>${error instanceof Error ? error.message : 'Failed to authenticate. Please try again.'}</p>
-              </div>
-            `;
-
-            showResponseContainer(errorElement);
-
-            loginButton.disabled = false;
-          }
-        } else {
-          // Display validation error in the response container
-          const validationElement = document.createElement('div');
-          validationElement.className = 'response-info';
-          validationElement.innerHTML = `
-            <div class="error-message">
-              <h3>Validation Error</h3>
-              <p>Please enter both username and password.</p>
-            </div>
-          `;
-          showResponseContainer(validationElement);
-        }
-      });
-    }
-  }
-};
-
-// Step 2.5: Render logged-in screen
-const renderLoggedInStep = (container: HTMLElement) => {
-  const template = document.getElementById('loggedInTemplate') as HTMLTemplateElement;
-  if (template) {
-    const content = template.content.cloneNode(true) as DocumentFragment;
-    container.appendChild(content);
-
-    // Display the decoded token information
-    const tokenInfoContainer = document.getElementById('logged-in-token-info');
-    if (tokenInfoContainer && appState.accessToken) {
-      const decodedToken = jwtDecode(appState.accessToken);
-      const tokenInfo = document.createElement('pre');
-      tokenInfo.className = 'token-info';
-      tokenInfo.textContent = JSON.stringify(decodedToken, null, 2);
-      tokenInfoContainer.appendChild(tokenInfo);
-    }
-
-    // Set up event listener for the logged in button
-    const loggedInButton = document.getElementById('loggedInButton');
-    if (loggedInButton) {
-      loggedInButton.addEventListener('click', () => {
-        clearResponseContainer();
-        appState.currentStep = Step.CREATE_PROTOCOL;
-        renderCurrentStep();
-      });
-    }
-  }
-};
-
-// Step 3: Render protocol creation screen
-const renderCreateProtocolStep = (container: HTMLElement) => {
-  const template = document.getElementById('protocolTemplate') as HTMLTemplateElement;
-  if (template) {
-    const content = template.content.cloneNode(true) as DocumentFragment;
-    container.appendChild(content);
-
-    // Set up event listener for the count button
-    const countButton = document.getElementById('countButton');
-    if (countButton) {
-      countButton.addEventListener('click', async () => {
-        // Display loading status in the response container
-        const loadingElement = document.createElement('div');
-        loadingElement.className = 'response-info';
-        loadingElement.innerHTML = `
-          <div class="loading-message">
-            <h3>Loading...</h3>
-            <p>Fetching protocol count information.</p>
-          </div>
-        `;
-        showResponseContainer(loadingElement);
-
-        try {
-          const response = await getHelloWorldsCount();
-          const { method, endpoint, statusCode } = response.requestInfo;
-
-          if (!response.ok) {
-            throw new Error(`Error: ${statusCode} - ${response.statusText}`);
-          }
-
-          const body = await response.json();
-          appState.protocolCount = body.totalItems as number;
-
-          // Update the button text with the count
-          countButton.textContent = appState.protocolCount.toString();
-
-          // Display request info
-          const responseInfoElement = document.createElement('div');
-          responseInfoElement.className = 'response-info';
-          responseInfoElement.innerHTML = `
-            <div class="request-details">
-              <span class="method">${method}</span>
-              <span class="endpoint">${endpoint}</span>
-              <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-            </div>
-            <pre class="json-output">${JSON.stringify(body, null, 2)}</pre>
-          `;
-
-          showResponseContainer(responseInfoElement);
-        } catch (error) {
-          console.error('Error fetching protocol count:', error);
-
-          // Display error in the response container
-          const errorElement = document.createElement('div');
-          errorElement.className = 'response-info';
-          errorElement.innerHTML = `
-            <div class="error-message">
-              <h3>Error Fetching Count</h3>
-              <p>${error instanceof Error ? error.message : 'Failed to fetch protocol count. Please try again.'}</p>
-            </div>
-          `;
-          showResponseContainer(errorElement);
-        }
-      });
-    }
-
-    // Set up event listener for the create protocol button
-    const createButton = document.getElementById('createProtocolButton') as HTMLButtonElement;
-
-    if (createButton) {
-      createButton.addEventListener('click', async () => {
-        createButton.disabled = true;
-
-        // Display creating status in the response container
-        const statusElement = document.createElement('div');
-        statusElement.className = 'response-info';
-        statusElement.innerHTML = `
-          <div class="loading-message">
-            <h3>Creating Protocol...</h3>
-            <p>Please wait while we create a new protocol instance.</p>
-          </div>
-        `;
-        showResponseContainer(statusElement);
-
-        try {
-          const protocolResponse = await postHelloWorld();
-          const { method, endpoint, statusCode } = protocolResponse.requestInfo;
-
-          if (!protocolResponse.ok) {
-            throw new Error(`Error: ${statusCode} - ${protocolResponse.statusText}`);
-          }
-
-          const protocol = await protocolResponse.json();
-          appState.protocol = protocol;
-          appState.protocolId = protocol['@id'];
-
-          // Get protocol count
-          const countResponse = await getHelloWorldsCount();
-          if (!countResponse.ok) {
-            throw new Error(`Error: ${countResponse.requestInfo.statusCode} - ${countResponse.statusText}`);
-          }
-          const countBody = await countResponse.json();
-          appState.protocolCount = countBody.totalItems as number;
-
-          // Update the count button text if it exists
-          const countButton = document.getElementById('countButton');
-          if (countButton) {
-            countButton.textContent = appState.protocolCount.toString();
-          }
-
-          // Hide the create protocol button
-          const createProtocolButton = document.getElementById('createProtocolButton');
-          if (createProtocolButton) {
-            createProtocolButton.style.display = 'none';
-          }
-
-          // Display the protocol response with request info and success message in the response container
-          const responseInfoElement = document.createElement('div');
-          responseInfoElement.className = 'response-info';
-          responseInfoElement.innerHTML = `
-            <div class="request-details">
-              <span class="method">${method}</span>
-              <span class="endpoint">${endpoint}</span>
-              <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-            </div>
-            <pre class="json-output">${JSON.stringify(protocol, null, 2)}</pre>
-          `;
-
-          showResponseContainer(responseInfoElement);
-
-          // Move to logged in step
-          appState.currentStep = Step.PROTOCOL_CREATED;
-          renderCurrentStep();
-        } catch (error) {
-          console.error('Protocol creation error:', error);
-
-          // Display error in the response container
-          const errorElement = document.createElement('div');
-          errorElement.className = 'response-info';
-          errorElement.innerHTML = `
-            <div class="error-message">
-              <h3>Protocol Creation Error</h3>
-              <p>${error instanceof Error ? error.message : 'Failed to create protocol. Please try again.'}</p>
-            </div>
-          `;
-          showResponseContainer(errorElement);
-
-          createButton.disabled = false;
-        }
-      });
-    }
-  }
-};
-
-const renderProtocolCreatedStep = (container: HTMLElement) => {
-  const template = document.getElementById('createdProtocolTemplate') as HTMLTemplateElement;
-  if (template) {
-    const content = template.content.cloneNode(true) as DocumentFragment;
-    container.appendChild(content);
-
-    // Set up event listener for the logged in button
-    const createProtocolButton = document.getElementById('createProtocolButton');
-    if (createProtocolButton) {
-      createProtocolButton.addEventListener('click', () => {
-        clearResponseContainer();
-        appState.currentStep = Step.SAY_HELLO;
-        renderCurrentStep();
-      });
-    }
-  }
+  appComponents.stepsComponent?.renderCurrentStep();
 }
 
-// Step 4: Render say hello screen
-const renderSayHelloStep = (container: HTMLElement) => {
-  const template = document.getElementById('sayHelloTemplate') as HTMLTemplateElement;
-  if (template) {
-    const content = template.content.cloneNode(true) as DocumentFragment;
-    container.appendChild(content);
+const setStepAndRender = (step: StepType) => {
+  appState.currentStep = step;
+  appComponents.stepsComponent?.renderCurrentStep();
+}
 
-    // Set up event listeners for the say hello button
-    setupSayHelloEventListeners();
-  }
-};
+const setAccessToken = (token: string) => {
+  appState.accessToken = token;
+}
 
-// Set up event listeners for the say hello functionality
-const setupSayHelloEventListeners = () => {
-  const sayHelloButton = document.getElementById('sayHelloButton');
-  const nameInput = document.getElementById('nameInput') as HTMLInputElement;
+const setProtocolCount = (count: number) => {
+  appState.protocolCount = count;
+}
 
-  if (sayHelloButton && nameInput && appState.protocolId) {
-    sayHelloButton.addEventListener('click', async () => {
-      const name = nameInput.value.trim();
-      if (name) {
-        // Display loading status in the response container
-        const loadingElement = document.createElement('div');
-        loadingElement.className = 'response-info';
-        loadingElement.innerHTML = `
-          <div class="loading-message">
-            <h3>Sending Hello...</h3>
-            <p>Please wait while we process your greeting.</p>
-          </div>
-        `;
-        showResponseContainer(loadingElement);
-
-        try {
-          // Ensure protocolId is not null before calling sayHello
-          if (!appState.protocolId) {
-            throw new Error("Protocol ID is missing");
-          }
-          const greetingResponse = await sayHello(appState.protocolId, name);
-          const { method, endpoint, statusCode } = greetingResponse.requestInfo;
-          const greetingBody = await greetingResponse.json();
-
-          // Create response info element
-          const responseInfoElement = document.createElement('div');
-          responseInfoElement.className = 'response-info';
-
-          // Format JSON body for display
-          const jsonBody = typeof greetingBody === 'string'
-            ? { message: greetingBody }
-            : greetingBody;
-
-          // Build HTML content based on response status
-          if (!greetingResponse.ok) {
-            responseInfoElement.innerHTML = `
-              <div class="request-details">
-                <span class="method">${method}</span>
-                <span class="endpoint">${endpoint}</span>
-                <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-              </div>
-              <pre class="json-output">${JSON.stringify(greetingBody, null, 2)}</pre>
-            `;
-          } else {
-            responseInfoElement.innerHTML = `
-              <div class="request-details">
-                <span class="method">${method}</span>
-                <span class="endpoint">${endpoint}</span>
-                <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-              </div>
-              <pre class="json-output">${JSON.stringify(jsonBody, null, 2)}</pre>
-            `;
-
-            // Add "Again!" button and additional links section underneath the say hello bit after a successful 200 response
-            if (statusCode === 200) {
-              // Find the step content container
-
-              appState.currentStep = Step.SAID_HELL
-              renderCurrentStep()
-            }
-          }
-
-          // Update the response container
-          showResponseContainer(responseInfoElement);
-        } catch (error) {
-          console.error('Error saying hello:', error);
-
-          // Display error in the response container
-          const errorElement = document.createElement('div');
-          errorElement.className = 'response-info';
-          errorElement.innerHTML = `
-            <div class="error-message">
-              <h3>Say Hello Error</h3>
-              <p>${error instanceof Error ? error.message : 'Failed to say hello. Please try again.'}</p>
-            </div>
-          `;
-          showResponseContainer(errorElement);
-        }
-      } else {
-        // Display validation error in the response container
-        const validationElement = document.createElement('div');
-        validationElement.className = 'response-info';
-        validationElement.innerHTML = `
-          <div class="error-message">
-            <h3>Validation Error</h3>
-            <p>Please enter a name.</p>
-          </div>
-        `;
-        showResponseContainer(validationElement);
-      }
-    });
-  }
-};
-
-const renderSaidHelloStep = (container: HTMLElement) => {
-  const template = document.getElementById('saidHelloTemplate') as HTMLTemplateElement;
-  if (template) {
-    const content = template.content.cloneNode(true) as DocumentFragment;
-    container.appendChild(content);
-
-
-    /*const stepContent = document.querySelector('.step-content');
-    if (stepContent) {
-      // Remove any existing additional section to prevent duplicates
-      const existingSection = stepContent.querySelector('.additional-section');
-      if (existingSection) {
-        stepContent.removeChild(existingSection);
-      }
-
-      // Create the additional section
-      const additionalSection = document.createElement('div');
-      additionalSection.className = 'additional-section';
-      additionalSection.innerHTML = `
-                  <div class="additional-links">
-                    <ul>
-                      <li><a href="${import.meta.env.VITE_SERVER_URL}/swagger-ui/?urls.primaryName=NPL%20Application%20-%20demo" target="_blank">Explore the other endpoints with Swagger</a></li>
-                      <li><a href="https://documentation.noumenadigital.com/" target="_blank">Read the docs</a></li>
-                    </ul>
-                  </div>
-                  <button id="startAgainButton" class="again-button">Take me to the start</button>
-                `;
-
-      // Append the additional section to the step content
-      stepContent.appendChild(additionalSection);
-
-      // Add event listener to the "Again!" button after it's added to the DOM
-      setTimeout(() => {
-        const startAgainButton = document.getElementById('startAgainButton');
-        if (startAgainButton) {
-          startAgainButton.addEventListener('click', () => {
-            // Reset app state to initial step
-            appState.currentStep = Step.GREETING;
-            clearResponseContainer();
-            renderCurrentStep();
-          });
-        }
-      }, 0);
-    }*/
-  }
-
+const setProtocol = (id: string, protocol: any) => {
+  appState.protocolId = id;
+  appState.protocol = protocol;
 }
 
 // Start the application
