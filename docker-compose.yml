@@ -16,14 +16,3 @@ services:
     environment:
       ENGINE_DB_PASSWORD: welcome123
       ENGINE_DEV_MODE: true
-  nginx-proxy:
-    image: nginx:latest
-    container_name: nginx-cors-proxy-to-be-removed-asap
-    ports:
-      - "8080:80"
-    #      - "15001:15001"
-    volumes:
-      - ./nginx:/etc/nginx/conf.d
-    depends_on:
-      engine:
-        condition: service_healthy
