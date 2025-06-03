@@ -63,13 +63,10 @@
     <template id="loggedInTemplate">
       <div class="step-content">
         <h1>You are logged in</h1>
-        <p>Your attributes included in the authentication token (JWT)</p>
+        <p>The authentication token (JWT) attributes includes <code>preferred_username</code>, which is used to identify the user.</p>
         <div id="logged-in-token-info"></div>
-        <p>The token includes a preferred_username attribute, which is used to identify the user.</p>
-        <div class="form-container">
-          <div class="input-container">
-            <button id="loggedInButton">Continue to Create Protocol</button>
-          </div>
+        <div class="input-container">
+          <button id="loggedInButton">Continue to Create Protocol</button>
         </div>
       </div>
     </template>
