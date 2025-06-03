@@ -63,7 +63,7 @@
     <template id="loggedInTemplate">
       <div class="step-content">
         <h1>You are logged in</h1>
-        <p>The authentication token (JWT) attributes includes <code>preferred_username</code>, which is used to identify the user.</p>
+        <p>The authentication token (JWT) attributes include <code>preferred_username</code>, which is used to identify the user.</p>
         <div id="logged-in-token-info"></div>
         <div class="input-container">
           <button id="loggedInButton">Continue to Create Protocol</button>
@@ -136,18 +136,15 @@
         <div class="code-line"><span class="line-number">6</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">initial</span> <span class="keyword">state</span> greeting;</span></div>
         <div class="code-line"><span class="line-number">7</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span> <span class="keyword">state</span> greeted;</span></div>
         <div class="code-line"><span class="line-number">8</span> <span class="line-code"></span></div>
-        <div class="code-line"><span class="line-number">9</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">private</span> <span class="keyword">var</span> <span class="function">validNames</span> = <span class="function">listOf</span>(<span class="string">"Alice"</span>, <span class="string">"Bob"</span>, <span class="string">"Charlie"</span>);</span></div>
-        <div class="code-line"><span class="line-number">10</span> <span class="line-code"></span></div>
-        <div class="code-line"><span class="line-number">11</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="api-annotation">@api</span></span></div>
-        <div class="code-line"><span class="line-number">12</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permission</span>[innovator] <span class="function">sayHello</span>(name: Text) <span class="keyword">returns</span> Text | greeting {</span></div>
-        <div class="code-line"><span class="line-number">13</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">require</span>(</span></div>
-        <div class="code-line"><span class="line-number">14</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="function">validNames</span>.<span class="function">contains</span>(name),</span></div>
-        <div class="code-line"><span class="line-number">15</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="string">"Name must be part of the list of valid users"</span></span></div>
-        <div class="code-line"><span class="line-number">16</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;);</span></div>
-        <div class="code-line"><span class="line-number">17</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">become</span> greeted;</span></div>
-        <div class="code-line"><span class="line-number">18</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Hello "</span> + name + <span class="string">"!"</span>;</span></div>
-        <div class="code-line"><span class="line-number">19</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;};</span></div>
-        <div class="code-line"><span class="line-number">20</span> <span class="line-code">};</span></div>
+        <div class="code-line"><span class="line-number">9</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="api-annotation">@api</span></span></div>
+        <div class="code-line"><span class="line-number">10</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permission</span>[innovator] <span class="function">sayHello</span>() <span class="keyword">returns</span> Text | greeting {</span></div>
+        <div class="code-line"><span class="line-number">11</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">become</span> greeted;</span></div>
+        <div class="code-line"><span class="line-number">12</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Hello "</span> + <span class="function">getUsername</span>(innovator) + <span class="string">"!"</span>;</span></div>
+        <div class="code-line"><span class="line-number">13</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;};</span></div>
+        <div class="code-line"><span class="line-number">14</span> <span class="line-code">};</span></div>
+        <div class="code-line"><span class="line-number">15</span> <span class="line-code"></span></div>
+        <div class="code-line"><span class="line-number">16</span> <span class="line-code"><span class="keyword">function</span> <span class="function">getUsername</span>(party: Party) <span class="keyword">returns</span> Text -></span></div>
+        <div class="code-line"><span class="line-number">17</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;party.<span class="function">entity</span>().<span class="function">getOrNone</span>(<span class="string">"preferred_username"</span>).<span class="function">getOrFail</span>().<span class="function">toList</span>().<span class="function">get</span>(<span class="number">0</span>);</span></div>
       </div>
     </template>
 
