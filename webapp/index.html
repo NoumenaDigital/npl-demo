@@ -28,8 +28,8 @@
         <p>An illustration in 20 lines of how to build a secure application with NPL:</p>
         <ul class="feature-list">
           <li><strong>Secure</strong>: fine-grained access rights based on JWT</li>
-          <li><strong>Convenient</strong>: generated endpoints and openAPI specs</li>
-          <li><strong>Persisted</strong>: data schema and persistence managed automatically</li>
+          <li><strong>Simple & Convenient</strong>: generated endpoints and openAPI specs</li>
+          <li><strong>Safety</strong>: persistence and transaction integrity ensured automatically</li>
         </ul>
         <div class="input-container">
           <button id="startDemoButton">Start Demo</button>
@@ -79,7 +79,7 @@
       <div class="step-content">
         <h1>Create Protocol</h1>
         <p>Create a new instance of the Hello World protocol. It will live in the npl-demo app on NOUMENA Cloud. But you can also run it locally.</p>
-        <p>Don't be scared, <button id="countButton" class="inline-button">n</button> people preceded you as Alice!</p>
+        <p>Don't be scared, <button id="countButton" class="inline-button">n</button> people preceded you as <span id="usernameSpan"></span>!</p>
         <p>It uses the generated endpoint to instantiate a Hello World protocol. Your preferred_username will be bound to the innovator party to prevent access to everyone else.</p>
         <div class="input-container">
           <button id="createProtocolButton">Create Protocol</button>
@@ -105,9 +105,8 @@
       <div class="step-content">
         <h1>Call the permission</h1>
         <p>Are you ready for your first Hello World in NPL?</p>
-        <p>The endpoint generated from the permission will allow you to say hello. But only you can, other users cannot access your Hello World protocol. And be sure to use one of the valid names.</p>
+        <p>The endpoint generated from the permission will allow you to say hello. But only you can, other users cannot access your Hello World protocol.</p>
         <div class="input-container">
-          <input type="text" id="nameInput" placeholder="Enter your name:">
           <button id="sayHelloButton">Say Hello</button>
         </div>
       </div>

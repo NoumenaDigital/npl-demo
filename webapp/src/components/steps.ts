@@ -93,7 +93,7 @@ export class StepsComponent {
         this.renderLoggedIn(container, this.appState.accessToken);
         break
       case Step.CREATE_PROTOCOL:
-        this.renderCreateProtocol(container);
+        this.renderCreateProtocol(container, this.appState.accessToken);
         break;
       case Step.PROTOCOL_CREATED:
         this.renderProtocolCreated(container);
@@ -119,8 +119,8 @@ export class StepsComponent {
     this.loggedInStep.render(container, accessToken);
   }
 
-  renderCreateProtocol(container: HTMLElement): void {
-    this.CreateProtocolStep.render(container);
+  renderCreateProtocol(container: HTMLElement, accessToken: string | null): void {
+    this.CreateProtocolStep.render(container, accessToken);
   }
 
   renderProtocolCreated(container: HTMLElement): void {

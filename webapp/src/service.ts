@@ -107,14 +107,10 @@ export const postHelloWorld = async (): Promise<EnhancedResponse> => {
     return enhanceResponse(response, method, endpoint);
 }
 
-export const sayHello = async (helloWorldId: string, name: string): Promise<EnhancedResponse> => {
+export const sayHello = async (helloWorldId: string): Promise<EnhancedResponse> => {
     const tokenResponse = await getAccessToken(USER_USERNAME, USER_PASSWORD);
     const tokenBody = await tokenResponse.json();
     const accessToken = tokenBody.access_token as string;
-
-    const payload = {
-        name: name
-    }
 
     const endpoint = `${SERVER_URL}/${helloWorldId}/sayHello`;
     const method = 'POST';
@@ -124,7 +120,6 @@ export const sayHello = async (helloWorldId: string, name: string): Promise<Enha
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(payload)
     });
 
     return enhanceResponse(response, method, endpoint);
