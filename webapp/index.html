@@ -46,11 +46,15 @@
         <div class="form-container">
           <div class="form-group">
             <label for="usernameInput">Username:</label>
-            <input type="text" id="usernameInput" value="alice">
+            <select id="usernameInput">
+              <option value="alice" selected>alice</option>
+              <option value="bob">bob</option>
+              <option value="charlie">charlie</option>
+            </select>
           </div>
           <div class="form-group">
             <label for="passwordInput">Password:</label>
-            <input type="password" id="passwordInput" value="password123">
+            <input type="text" id="passwordInput" value="password123" readonly>
           </div>
           <div class="input-container">
             <button id="loginButton">Login</button>
