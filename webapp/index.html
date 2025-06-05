@@ -42,14 +42,14 @@
       <div class="step-content">
         <h1>Authentication</h1>
         <p>Log in to access the Hello World Protocol API.</p>
-        <p>alice, bob and charlie are valid users for this demo. They share the same password, prepopulated in the field below.</p>
+        <p>alice, bob and carol are valid users for this demo. They share the same password, prepopulated in the field below.</p>
         <div class="form-container">
           <div class="form-group">
             <label for="usernameInput">Username:</label>
             <select id="usernameInput">
               <option value="alice" selected>alice</option>
               <option value="bob">bob</option>
-              <option value="charlie">charlie</option>
+              <option value="carol">carol</option>
             </select>
           </div>
           <div class="form-group">
@@ -81,7 +81,7 @@
         <h1>Create Protocol</h1>
         <p>Create a new instance of the Hello World protocol. The instance will be created in the npl-demo app on NOUMENA Cloud. But you could also run the app locally.</p>
         <p>The button below uses an endpoint automatically generated out of the NPL code to instantiate a Hello World protocol. Your preferred_username will be bound to the innovator party to prevent access to everyone else.</p>
-        <p>If you see pre-existing Hello World instance, it is because users preceded you as alice on <button id="countButton" class="inline-button">n</button> occasions.</p>
+        <p>If you see pre-existing Hello World instance, it is because users preceded you as <span id="usernameSpan"></span> on <button id="countButton" class="inline-button">n</button> occasions.</p>
 
         <div class="input-container">
           <button id="createProtocolButton">Create Protocol</button>
