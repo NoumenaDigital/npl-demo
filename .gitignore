@@ -1,2 +1,10 @@
 .gitconfig
 .idea
+.vscode
+.claude
+.cursorrules
+.env
+
+webapp/node_modules
+webapp/dist
+target

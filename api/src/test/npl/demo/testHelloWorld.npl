@@ -1,24 +1,22 @@
 package demo;
 
+function getInnovator() returns Party -> partyOf(
+    mapOf(Pair("preferred_username", setOf("Alice"))),
+    mapOf<Text, Set<Text>>()
+);
+
 @test
 function initHelloWorld(test: Test) -> {
-    var helloWorld = HelloWorld['innovator']();
+    var innovator = getInnovator();
+    var helloWorld = HelloWorld[innovator]();
     test.assertEquals(HelloWorld.States.greeting, helloWorld.activeState().getOrFail());
 };
 
 @test
 function testHelloWorld(test: Test) -> {
-    var helloWorld = HelloWorld['innovator']();
-    var greeting = helloWorld.sayHello['innovator']("Alice");
+    var innovator = getInnovator();
+    var helloWorld = HelloWorld[innovator]();
+    var greeting = helloWorld.sayHello[innovator]();
     test.assertEquals("Hello Alice!", greeting);
     test.assertEquals(HelloWorld.States.greeted, helloWorld.activeState().getOrFail());
-};
-
-@test
-function testHelloWorldInvalidName(test: Test) -> {
-    var helloWorld = HelloWorld['innovator']();
-    test.assertFails(
-        function() returns Text -> helloWorld.sayHello['innovator']("Dave"),
-        "Name must be part of the list of valid users"
-    );
 };
