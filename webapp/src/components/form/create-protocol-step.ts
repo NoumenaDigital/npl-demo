@@ -1,197 +1,215 @@
 import { postHelloWorld } from "../../service";
 import { getHelloWorldsCount } from "../../service";
-import { Step, type StepType } from "../../types";
 import { jwtDecode } from "jwt-decode";
+import { html, render } from "lit-html";
 
-export class CreateProtocolStep {
-  setStepAndRender: (step: StepType) => void;
-  showResponseContainer: (container: HTMLElement) => void;
-  clearResponseContainer: () => void;
-  setProtocolCount: (count: number) => void;
-  setProtocol: (id: string, protocol: any) => void;
+export class CreateProtocolStep extends HTMLElement {
+  private _accessToken: string | null = null;
+  private _username: string = '';
+  private _helloWorldsCount: number = 0;
+  private createButtonClickHandler: ((event: Event) => void) | null = null;
+  private backButtonClickHandler: ((event: Event) => void) | null = null;
 
-  constructor(
-    setStepAndRender: (step: StepType) => void,
-    clearResponseContainer: () => void,
-    showResponseContainer: (container: HTMLElement) => void,
-    setProtocolCount: (count: number) => void,
-    setProtocol: (id: string, protocol: any) => void
-  ) {
-    this.setStepAndRender = setStepAndRender;
-    this.clearResponseContainer = clearResponseContainer;
-    this.showResponseContainer = showResponseContainer;
-    this.setProtocolCount = setProtocolCount;
-    this.setProtocol = setProtocol;
-  }
-
-  render(container: HTMLElement, accessToken: string | null) {
-    const template = document.getElementById('protocolTemplate') as HTMLTemplateElement;
-    if (template) {
-      const content = template.content.cloneNode(true) as DocumentFragment;
-      container.appendChild(content);
-
-      const usernameSpan = document.getElementById('usernameSpan');
-      if (usernameSpan && accessToken) {
-        const decodedToken = jwtDecode(accessToken) as any;
-        usernameSpan.textContent = decodedToken.preferred_username;
-      }
-
-      // Set up event listener for the count button
-      this.setupCountButtonEventListeners();
-
-      // Set up event listener for the create protocol button
-      this.setupCreateProtocolEventListeners();
+  set accessToken(value: string | null) {
+    this._accessToken = value;
+    if (value) {
+      const decodedToken = jwtDecode(value) as any;
+      this._username = decodedToken.preferred_username || '';
     }
+    this.render();
   }
 
-  async getProtocolCount(countButton: HTMLElement) {
-    // Display loading status in the response container
-    const loadingElement = document.createElement('div');
-    loadingElement.className = 'response-info';
-    loadingElement.innerHTML = `
-      <div class="loading-message">
-        <h3>Loading...</h3>
-        <p>Fetching protocol count information.</p>
+  get accessToken(): string | null {
+    return this._accessToken;
+  }
+
+  async connectedCallback() {
+    this.render();
+    this.setupCreateProtocolEventListeners();
+    this._helloWorldsCount = await this.getProtocolCount()
+    this.render()
+  }
+
+  disconnectedCallback() {
+    this.removeEventListeners();
+  }
+
+  template(username: string, helloWorldsCount: number) {
+    return html`
+      <div class="step-content">
+        <h1>Create Protocol</h1>
+        <div>
+          <p>Create a new instance of the Hello World protocol. The instance will be created in the npl-demo app on NOUMENA Cloud. But you could also run the app locally.</p>
+          <p>The button below uses an endpoint automatically generated out of the NPL code to instantiate a Hello World protocol. Your preferred_username will be bound to the innovator party to prevent access to everyone else.</p>
+          <p>If you see pre-existing Hello World instances, it is because users preceded you as <span id="usernameSpan">${username}</span> on <span style="font-weight: bold">${helloWorldsCount}</span> occasions.</p>
+        </div>
+
+        <div class="input-container">
+          <button id="backButton" class="back-button">Back</button>
+          <button id="createProtocolButton">Create Protocol</button>
+        </div>
       </div>
     `;
-    this.showResponseContainer(loadingElement);
-
-    try {
-      const response = await getHelloWorldsCount();
-      const { method, endpoint, statusCode } = response.requestInfo;
-
-      if (!response.ok) {
-        throw new Error(`Error: ${statusCode} - ${response.statusText}`);
-      }
-
-      const body = await response.json();
-      const protocolNumber = body.totalItems as number;
-
-      this.setProtocolCount(protocolNumber);
-
-      // Update the button text with the count
-      countButton.textContent = protocolNumber.toString();
-
-      // Display request info
-      const responseInfoElement = document.createElement('div');
-      responseInfoElement.className = 'response-info';
-      responseInfoElement.innerHTML = `
-        <div class="request-details">
-          <span class="method">${method}</span>
-          <span class="endpoint">${endpoint}</span>
-          <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-        </div>
-        <pre class="json-output">${JSON.stringify(body, null, 2)}</pre>
-      `;
-
-      this.showResponseContainer(responseInfoElement);
-    } catch (error) {
-      console.error('Error fetching protocol count:', error);
-
-      // Display error in the response container
-      const errorElement = document.createElement('div');
-      errorElement.className = 'response-info';
-      errorElement.innerHTML = `
-        <div class="error-message">
-          <h3>Error Fetching Count</h3>
-          <p>${error instanceof Error ? error.message : 'Failed to fetch protocol count. Please try again.'}</p>
-        </div>
-      `;
-      this.showResponseContainer(errorElement);
-    }
   }
 
-  setupCountButtonEventListeners() {
-    const countButton = document.getElementById('countButton');
-    if (countButton) {
-      this.getProtocolCount(countButton)
-      countButton.addEventListener('click', async () => this.getProtocolCount(countButton));
-    }
+  private render() {
+      render(this.template(this._username, this._helloWorldsCount), this);
+  }
+
+  async getProtocolCount(): Promise<number> {
+    const response = await getHelloWorldsCount();
+    const { method, endpoint, statusCode } = response.requestInfo;
+
+    const body = await response.json();
+
+    this.dispatchEvent(new CustomEvent('show-response', {
+      bubbles: true,
+      composed: true,
+      detail: {
+        type: 'api-response',
+        requestInfo: {
+          method,
+          endpoint,
+          statusCode
+        },
+        body: body
+      }
+    }));
+
+    return body.totalItems as number || 0
   }
 
   setupCreateProtocolEventListeners() {
-    const createButton = document.getElementById('createProtocolButton') as HTMLButtonElement;
+    this.removeCreateProtocolEventListeners();
 
+    const createButton = this.querySelector('#createProtocolButton') as HTMLButtonElement;
     if (createButton) {
-      createButton.addEventListener('click', async () => {
-        createButton.disabled = true;
-
-        // Display creating status in the response container
-        const statusElement = document.createElement('div');
-        statusElement.className = 'response-info';
-        statusElement.innerHTML = `
-          <div class="loading-message">
-            <h3>Creating Protocol...</h3>
-            <p>Please wait while we create a new protocol instance.</p>
-          </div>
-        `;
-        this.showResponseContainer(statusElement);
-
-        try {
-          const protocolResponse = await postHelloWorld();
-          const { method, endpoint, statusCode } = protocolResponse.requestInfo;
-
-          if (!protocolResponse.ok) {
-            throw new Error(`Error: ${statusCode} - ${protocolResponse.statusText}`);
-          }
-
-          const protocol = await protocolResponse.json();
-          this.setProtocol(protocol['@id'], protocol);
-
-          // Get protocol count
-          const countResponse = await getHelloWorldsCount();
-          if (!countResponse.ok) {
-            throw new Error(`Error: ${countResponse.requestInfo.statusCode} - ${countResponse.statusText}`);
-          }
-          const countBody = await countResponse.json();
-          const protocolNumber = countBody.totalItems as number;
-          this.setProtocolCount(protocolNumber);
-
-          // Update the count button text if it exists
-          const countButton = document.getElementById('countButton');
-          if (countButton) {
-            countButton.textContent = protocolNumber.toString();
-          }
-
-          // Hide the create protocol button
-          const createProtocolButton = document.getElementById('createProtocolButton');
-          if (createProtocolButton) {
-            createProtocolButton.style.display = 'none';
-          }
-
-          // Display the protocol response with request info and success message in the response container
-          const responseInfoElement = document.createElement('div');
-          responseInfoElement.className = 'response-info';
-          responseInfoElement.innerHTML = `
-            <div class="request-details">
-              <span class="method">${method}</span>
-              <span class="endpoint">${endpoint}</span>
-              <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-            </div>
-            <pre class="json-output">${JSON.stringify(protocol, null, 2)}</pre>
-          `;
-
-          this.showResponseContainer(responseInfoElement);
-
-          // Move to logged in step
-          this.setStepAndRender(Step.PROTOCOL_CREATED);
-        } catch (error) {
-          console.error('Protocol creation error:', error);
-
-          // Display error in the response container
-          const errorElement = document.createElement('div');
-          errorElement.className = 'response-info';
-          errorElement.innerHTML = `
-            <div class="error-message">
-              <h3>Protocol Creation Error</h3>
-              <p>${error instanceof Error ? error.message : 'Failed to create protocol. Please try again.'}</p>
-            </div>
-          `;
-          this.showResponseContainer(errorElement);
-
-          createButton.disabled = false;
-        }
-      });
+      this.createButtonClickHandler = this.handleCreateProtocolClick.bind(this);
+      createButton.addEventListener('click', this.createButtonClickHandler);
     }
+
+    const backButton = this.querySelector('#backButton') as HTMLButtonElement;
+    if (backButton) {
+      this.backButtonClickHandler = this.handleBackClick.bind(this);
+      backButton.addEventListener('click', this.backButtonClickHandler);
+    }
+  }
+
+  removeCreateProtocolEventListeners() {
+    const createButton = this.querySelector('#createProtocolButton');
+    if (createButton && this.createButtonClickHandler) {
+      createButton.removeEventListener('click', this.createButtonClickHandler);
+      this.createButtonClickHandler = null;
+    }
+
+    const backButton = this.querySelector('#backButton');
+    if (backButton && this.backButtonClickHandler) {
+      backButton.removeEventListener('click', this.backButtonClickHandler);
+      this.backButtonClickHandler = null;
+    }
+  }
+
+  removeEventListeners() {
+    this.removeCreateProtocolEventListeners();
+  }
+
+  private handleBackClick() {
+    this.dispatchEvent(new CustomEvent('previous-step', {
+      bubbles: true,
+      composed: true
+    }));
+  }
+
+  private async handleCreateProtocolClick() {
+    const createButton = this.querySelector('#createProtocolButton') as HTMLButtonElement;
+    if (createButton) {
+      createButton.disabled = true;
+    }
+
+    this.dispatchEvent(new CustomEvent('show-response', {
+      bubbles: true,
+      composed: true,
+      detail: { 
+        type: 'loading',
+        message: 'Creating Protocol...',
+        description: 'Please wait while we create a new protocol instance.'
+      }
+    }));
+
+    try {
+      const protocolResponse = await postHelloWorld();
+      const { method, endpoint, statusCode } = protocolResponse.requestInfo;
+
+      if (!protocolResponse.ok) {
+        throw new Error(`Error: ${statusCode} - ${protocolResponse.statusText}`);
+      }
+
+      const protocol = await protocolResponse.json();
+
+      this.dispatchEvent(new CustomEvent<string>('set-protocol-id', {
+        bubbles: true,
+        composed: true,
+        detail: protocol['@id']
+      }))
+
+      const countResponse = await getHelloWorldsCount();
+      if (!countResponse.ok) {
+        throw new Error(`Error: ${countResponse.requestInfo.statusCode} - ${countResponse.statusText}`);
+      }
+      const countBody = await countResponse.json();
+      const protocolNumber = countBody.totalItems as number;
+
+      const countButton = this.querySelector('#countButton');
+      if (countButton) {
+        countButton.textContent = protocolNumber.toString();
+      }
+
+      if (createButton) {
+        createButton.style.display = 'none';
+      }
+
+      this.dispatchEvent(new CustomEvent('show-response', {
+        bubbles: true,
+        composed: true,
+        detail: { 
+          type: 'api-response',
+          requestInfo: {
+            method,
+            endpoint,
+            statusCode
+          },
+          body: protocol
+        }
+      }));
+
+      this.dispatchEvent(new CustomEvent('next-step', {
+        bubbles: true,
+        composed: true
+      }));
+    } catch (error) {
+      console.error('Protocol creation error:', error);
+
+      this.dispatchEvent(new CustomEvent('show-response', {
+        bubbles: true,
+        composed: true,
+        detail: { 
+          type: 'error',
+          title: 'Protocol Creation Error',
+          message: error instanceof Error ? error.message : 'Failed to create protocol. Please try again.'
+        }
+      }));
+
+      if (createButton) {
+        createButton.disabled = false;
+      }
+    }
+  }
+}
+
+customElements.define('create-protocol-step', CreateProtocolStep);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'create-protocol-step': CreateProtocolStep;
   }
 }

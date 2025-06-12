@@ -1,108 +1,92 @@
 import './style.css';
-import { Step, type AppComponents, type AppState, type StepType } from './types.ts';
-import { StepsComponent } from './components/steps.ts';
-import { ResponseComponent } from './components/response.ts';
+import './components/steps.ts';
+import './components/response-display.ts';
+import './components/code-preview.ts';
+import {html, render} from 'lit-html';
+import {type Step, Steps} from './types.ts';
+import type {ResponseData} from "./components/response-display.ts";
 
-// Initialize app state
-const appState: AppState = {
-  currentStep: Step.GREETING,
-  accessToken: null,
-  protocolId: null,
-  protocol: null,
-  protocolCount: null
-};
+class App extends HTMLElement {
+    private currentStep: Step = Steps.GREETING
+    private responseData: ResponseData | undefined
+    private nextStepHandler: ((event: Event) => void) | null = null;
+    private previousStepHandler: ((event: Event) => void) | null = null;
+    private showResponseHandler: ((e: CustomEvent<ResponseData>) => void) | null = null;
 
-const appComponents: AppComponents = {
-  responseComponent: null,
-  stepsComponent: null,
-  codeComponent: null,
-};
-
-// Initialize the application
-const initApp = () => {
-  // Render the initial app structure
-  renderAppStructure();
-
-  // Initialize the current step
-  initCurrentStep();
-
-  // Render the first step
-  renderCurrentStep();
-
-  // Initialize the response container with a heading
-  initResponseContainer();
-};
-
-const initCurrentStep = () => {
-  appComponents.stepsComponent = new StepsComponent(appState, setStepAndRender, showResponseContainer, clearResponseContainer, setProtocolCount, setProtocol, setAccessToken);
-}
-
-// Initialize the response container
-const initResponseContainer = () => {
-  appComponents.responseComponent = new ResponseComponent();
-};
-
-// Clear the response container completely
-const clearResponseContainer = () => {
-  appComponents.responseComponent?.clear();
-};
-
-// Show the response container with heading and content
-const showResponseContainer = (content: HTMLElement) => {
-  appComponents.responseComponent?.render(content);
-};  
-
-// Render the app structure (code panel and step container)
-const renderAppStructure = () => {
-  const appTemplate = document.getElementById('appTemplate') as HTMLTemplateElement;
-  const codeTemplate = document.getElementById('codeTemplate') as HTMLTemplateElement;
-
-  if (appTemplate && codeTemplate) {
-    // Clone the template content
-    const appContent = appTemplate.content.cloneNode(true) as DocumentFragment;
-
-    // Get code content
-    const codeContent = codeTemplate.content.cloneNode(true);
-
-    // Set dynamic content
-    const codeElement = appContent.querySelector('#codeContent');
-    if (codeElement) {
-      // Clear existing content
-      codeElement.innerHTML = '';
-      // Append the cloned content
-      codeElement.appendChild(codeContent);
+    connectedCallback() {
+        render(this.template(this.currentStep, this.responseData), this)
+        this.setupEventListeners();
     }
 
-    // Clear and append to app div
-    const appDiv = document.querySelector<HTMLDivElement>('#app');
-    if (appDiv) {
-      appDiv.innerHTML = '';
-      appDiv.appendChild(appContent);
+    disconnectedCallback() {
+        this.removeEventListeners();
     }
-  }
-};
 
-const renderCurrentStep = () => {
-  appComponents.stepsComponent?.renderCurrentStep();
+    private setupEventListeners() {
+        this.nextStepHandler = this.handleNextStep.bind(this);
+        this.previousStepHandler = this.handlePreviousStep.bind(this);
+        this.showResponseHandler = (e: CustomEvent<ResponseData>) => {
+            this.responseData = e.detail;
+            this.render(this.currentStep, this.responseData);
+        };
+
+        this.addEventListener('next-step', this.nextStepHandler);
+        this.addEventListener('previous-step', this.previousStepHandler);
+        this.addEventListener('show-response', this.showResponseHandler);
+    }
+
+    private removeEventListeners() {
+        if (this.nextStepHandler) {
+            this.removeEventListener('next-step', this.nextStepHandler);
+            this.nextStepHandler = null;
+        }
+
+        if (this.previousStepHandler) {
+            this.removeEventListener('previous-step', this.previousStepHandler);
+            this.previousStepHandler = null;
+        }
+
+        if (this.showResponseHandler) {
+            this.removeEventListener('show-response', this.showResponseHandler);
+            this.showResponseHandler = null;
+        }
+    }
+
+
+    private handleNextStep() {
+        this.currentStep = this.currentStep === Steps.SAID_HELLO
+            ? Steps.GREETING
+            : this.currentStep + 1 as Step;
+        this.render(this.currentStep, this.responseData)
+    }
+
+    private handlePreviousStep() {
+        if (this.currentStep > Steps.GREETING) {
+            this.currentStep = this.currentStep - 1 as Step;
+            this.render(this.currentStep, this.responseData);
+        }
+    }
+
+    private render(step: Step, responseData?: ResponseData) {
+        render(this.template(step, responseData), this);
+    }
+
+    private template(step: Step, responseData?: ResponseData) {
+        return html`
+            <div class="app-layout">
+                <code-preview-component></code-preview-component>
+                <steps-component .step=${step}>
+                </steps-component>
+                ${responseData && html`<response-display .responseData="${responseData}"></response-display>`}
+            </div>
+        `;
+    }
 }
 
-const setStepAndRender = (step: StepType) => {
-  appState.currentStep = step;
-  appComponents.stepsComponent?.renderCurrentStep();
-}
+customElements.define('noumena-app', App);
 
-const setAccessToken = (token: string) => {
-  appState.accessToken = token;
+declare global {
+    interface HTMLElementTagNameMap {
+        'noumena-app': App;
+    }
 }
-
-const setProtocolCount = (count: number) => {
-  appState.protocolCount = count;
-}
-
-const setProtocol = (id: string, protocol: any) => {
-  appState.protocolId = id;
-  appState.protocol = protocol;
-}
-
-// Start the application
-initApp();

@@ -1,46 +1,101 @@
 import { jwtDecode } from "jwt-decode";
-import { Step, type StepType } from "../../types";
+import { html, render } from "lit-html";
 
-export class LoggedInStep {
-    setStepAndRender: (step: StepType) => void;
-    clearResponseContainer: () => void;
+export class LoggedInStep extends HTMLElement {
+    private continueButtonHandler: ((event: Event) => void) | null = null;
+    private backButtonHandler: ((event: Event) => void) | null = null;
 
-    constructor(
-        setStepAndRender: (step: StepType) => void,
-        clearResponseContainer: () => void
-    ) {
-        this.setStepAndRender = setStepAndRender;
-        this.clearResponseContainer = clearResponseContainer;
+    set accessToken(value: string) {
+        this.render(value);
     }
 
-    render(container: HTMLElement, accessToken: string | null) {
-        const template = document.getElementById('loggedInTemplate') as HTMLTemplateElement;
-        if (template) {
-            const content = template.content.cloneNode(true) as DocumentFragment;
-            container.appendChild(content);
+    connectedCallback() {
+        this.setupEventListeners();
+    }
 
-            // Display the decoded token information
-            const tokenInfoContainer = document.getElementById('logged-in-token-info');
-            if (tokenInfoContainer && accessToken) {
+    disconnectedCallback() {
+        this.removeEventListeners();
+    }
+
+    private render(accessToken: string) {
+        render(this.template(accessToken), this);
+    }
+
+    private template(accessToken: string) {
+        let tokenInfo = '';
+        if (accessToken) {
+            try {
                 const decodedToken = jwtDecode(accessToken);
-                const tokenInfo = document.createElement('pre');
-                tokenInfo.className = 'token-info';
-                tokenInfo.textContent = JSON.stringify(decodedToken, null, 2);
-                tokenInfoContainer.appendChild(tokenInfo);
+                tokenInfo = JSON.stringify(decodedToken, null, 2);
+            } catch (error) {
+                console.error('Error decoding token:', error);
             }
-
-            // Set up event listener for the logged in button
-            this.setupLoggedInButtonEventListeners();
         }
+
+        return html`
+            <div class="step-content">
+                <h1>You are logged in</h1>
+                <p>The authentication token (JWT) attributes include <code>preferred_username</code>, which is used to identify the user.</p>
+                <div id="logged-in-token-info">
+                    <pre class="token-info">${tokenInfo}</pre>
+                </div>
+                <div class="input-container">
+                    <button id="backButton" class="back-button">Back</button>
+                    <button id="loggedInButton">Continue to Create Protocol</button>
+                </div>
+            </div>
+        `;
     }
 
-    setupLoggedInButtonEventListeners() {
-        const loggedInButton = document.getElementById('loggedInButton');
+    private setupEventListeners() {
+        this.removeEventListeners();
+
+        const loggedInButton = this.querySelector('#loggedInButton');
         if (loggedInButton) {
-            loggedInButton.addEventListener('click', () => {
-                this.clearResponseContainer();
-                this.setStepAndRender(Step.CREATE_PROTOCOL);
-            });
+            this.continueButtonHandler = this.handleContinueClick.bind(this);
+            loggedInButton.addEventListener('click', this.continueButtonHandler);
+        }
+
+        const backButton = this.querySelector('#backButton');
+        if (backButton) {
+            this.backButtonHandler = this.handleBackClick.bind(this);
+            backButton.addEventListener('click', this.backButtonHandler);
         }
     }
+
+    private removeEventListeners() {
+        const loggedInButton = this.querySelector('#loggedInButton');
+        if (loggedInButton && this.continueButtonHandler) {
+            loggedInButton.removeEventListener('click', this.continueButtonHandler);
+            this.continueButtonHandler = null;
+        }
+
+        const backButton = this.querySelector('#backButton');
+        if (backButton && this.backButtonHandler) {
+            backButton.removeEventListener('click', this.backButtonHandler);
+            this.backButtonHandler = null;
+        }
+    }
+
+    private handleBackClick() {
+        this.dispatchEvent(new CustomEvent('previous-step', {
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private handleContinueClick() {
+        this.dispatchEvent(new CustomEvent('next-step', {
+            bubbles: true,
+            composed: true
+        }));
+    }
+}
+
+customElements.define('logged-in-step', LoggedInStep);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'logged-in-step': LoggedInStep;
+  }
 }

@@ -1,137 +1,80 @@
-import { Step, type AppState, type StepType } from '../types.ts';
-import { LoggedInStep, CreateProtocolStep, ProtocolCreatedStep, SayHelloStep, SaidHelloStep, GreetingStep, LoginStep } from './form/index.ts';
+import {html, render} from 'lit-html';
+import './form/greeting-step.ts';
+import './form/login-step.ts';
+import './form/logged-in-step.ts';
+import './form/create-protocol-step.ts';
+import './form/protocol-created-step.ts';
+import './form/say-hello-step.ts';
+import './form/said-hello-step.ts';
+import type { Step } from '../types.ts';
 
-export class StepsComponent {
-  greetingStep: GreetingStep;
-  loginStep: LoginStep;
-  loggedInStep: LoggedInStep;
-  CreateProtocolStep: CreateProtocolStep;
-  protocolCreatedStep: ProtocolCreatedStep;
-  sayHelloStep: SayHelloStep;
-  saidHelloStep: SaidHelloStep;
-  appState: AppState;
-  showResponse: (content: HTMLElement) => void;
-  clearResponse: () => void;
-  setProtocolCount: (count: number) => void;
-  setProtocol: (id: string, protocol: any) => void;
-  setAccessToken: (token: string) => void;
+export class StepsComponent extends HTMLElement {
+    _step?: Step;
+    _accessToken?: string
+    _protocolId?: string
+    private accessTokenHandler: ((it: CustomEvent<string>) => void) | null = null;
+    private protocolIdHandler: ((it: CustomEvent<string>) => void) | null = null;
 
-  constructor(
-    appState: AppState,
-    setStepAndRender: (step: StepType) => void,
-    showResponse: (content: HTMLElement) => void,
-    clearResponse: () => void,
-    setProtocolCount: (count: number) => void,
-    setProtocol: (id: string, protocol: any) => void,
-    setAccessToken: (token: string) => void,
-  ) {
-
-    this.appState = appState;
-    this.showResponse = showResponse;
-    this.clearResponse = clearResponse;
-    this.setProtocolCount = setProtocolCount;
-    this.setProtocol = setProtocol;
-    this.setAccessToken = setAccessToken;
-
-    this.greetingStep = new GreetingStep(
-      setStepAndRender,
-      clearResponse
-    );
-
-    this.loginStep = new LoginStep(
-      setStepAndRender,
-      showResponse,
-      setAccessToken
-    );
-
-    this.loggedInStep = new LoggedInStep(
-      setStepAndRender,
-      this.clearResponse
-    );
-
-    this.CreateProtocolStep = new CreateProtocolStep(
-      setStepAndRender,
-      clearResponse,
-      showResponse,
-      setProtocolCount,
-      setProtocol
-    );
-
-    this.protocolCreatedStep = new ProtocolCreatedStep(
-      setStepAndRender,
-      clearResponse
-    );
-
-    this.sayHelloStep = new SayHelloStep(
-      setStepAndRender,
-      clearResponse,
-      showResponse
-    );
-
-    this.saidHelloStep = new SaidHelloStep(
-      setStepAndRender,
-      clearResponse
-    );
-  }
-
-  renderCurrentStep() {
-    const container = document.getElementById('stepContainer')!;
-
-    if (!container) return;
-    // Clear the container
-    container.innerHTML = '';
-    
-    // Render the appropriate step content
-    switch (this.appState.currentStep) {
-      case Step.GREETING:
-        this.renderGreeting(container);
-        break;
-      case Step.LOGIN:
-        this.renderLogin(container);
-        break;
-      case Step.LOGGED_IN:
-        this.renderLoggedIn(container, this.appState.accessToken);
-        break
-      case Step.CREATE_PROTOCOL:
-        this.renderCreateProtocol(container, this.appState.accessToken);
-        break;
-      case Step.PROTOCOL_CREATED:
-        this.renderProtocolCreated(container);
-        break;
-      case Step.SAY_HELLO:
-        this.renderSayHello(container, this.appState.protocolId);
-        break;
-      case Step.SAID_HELLO:
-        this.renderSaidHello(container);
-        break;
+    set step(value: Step) {;
+        this._step = value
+        this.render(this._step, this._protocolId)
     }
-  };
 
-  renderGreeting(container: HTMLElement): void {
-    this.greetingStep.render(container);
-  }
+    connectedCallback() {
+        this.accessTokenHandler = (it: CustomEvent<string>) => {
+            this._accessToken = it.detail
+        };
+        this.protocolIdHandler = (it: CustomEvent<string>) => {
+            this._protocolId = it.detail
+        };
 
-  renderLogin(container: HTMLElement): void {
-    this.loginStep.render(container);
-  }
+        this.addEventListener('set-access-token', this.accessTokenHandler);
+        this.addEventListener('set-protocol-id', this.protocolIdHandler);
+    }
 
-  renderLoggedIn(container: HTMLElement, accessToken: string | null): void {
-    this.loggedInStep.render(container, accessToken);
-  }
+    disconnectedCallback() {
+        if (this.accessTokenHandler) {
+            this.removeEventListener('set-access-token', this.accessTokenHandler);
+            this.accessTokenHandler = null;
+        }
+        if (this.protocolIdHandler) {
+            this.removeEventListener('set-protocol-id', this.protocolIdHandler);
+            this.protocolIdHandler = null;
+        }
+    }
 
-  renderCreateProtocol(container: HTMLElement, accessToken: string | null): void {
-    this.CreateProtocolStep.render(container, accessToken);
-  }
+    private render(step: Step, protocolId?: string) {
+        render(this.template(step, protocolId), this)
+    }
 
-  renderProtocolCreated(container: HTMLElement): void {
-    this.protocolCreatedStep.render(container);
-  }
+    private template(step: Step, protocolId?: string) {
+        return this.getStepTemplate(step, protocolId)
+    };
 
-  renderSayHello(container: HTMLElement, protocolId: string | null): void {
-    this.sayHelloStep.render(container, protocolId);
-  }
+    getStepTemplate(step: Step, protocolId?: string) {
+        switch (step){
+            case 0:
+                return html`<greeting-step></greeting-step>`
+            case 1:
+                return html`<login-step></login-step>`
+            case 2:
+                return html`<logged-in-step .accessToken="${this._accessToken}"></logged-in-step>`
+            case 3:
+                return html`<create-protocol-step></create-protocol-step>`
+            case 4:
+                return html`<protocol-created-step></protocol-created-step>`
+            case 5:
+                return html`<say-hello-step .protocolId="${protocolId}"></say-hello-step>`
+            case 6:
+                return html`<said-hello-step></said-hello-step>`
+        }
+    }
+}
 
-  renderSaidHello(container: HTMLElement): void {
-    this.saidHelloStep.render(container);
+customElements.define('steps-component', StepsComponent);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'steps-component': StepsComponent;
   }
 }

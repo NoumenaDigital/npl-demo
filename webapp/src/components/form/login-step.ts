@@ -1,174 +1,207 @@
 import { jwtDecode } from "jwt-decode";
 import { getAccessToken } from "../../service";
-import { Step, type StepType } from "../../types";
+import { html, render } from "lit-html";
 
-export class LoginStep {
-    setStepAndRender: (step: StepType) => void;
-    showResponseContainer: (container: HTMLElement) => void;
-    setAccessToken: (token: string) => void
+export class LoginStep extends HTMLElement {
+    private loginHandler: ((event: Event) => void) | null = null;
+    private backHandler: ((event: Event) => void) | null = null;
 
-    constructor(
-        setStepAndRender: (step: StepType) => void,
-        showResponseContainer: (container: HTMLElement) => void,
-        setAccessToken: (token: string) => void,
-    ) {
-        this.setStepAndRender = setStepAndRender;
-        this.showResponseContainer = showResponseContainer;
-        this.setAccessToken = setAccessToken;
+    connectedCallback() {
+        this.render();
+        this.setupEventListeners();
     }
 
-    render(container: HTMLElement) {
-        const template = document.getElementById('loginTemplate') as HTMLTemplateElement;
-        if (template) {
-            const content = template.content.cloneNode(true) as DocumentFragment;
-            container.appendChild(content);
+    disconnectedCallback() {
+        this.removeEventListeners();
+    }
 
-            // Set up event listener for the login button
-            this.setupLoginButtonEventListeners();
+    private render() {
+        render(this.template(), this);
+    }
+
+    private template() {
+        return html`
+            <div class="step-content">
+                <h1>Authentication</h1>
+                <div>
+                    <p>Log in to access the Hello World Protocol API.</p>
+                    <p>alice, bob and carol are valid users for this demo. They share the same password, prepopulated in
+                        the field below.</p>
+                </div>
+                <div class="form-container">
+                    <div class="form-group">
+                        <label for="usernameInput">Username:</label>
+                        <select id="usernameInput">
+                            <option value="alice" selected>alice</option>
+                            <option value="bob">bob</option>
+                            <option value="carol">carol</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordInput">Password:</label>
+                        <input type="text" id="passwordInput" value="password123" readonly>
+                    </div>
+                </div>
+                <div class="input-container">
+                    <button id="backButton" class="back-button">Back</button>
+                    <button id="loginButton">Login</button>
+                </div>
+            </div>
+        `;
+    }
+
+    private setupEventListeners() {
+        this.removeEventListeners();
+
+        const loginButton = this.querySelector('#loginButton');
+        if (loginButton) {
+            this.loginHandler = this.handleLoginClick.bind(this);
+            loginButton.addEventListener('click', this.loginHandler);
+        }
+
+        const backButton = this.querySelector('#backButton');
+        if (backButton) {
+            this.backHandler = this.handleBackClick.bind(this);
+            backButton.addEventListener('click', this.backHandler);
         }
     }
 
-    setupLoginButtonEventListeners() {
-        const loginButton = document.getElementById('loginButton') as HTMLButtonElement;
-        const usernameInput = document.getElementById('usernameInput') as HTMLInputElement;
-        const passwordInput = document.getElementById('passwordInput') as HTMLInputElement;
-        passwordInput.value = import.meta.env.VITE_USER_PASSWORD;
+    private removeEventListeners() {
+        const loginButton = this.querySelector('#loginButton');
+        if (loginButton && this.loginHandler) {
+            loginButton.removeEventListener('click', this.loginHandler);
+            this.loginHandler = null;
+        }
+
+        const backButton = this.querySelector('#backButton');
+        if (backButton && this.backHandler) {
+            backButton.removeEventListener('click', this.backHandler);
+            this.backHandler = null;
+        }
+    }
+
+    private handleBackClick() {
+        this.dispatchEvent(new CustomEvent('previous-step', {
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private async handleLoginClick() {
+        const loginButton = this.querySelector('#loginButton') as HTMLButtonElement;
+        const usernameInput = this.querySelector('#usernameInput') as HTMLInputElement;
+        const passwordInput = this.querySelector('#passwordInput') as HTMLInputElement;
+
+        if (import.meta.env.VITE_USER_PASSWORD) {
+            passwordInput.value = import.meta.env.VITE_USER_PASSWORD;
+        }
 
         if (loginButton && usernameInput && passwordInput) {
-            loginButton.addEventListener('click', async () => {
-                const username = usernameInput.value.trim();
-                const password = passwordInput.value.trim();
+            const username = usernameInput.value.trim();
+            const password = passwordInput.value.trim();
 
-                if (username && password) {
-                    loginButton.disabled = true;
+            if (username && password) {
+                loginButton.disabled = true;
 
-                    // Show authenticating status in the response container
-                    const statusElement = document.createElement('div');
-                    statusElement.className = 'response-info';
-                    statusElement.innerHTML = `
-                        <div class="loading-message">
-                        <h3>Authenticating...</h3>
-                        <p>Please wait while we authenticate your credentials.</p>
-                        </div>
-                    `;
-                    this.showResponseContainer(statusElement);
+                this.dispatchEvent(new CustomEvent('show-response', {
+                    bubbles: true,
+                    composed: true,
+                    detail: { 
+                        type: 'loading',
+                        message: 'Authenticating...',
+                        description: 'Please wait while we authenticate your credentials.'
+                    }
+                }));
 
-                    try {
-                        const response = await getAccessToken(username, password);
-                        const { method, endpoint, statusCode } = response.requestInfo;
+                try {
+                    const response = await getAccessToken(username, password);
+                    const { method, endpoint, statusCode } = response.requestInfo;
 
-                        // Create response info element
-                        const responseInfoElement = document.createElement('div');
-                        responseInfoElement.className = 'response-info';
+                    if (!response.ok) {
+                        const errorBody = await response.json().catch(() => ({ error: response.statusText }));
 
-                        if (!response.ok) {
-                            // For unsuccessful responses, display the error response
-                            const errorBody = await response.json().catch(() => ({ error: response.statusText }));
-
-                            // Create the response HTML with error details
-                            responseInfoElement.innerHTML = `
-                                <div class="request-details">
-                                <span class="method">${method}</span>
-                                <span class="endpoint">${endpoint}</span>
-                                <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-                                </div>
-                                <pre class="json-output">${JSON.stringify(errorBody, null, 2)}</pre>
-                            `;
-
-                            this.showResponseContainer(responseInfoElement);
-                            loginButton.disabled = false;
-                            return;
-                        }
-
-                        const body = await response.json();
-                        const token = body.access_token as string;
-                        this.setAccessToken(token)
-
-                        // Decode the JWT token
-                        const decodedToken = jwtDecode(token);
-
-                        // Create a modified body object with a decode button for access_token
-                        const modifiedBody = { ...body };
-
-                        // Create the response HTML
-                        responseInfoElement.innerHTML = `
-                            <div class="request-details">
-                                <span class="method">${method}</span>
-                                <span class="endpoint">${endpoint}</span>
-                                <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-                            </div>
-                            <pre id="json-output" class="json-output">${JSON.stringify(modifiedBody, null, 2)}</pre>
-                            `;
-
-                        this.showResponseContainer(responseInfoElement);
-
-                        // Add decode button functionality after the element is added to DOM
-                        const jsonOutput = document.getElementById('json-output');
-                        if (jsonOutput) {
-                            // Add a decode button next to the access_token
-                            const tokenRegex = /"access_token": "([^"]*)"/;
-                            const match = jsonOutput.innerHTML.match(tokenRegex);
-
-                            if (match) {
-                                const tokenValue = match[1];
-                                jsonOutput.innerHTML = jsonOutput.innerHTML.replace(
-                                    tokenRegex,
-                                    `"access_token": "${tokenValue}" <button id="decode-token-btn" class="decode-token-btn">Decode Token</button>`
-                                );
-
-                                // Add event listener to the decode button
-                                setTimeout(() => {
-                                    const decodeButton = document.getElementById('decode-token-btn');
-                                    if (decodeButton) {
-                                        decodeButton.addEventListener('click', () => {
-                                            // Replace the token with the decoded token in proper JSON format
-                                            const formattedDecodedToken = JSON.stringify(decodedToken, null, 2)
-                                                .split('\n')
-                                                .map((line, index) => index === 0 ? line : '  ' + line)
-                                                .join('\n');
-
-                                            jsonOutput.innerHTML = jsonOutput.innerHTML.replace(
-                                                new RegExp(`"access_token": "${tokenValue}" <button[^>]*>Decode Token<\\/button>`),
-                                                `"access_token": ${formattedDecodedToken}`
-                                            );
-                                        });
-                                    }
-                                }, 0);
+                        this.dispatchEvent(new CustomEvent('show-response', {
+                            bubbles: true,
+                            composed: true,
+                            detail: { 
+                                type: 'api-response',
+                                requestInfo: {
+                                    method,
+                                    endpoint,
+                                    statusCode
+                                },
+                                body: errorBody
                             }
-                        }
-
-                        // Move to logged in step
-                        this.setStepAndRender(Step.LOGGED_IN)
-                    } catch (error) {
-                        console.error('Authentication error:', error);
-
-                        // Display error in the response container
-                        const errorElement = document.createElement('div');
-                        errorElement.className = 'response-info';
-                        errorElement.innerHTML = `
-                            <div class="error-message">
-                                <h3>Authentication Error</h3>
-                                <p>${error instanceof Error ? error.message : 'Failed to authenticate. Please try again.'}</p>
-                            </div>
-                        `;
-
-                        this.showResponseContainer(errorElement);
+                        }));
 
                         loginButton.disabled = false;
+                        return;
                     }
-                } else {
-                    // Display validation error in the response container
-                    const validationElement = document.createElement('div');
-                    validationElement.className = 'response-info';
-                    validationElement.innerHTML = `
-                        <div class="error-message">
-                        <h3>Validation Error</h3>
-                        <p>Please enter both username and password.</p>
-                        </div>
-                    `;
-                    this.showResponseContainer(validationElement);
+
+                    const body = await response.json();
+                    const token = body.access_token as string;
+
+                    this.dispatchEvent(new CustomEvent('set-access-token', {
+                        bubbles: true,
+                        composed: true,
+                        detail: token
+                    }));
+
+                    const decodedToken = jwtDecode(token);
+
+                    this.dispatchEvent(new CustomEvent('show-response', {
+                        bubbles: true,
+                        composed: true,
+                        detail: { 
+                            type: 'api-response',
+                            requestInfo: {
+                                method,
+                                endpoint,
+                                statusCode
+                            },
+                            body: body,
+                            decodedToken: decodedToken
+                        }
+                    }));
+
+                    this.dispatchEvent(new CustomEvent('next-step', {
+                        bubbles: true,
+                        composed: true
+                    }));
+                } catch (error) {
+                    console.error('Authentication error:', error);
+
+                    this.dispatchEvent(new CustomEvent('show-response', {
+                        bubbles: true,
+                        composed: true,
+                        detail: { 
+                            type: 'error',
+                            title: 'Authentication Error',
+                            message: error instanceof Error ? error.message : 'Failed to authenticate. Please try again.'
+                        }
+                    }));
+
+                    loginButton.disabled = false;
                 }
-            });
+            } else {
+                this.dispatchEvent(new CustomEvent('show-response', {
+                    bubbles: true,
+                    composed: true,
+                    detail: { 
+                        type: 'error',
+                        title: 'Validation Error',
+                        message: 'Please enter both username and password.'
+                    }
+                }));
+            }
         }
     }
+}
+
+customElements.define('login-step', LoginStep);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'login-step': LoginStep;
+  }
 }

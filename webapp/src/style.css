@@ -13,13 +13,6 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-}
-
 a {
   font-weight: 500;
   color: #646cff;
@@ -33,112 +26,34 @@ a:hover {
 body {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
+  height: 100%;
+  margin: 0;
 }
 
 h1 {
+  margin: 0;
   font-size: 3.2em;
   line-height: 1.1;
 }
 
-#app {
+noumena-app {
+  display: block;
   max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: hidden;
-}
-
-/* App layout styling */
-.app-layout {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: 100%;
-  height: 100%;
-  box-sizing: border-box;
-  overflow-x: hidden;
-  overflow-y: hidden;
-}
-
-/* Split view styling */
-.split-container {
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
-  margin-bottom: 1rem;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  flex-wrap: wrap;
-  flex: 0 0 auto;
-}
-
-.code-panel {
-  flex: 1;
-  text-align: left;
-  background-color: #1a1a1a;
-  border-radius: 8px;
-  padding: 0;
   overflow: hidden;
-  align-self: flex-start;
 }
 
-.code-tab {
-  background-color: #2d2d2d;
-  color: #e6e6e6;
-  padding: 0.5rem 1rem;
-  font-size: 0.9em;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  border-bottom: 1px solid #444;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+.app-layout {
+  height: 100%;
+  display: grid;
+  grid-template-areas:
+    "code steps"
+    "response response";
 
-.code-container {
-  padding: 1rem;
-}
-
-.code-panel pre {
-  margin: 0;
-  white-space: pre-wrap;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  color: #e6e6e6;
-  line-height: 1.5;
-}
-
-/* Basic syntax highlighting */
-.app-panel {
-  flex: 1;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-}
-
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vanilla:hover {
-  filter: drop-shadow(0 0 2em #3178c6aa);
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 1rem;
+  padding: 10px;
 }
 
 button {
@@ -160,7 +75,6 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
-/* Inline button styling */
 .inline-button {
   padding: 0.1em 0.5em;
   font-size: 1em;
@@ -171,23 +85,10 @@ button:focus-visible {
   vertical-align: baseline;
 }
 
-/* Styles for the input container, input field, and greeting result */
 .input-container {
-  margin: 2em 0;
   display: flex;
   justify-content: center;
   gap: 0.5em;
-}
-
-/* Fixed positioning for the input container in the Say Hello template */
-.step-content h1 + .input-container {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: #242424; /* Match the page background */
-  padding: 1em 0;
-  margin-top: 0;
-  width: 100%;
 }
 
 input[type="text"],
@@ -208,50 +109,17 @@ input[type="password"]:focus {
   border-color: #646cff;
 }
 
-#greetingResult, .result-box {
-  margin-top: 1em;
-  padding: 1em;
-  min-height: 1.5em;
-  font-weight: 500;
-  color: #646cff;
-  background-color: rgba(100, 108, 255, 0.1);
-  border-radius: 8px;
-  word-break: break-all;
-  max-height: none;
+.step-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  text-align: center;
+  height: 100%;
 }
 
-#greetingResult:empty, .result-box:empty {
-  display: none;
-}
 
-/* Decoded token styling */
-.decoded-token {
-  margin-top: 1em;
-  text-align: left;
-  background-color: rgba(100, 108, 255, 0.05);
-  border-radius: 8px;
-  padding: 0.5em;
-}
 
-.decoded-token h3 {
-  font-size: 1em;
-  margin: 0 0 0.5em 0;
-  color: #e6e6e6;
-}
-
-.decoded-token pre {
-  margin: 0;
-  font-family: 'Courier New', monospace;
-  font-size: 0.85em;
-  color: #9cdcfe;
-  white-space: pre-wrap;
-  overflow-x: auto;
-  word-wrap: break-word;
-  overflow-wrap: break-word;
-  max-width: 100%;
-}
-
-/* Error message styling */
 .error-message {
   margin-top: 1em;
   text-align: left;
@@ -273,20 +141,7 @@ input[type="password"]:focus {
   color: #e6e6e6;
 }
 
-/* Success message styling */
-.success-message, .protocol-created {
-  margin-top: 1em;
-  text-align: center;
-  background-color: rgba(56, 161, 105, 0.1);
-  border-radius: 8px;
-  padding: 0.8em;
-  border-left: 3px solid #38a169;
-  color: #e6e6e6;
-  font-weight: 500;
-}
-
-/* Loading message styling */
-.loading-message, .authenticating-message, .creating-message {
+.loading-message {
   margin-top: 1em;
   text-align: center;
   background-color: rgba(66, 153, 225, 0.1);
@@ -295,19 +150,6 @@ input[type="password"]:focus {
   border-left: 3px solid #4299e1;
   color: #e6e6e6;
   font-weight: 500;
-}
-
-/* Step content styling */
-.step-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-  flex-grow: 1;
-  height: 100%;
-  justify-content: flex-start;
-  position: relative;
-  padding-top: 1em;
 }
 
 .feature-list {
@@ -339,56 +181,17 @@ input[type="password"]:focus {
   font-weight: 500;
 }
 
-/* Step navigation */
-.step-navigation {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-top: auto;
-  margin-bottom: 1.5em;
-}
 
-/* Proceed button styling */
-.proceed-button {
-  margin-top: auto;
-  margin-bottom: 1.5em;
-}
-
-.step-indicator {
-  display: flex;
-  justify-content: center;
-  margin-top: 1em;
-}
-
-.step-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background-color: #444;
-  margin: 0 5px;
-}
-
-.step-dot.active {
-  background-color: #646cff;
-}
-
-/* Response container wrapper */
-.response-container-wrapper {
-  width: 100%;
-  max-width: 100%;
-  overflow-x: hidden;
-  overflow-y: auto;
+response-display {
+  grid-area: response;
+  display: block;
+  max-height: 500px;
   border-radius: 8px;
   background-color: rgba(100, 108, 255, 0.02);
   border: 1px solid rgba(100, 108, 255, 0.1);
   padding: 1rem;
   box-sizing: border-box;
-  flex: 1 1 auto;
-  max-height: calc(100% - 2rem);
-}
-
-.response-container-wrapper:empty {
-  display: none;
+  overflow: hidden;
 }
 
 .response-heading {
@@ -399,15 +202,6 @@ input[type="password"]:focus {
   text-align: center;
   border-bottom: 1px solid rgba(100, 108, 255, 0.2);
   padding-bottom: 0.5rem;
-}
-
-/* Response info styling */
-.response-info, .response-container {
-  margin: 1em 0;
-  text-align: left;
-  max-width: 100%;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 .request-details {
@@ -450,133 +244,50 @@ input[type="password"]:focus {
   text-align: center;
 }
 
-/* Status code colors */
-.status-code[data-status^="2"] {
-  background-color: #38a169; /* Green for 2xx */
-}
-
-.status-code[data-status^="3"] {
-  background-color: #3182ce; /* Blue for 3xx */
-}
-
-.status-code[data-status^="4"] {
-  background-color: #dd6b20; /* Orange for 4xx */
-}
-
-.status-code[data-status^="5"] {
-  background-color: #e53e3e; /* Red for 5xx */
-}
-
-.response-body {
-  padding: 0;
-}
-
-/* JSON output styling */
 .json-output {
+  display: block;
+  overflow-y: auto;
+  max-height: 350px;
   margin: 0;
   font-family: 'Courier New', monospace;
   font-size: 0.9em;
-  background-color: transparent;
   padding: 1em;
   color: #e6e6e6;
   white-space: pre-wrap;
-  overflow-x: auto;
   text-align: left;
-  border-left: none;
-  max-height: none;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  max-width: 100%;
 }
 
-/* Decode token button styling */
-.decode-token-btn {
-  display: inline-block;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9em;
-  background-color: rgba(100, 108, 255, 0.1);
-  color: #646cff;
-  border: 1px solid rgba(100, 108, 255, 0.3);
-  border-radius: 4px;
-  padding: 0.2em 0.5em;
-  margin: 0;
-  cursor: pointer;
-  transition: background-color 0.25s, border-color 0.25s;
-}
-
-.decode-token-btn:hover {
-  background-color: rgba(100, 108, 255, 0.2);
-  border-color: rgba(100, 108, 255, 0.5);
-}
-
-/* Additional section styling */
-.additional-section {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-/* Again button styling */
-.again-button {
+.back-button {
   border-radius: 8px;
-  border: 1px solid transparent;
+  border: 1px solid #444;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #2a2a2a;
   cursor: pointer;
-  transition: border-color 0.25s;
-  margin-top: 1em;
+  transition: border-color 0.25s, background-color 0.25s;
+  margin-right: 0.5em;
 }
 
-.again-button:hover {
+.back-button:hover {
   border-color: #646cff;
+  background-color: #333;
 }
 
-/* Additional links styling */
-.additional-links {
-  width: 100%;
-  text-align: center;
-  padding: 1em;
+steps-component {
+  padding: 20px;
+  grid-area: steps;
 }
 
-.additional-links ul {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-}
-
-.additional-links li {
-  margin: 0.5em 0;
-}
-
-.additional-links a {
-  color: #646cff;
-  text-decoration: none;
-  transition: color 0.25s;
-}
-
-.additional-links a:hover {
-  color: #535bf2;
-  text-decoration: underline;
-}
-
-/* Dark mode is enforced for all users regardless of system preferences */
-
-.code-container {
+code-preview-component {
+  grid-area: code;
   background-color: #1a1b26;
-  border-radius: 6px;
   padding: 20px;
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
-  color: #f8f8f2;
-  margin: 20px 0;
-  overflow-x: auto;
-  position: relative;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 50%;
-  width: 100%;
 }
 
 .code-header {
@@ -595,9 +306,6 @@ input[type="password"]:focus {
 }
 
 .code-copy-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   background-color: #44475a;
   color: #f8f8f2;
   border: none;
@@ -609,7 +317,7 @@ input[type="password"]:focus {
   transition: opacity 0.2s;
 }
 
-.code-container:hover .code-copy-btn {
+code-preview-component:hover .code-copy-btn {
   opacity: 1;
 }
 
@@ -620,10 +328,15 @@ input[type="password"]:focus {
 .code-content {
   line-height: 1.5;
   font-size: 14px;
+  max-width: 100%;
+  min-width: 555px;
+  overflow-x: hidden;
 }
 
 .code-line {
   display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
 }
 
 .line-number {
@@ -631,14 +344,15 @@ input[type="password"]:focus {
   text-align: right;
   padding-right: 12px;
   user-select: none;
-  min-width: 40px;
+  min-width: 20px;
 }
 
 .line-code {
-  white-space: pre;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
-/* Syntax highlighting */
 .keyword {
   color: #f7768e;
 }
@@ -651,24 +365,15 @@ input[type="password"]:focus {
   color: #9d7cd8;
 }
 
-.comment {
-  color: #565f89;
-  font-style: italic;
-}
 
 .number {
   color: #ff9e64;
-}
-
-.operator {
-  color: #89ddff;
 }
 
 .api-annotation {
   color: #7dcfff;
 }
 
-/* Token info styling */
 .token-info {
   margin: 1em 0;
   padding: 1em;
@@ -683,15 +388,11 @@ input[type="password"]:focus {
   width: 100%;
   box-sizing: border-box;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-height: 20vh;
   overflow-y: auto;
 }
 
 #logged-in-token-info {
   width: 100%;
-  max-width: 600px;
-  margin: 1em auto;
   text-align: left;
-  max-height: 25vh;
   overflow-y: auto;
 }

@@ -2,7 +2,7 @@ package demo;
 
 function getInnovator() returns Party -> partyOf(
     mapOf(Pair("preferred_username", setOf("Alice"))),
-    mapOf<Text, Set<Text>>(),
+    mapOf<Text, Set<Text>>()
 );
 
 @test

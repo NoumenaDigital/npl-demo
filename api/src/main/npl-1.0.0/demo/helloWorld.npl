@@ -14,4 +14,8 @@ protocol[innovator] HelloWorld() {
 };
 
 function getUsername(party: Party) returns Text -> 
-    party.entity().getOrNone("preferred_username").getOrFail().toList().get(0);
+    party.entity()
+    .getOrNone("preferred_username")
+    .getOrFail()
+    .toList()
+    .get(0);

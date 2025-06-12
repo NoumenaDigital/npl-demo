@@ -1,109 +1,148 @@
 import { sayHello } from "../../service";
-import { Step, type StepType } from "../../types";
+import { html, render } from "lit-html";
 
-export class SayHelloStep {
-    setStepAndRender: (step: StepType) => void;
-    clearResponseContainer: () => void;
-    showResponseContainer: (container: HTMLElement) => void;
+export class SayHelloStep extends HTMLElement {
+    private _protocolId: string | null = null;
+    private sayHelloHandler: ((event: Event) => void) | null = null;
+    private backHandler: ((event: Event) => void) | null = null;
 
-    constructor(
-        setStepAndRender: (step: StepType) => void,
-        clearResponseContainer: () => void,
-        showResponseContainer: (container: HTMLElement) => void
-    ) {
-        this.setStepAndRender = setStepAndRender;
-        this.clearResponseContainer = clearResponseContainer;
-        this.showResponseContainer = showResponseContainer;
+    set protocolId(value: string | null) {
+        this._protocolId = value;
+        this.render();
     }
 
-    render(container: HTMLElement, protocolId: string | null) {
-        const template = document.getElementById('sayHelloTemplate') as HTMLTemplateElement;
-        if (template) {
-            const content = template.content.cloneNode(true) as DocumentFragment;
-            container.appendChild(content);
+    connectedCallback() {
+        this.render();
+    }
 
-            // Set up event listeners for the say hello button
-            this.setupSayHelloEventListeners(protocolId);
+    disconnectedCallback() {
+        this.removeEventListeners();
+    }
+
+    template() {
+        return html`
+            <div class="step-content">
+                <h1>Call the permission</h1>
+                <div>
+                    <p>Are you ready for your first Hello World in NPL?</p>
+                    <p>The endpoint generated from the permission will allow you to say hello. But only you can, other
+                        users cannot access your Hello World protocol.</p>
+                </div>
+
+                <div class="input-container">
+                    <button id="backButton" class="back-button">Back</button>
+                    <button id="sayHelloButton">Say Hello</button>
+                </div>
+            </div>
+        `;
+    }
+
+    private render() {
+        render(this.template(), this);
+        this.setupSayHelloEventListeners();
+    }
+
+    private setupSayHelloEventListeners() {
+        this.removeEventListeners();
+
+        const sayHelloButton = this.querySelector('#sayHelloButton');
+        if (sayHelloButton) {
+            this.sayHelloHandler = this.handleSayHelloClick.bind(this);
+            sayHelloButton.addEventListener('click', this.sayHelloHandler);
+        }
+
+        const backButton = this.querySelector('#backButton');
+        if (backButton) {
+            this.backHandler = this.handleBackClick.bind(this);
+            backButton.addEventListener('click', this.backHandler);
         }
     }
 
-    // Set up event listeners for the say hello functionality
-    setupSayHelloEventListeners(protocolId: string | null) {
-        const sayHelloButton = document.getElementById('sayHelloButton');
+    private removeEventListeners() {
+        const sayHelloButton = this.querySelector('#sayHelloButton');
+        if (sayHelloButton && this.sayHelloHandler) {
+            sayHelloButton.removeEventListener('click', this.sayHelloHandler);
+            this.sayHelloHandler = null;
+        }
 
-        if (sayHelloButton && protocolId) {
-            sayHelloButton.addEventListener('click', async () => {
-                // Display loading status in the response container
-                const loadingElement = document.createElement('div');
-                loadingElement.className = 'response-info';
-                loadingElement.innerHTML = `
-                    <div class="loading-message">
-                    <h3>Sending Hello...</h3>
-                    <p>Please wait while we process your greeting.</p>
-                    </div>
-                `;
-                this.showResponseContainer(loadingElement);
+        const backButton = this.querySelector('#backButton');
+        if (backButton && this.backHandler) {
+            backButton.removeEventListener('click', this.backHandler);
+            this.backHandler = null;
+        }
+    }
 
-                try {
-                    // Ensure protocolId is not null before calling sayHello
-                    if (!protocolId) {
-                        throw new Error("Protocol ID is missing");
-                    }
-                    const greetingResponse = await sayHello(protocolId);
-                    const { method, endpoint, statusCode } = greetingResponse.requestInfo;
-                    const greetingBody = await greetingResponse.json();
+    private handleBackClick() {
+        this.dispatchEvent(new CustomEvent('previous-step', {
+            bubbles: true,
+            composed: true
+        }));
+    }
 
-                    // Create response info element
-                    const responseInfoElement = document.createElement('div');
-                    responseInfoElement.className = 'response-info';
+    private async handleSayHelloClick() {
+        this.dispatchEvent(new CustomEvent('show-response', {
+            bubbles: true,
+            composed: true,
+            detail: { 
+                type: 'loading',
+                message: 'Sending Hello...',
+                description: 'Please wait while we process your greeting.'
+            }
+        }));
 
-                    // Format JSON body for display
-                    const jsonBody = typeof greetingBody === 'string'
-                        ? { message: greetingBody }
-                        : greetingBody;
+        try {
+            if (!this._protocolId) {
+                throw new Error("Protocol ID is missing");
+            }
 
-                    // Build HTML content based on response status
-                    if (!greetingResponse.ok) {
-                        responseInfoElement.innerHTML = `
-                            <div class="request-details">
-                            <span class="method">${method}</span>
-                            <span class="endpoint">${endpoint}</span>
-                            <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-                            </div>
-                            <pre class="json-output">${JSON.stringify(greetingBody, null, 2)}</pre>
-                        `;
-                    } else {
-                        responseInfoElement.innerHTML = `
-                            <div class="request-details">
-                            <span class="method">${method}</span>
-                            <span class="endpoint">${endpoint}</span>
-                            <span class="status-code" data-status="${statusCode}">${statusCode}</span>
-                            </div>
-                            <pre class="json-output">${JSON.stringify(jsonBody, null, 2)}</pre>
-                        `;
+            const greetingResponse = await sayHello(this._protocolId);
+            const { method, endpoint, statusCode } = greetingResponse.requestInfo;
+            const greetingBody = await greetingResponse.json();
 
-                        if (statusCode === 200) {
-                            this.setStepAndRender(Step.SAID_HELLO);
-                        }
-                    }
+            const jsonBody = typeof greetingBody === 'string'
+                ? { message: greetingBody }
+                : greetingBody;
 
-                    // Update the response container
-                    this.showResponseContainer(responseInfoElement);
-                } catch (error) {
-                    console.error('Error saying hello:', error);
-
-                    // Display error in the response container
-                    const errorElement = document.createElement('div');
-                    errorElement.className = 'response-info';
-                    errorElement.innerHTML = `
-                        <div class="error-message">
-                            <h3>Say Hello Error</h3>
-                            <p>${error instanceof Error ? error.message : 'Failed to say hello. Please try again.'}</p>
-                        </div>
-                    `;
-                    this.showResponseContainer(errorElement);
+            this.dispatchEvent(new CustomEvent('show-response', {
+                bubbles: true,
+                composed: true,
+                detail: { 
+                    type: 'api-response',
+                    requestInfo: {
+                        method,
+                        endpoint,
+                        statusCode
+                    },
+                    body: jsonBody
                 }
-            });
+            }));
+
+            if (statusCode === 200) {
+                this.dispatchEvent(new CustomEvent('next-step', {
+                    bubbles: true,
+                    composed: true
+                }));
+            }
+        } catch (error) {
+            console.error('Error saying hello:', error);
+
+            this.dispatchEvent(new CustomEvent('show-response', {
+                bubbles: true,
+                composed: true,
+                detail: { 
+                    type: 'error',
+                    title: 'Say Hello Error',
+                    message: error instanceof Error ? error.message : 'Failed to say hello. Please try again.'
+                }
+            }));
         }
-    };
+    }
+}
+
+customElements.define('say-hello-step', SayHelloStep);
+
+declare global {
+    interface HTMLElementTagNameMap {
+        'say-hello-step': SayHelloStep;
+    }
 }
