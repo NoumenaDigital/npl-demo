@@ -3,8 +3,6 @@ import { jwtDecode } from "jwt-decode";
 const SERVER_URL = `${import.meta.env.VITE_SERVER_URL}/npl/demo/HelloWorld`;
 const AUTH_URL = import.meta.env.VITE_AUTH_URL;
 const AUTH_CLIENT_ID = import.meta.env.VITE_AUTH_CLIENT_ID;
-const USER_USERNAME = import.meta.env.VITE_USER_USERNAME;
-const USER_PASSWORD = import.meta.env.VITE_USER_PASSWORD;
 
 export const getAccessToken = async (username: string, password: string): Promise<EnhancedResponse> => {
     const payload = {
@@ -25,32 +23,24 @@ export const getAccessToken = async (username: string, password: string): Promis
     return enhanceResponse(response, method, endpoint);
 }
 
-const enhanceResponse = async (response: Response, method: string, endpoint: string): Promise<EnhancedResponse> => {
-    const enhancedResponse = response as EnhancedResponse;
-    enhancedResponse.requestInfo = {
-        method,
-        endpoint,
-        statusCode: response.status
-    };
-    return enhancedResponse;
-};
-
-export const getHelloWorldsCount = async (): Promise<EnhancedResponse> => {
+export const getHelloWorldsCount = async (accessToken: string): Promise<EnhancedResponse> => {
     return makeAuthenticatedRequest({
         endpoint: `${SERVER_URL}/?pageSize=1&includeCount=true`,
-        method: 'GET'
+        method: 'GET',
+        accessToken
     });
 }
 
-export const getHelloWorld = async (id: string): Promise<EnhancedResponse> => {
+export const getHelloWorld = async (id: string, accessToken: string): Promise<EnhancedResponse> => {
     return makeAuthenticatedRequest({
         endpoint: `${SERVER_URL}/${id}/`,
-        method: 'GET'
+        method: 'GET',
+        accessToken
     });
 }
 
-export const postHelloWorld = async (): Promise<EnhancedResponse> => {
-    const { accessToken, decodedToken } = await getAuthTokens();
+export const postHelloWorld = async (accessToken: string): Promise<EnhancedResponse> => {
+    const decodedToken = jwtDecode(accessToken)
 
     const payload = {
         "@parties": {
@@ -72,30 +62,30 @@ export const postHelloWorld = async (): Promise<EnhancedResponse> => {
     });
 }
 
-export const sayHello = async (helloWorldId: string): Promise<EnhancedResponse> => {
+export const sayHello = async (helloWorldId: string, accessToken:string): Promise<EnhancedResponse> => {
     return makeAuthenticatedRequest({
         endpoint: `${SERVER_URL}/${helloWorldId}/sayHello`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
-        }
+        },
+        accessToken
     });
 }
 
-const getAuthTokens = async (): Promise<AuthTokens> => {
-    const tokenResponse = await getAccessToken(USER_USERNAME, USER_PASSWORD);
-    const tokenBody = await tokenResponse.json();
-    const accessToken = tokenBody.access_token as string;
-    const decodedToken = jwtDecode(accessToken);
-
-    return { accessToken, decodedToken };
+const enhanceResponse = async (response: Response, method: string, endpoint: string): Promise<EnhancedResponse> => {
+    const enhancedResponse = response as EnhancedResponse;
+    enhancedResponse.requestInfo = {
+        method,
+        endpoint,
+        statusCode: response.status
+    };
+    return enhancedResponse;
 };
 
 const makeAuthenticatedRequest = async (options: RequestOptions): Promise<EnhancedResponse> => {
-    const accessToken = options.accessToken || (await getAuthTokens()).accessToken;
-
     const headers: Record<string, string> = {
-        'Authorization': `Bearer ${accessToken}`,
+        'Authorization': `Bearer ${options.accessToken}`,
         ...options.headers
     };
 
@@ -126,10 +116,5 @@ interface RequestOptions {
     endpoint: string;
     headers?: Record<string, string>;
     body?: any;
-    accessToken?: string;
-}
-
-interface AuthTokens {
     accessToken: string;
-    decodedToken: any;
 }

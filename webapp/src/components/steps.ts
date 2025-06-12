@@ -15,7 +15,7 @@ export class StepsComponent extends HTMLElement {
     private accessTokenHandler: ((it: CustomEvent<string>) => void) | null = null;
     private protocolIdHandler: ((it: CustomEvent<string>) => void) | null = null;
 
-    set step(value: Step) {;
+    set step(value: Step) {
         this._step = value
         this.render(this._step, this._protocolId)
     }
@@ -60,11 +60,11 @@ export class StepsComponent extends HTMLElement {
             case 2:
                 return html`<logged-in-step .accessToken="${this._accessToken}"></logged-in-step>`
             case 3:
-                return html`<create-protocol-step></create-protocol-step>`
+                return html`<create-protocol-step .accessToken="${this._accessToken}"></create-protocol-step>`
             case 4:
                 return html`<protocol-created-step></protocol-created-step>`
             case 5:
-                return html`<say-hello-step .protocolId="${protocolId}"></say-hello-step>`
+                return html`<say-hello-step .accessToken="${this._accessToken}" .protocolId="${protocolId}"></say-hello-step>`
             case 6:
                 return html`<said-hello-step></said-hello-step>`
         }

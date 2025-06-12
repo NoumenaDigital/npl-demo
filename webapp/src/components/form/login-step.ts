@@ -119,7 +119,6 @@ export class LoginStep extends HTMLElement {
 
                     if (!response.ok) {
                         const errorBody = await response.json().catch(() => ({ error: response.statusText }));
-
                         this.dispatchEvent(new CustomEvent('show-response', {
                             bubbles: true,
                             composed: true,

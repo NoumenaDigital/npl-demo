@@ -3,12 +3,17 @@ import { html, render } from "lit-html";
 
 export class SayHelloStep extends HTMLElement {
     private _protocolId: string | null = null;
+    private _accessToken?: string
     private sayHelloHandler: ((event: Event) => void) | null = null;
     private backHandler: ((event: Event) => void) | null = null;
 
     set protocolId(value: string | null) {
         this._protocolId = value;
         this.render();
+    }
+
+    set accessToken(value: string) {
+        this._accessToken = value;
     }
 
     connectedCallback() {
@@ -95,7 +100,7 @@ export class SayHelloStep extends HTMLElement {
                 throw new Error("Protocol ID is missing");
             }
 
-            const greetingResponse = await sayHello(this._protocolId);
+            const greetingResponse = await sayHello(this._protocolId, this._accessToken!);
             const { method, endpoint, statusCode } = greetingResponse.requestInfo;
             const greetingBody = await greetingResponse.json();
 

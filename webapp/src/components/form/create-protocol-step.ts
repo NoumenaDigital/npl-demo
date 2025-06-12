@@ -4,30 +4,26 @@ import { jwtDecode } from "jwt-decode";
 import { html, render } from "lit-html";
 
 export class CreateProtocolStep extends HTMLElement {
-  private _accessToken: string | null = null;
+  private _accessToken?: string
   private _username: string = '';
   private _helloWorldsCount: number = 0;
   private createButtonClickHandler: ((event: Event) => void) | null = null;
   private backButtonClickHandler: ((event: Event) => void) | null = null;
 
-  set accessToken(value: string | null) {
+  set accessToken(value: string) {
     this._accessToken = value;
-    if (value) {
-      const decodedToken = jwtDecode(value) as any;
-      this._username = decodedToken.preferred_username || '';
-    }
-    this.render();
-  }
+    const decodedToken = jwtDecode(value) as any;
+    this._username = decodedToken.preferred_username || '';
 
-  get accessToken(): string | null {
-    return this._accessToken;
+    this.getProtocolCount(value).then(it => {
+      this._helloWorldsCount = it;
+      this.render()
+    })
   }
 
   async connectedCallback() {
     this.render();
     this.setupCreateProtocolEventListeners();
-    this._helloWorldsCount = await this.getProtocolCount()
-    this.render()
   }
 
   disconnectedCallback() {
@@ -56,8 +52,8 @@ export class CreateProtocolStep extends HTMLElement {
       render(this.template(this._username, this._helloWorldsCount), this);
   }
 
-  async getProtocolCount(): Promise<number> {
-    const response = await getHelloWorldsCount();
+  async getProtocolCount(accessToken: string): Promise<number> {
+    const response = await getHelloWorldsCount(accessToken);
     const { method, endpoint, statusCode } = response.requestInfo;
 
     const body = await response.json();
@@ -137,7 +133,7 @@ export class CreateProtocolStep extends HTMLElement {
     }));
 
     try {
-      const protocolResponse = await postHelloWorld();
+      const protocolResponse = await postHelloWorld(this._accessToken!);
       const { method, endpoint, statusCode } = protocolResponse.requestInfo;
 
       if (!protocolResponse.ok) {
@@ -151,22 +147,6 @@ export class CreateProtocolStep extends HTMLElement {
         composed: true,
         detail: protocol['@id']
       }))
-
-      const countResponse = await getHelloWorldsCount();
-      if (!countResponse.ok) {
-        throw new Error(`Error: ${countResponse.requestInfo.statusCode} - ${countResponse.statusText}`);
-      }
-      const countBody = await countResponse.json();
-      const protocolNumber = countBody.totalItems as number;
-
-      const countButton = this.querySelector('#countButton');
-      if (countButton) {
-        countButton.textContent = protocolNumber.toString();
-      }
-
-      if (createButton) {
-        createButton.style.display = 'none';
-      }
 
       this.dispatchEvent(new CustomEvent('show-response', {
         bubbles: true,
