@@ -389,6 +389,7 @@ code-preview-component:hover .code-copy-btn {
   box-sizing: border-box;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
+  max-height: 300px;
 }
 
 #logged-in-token-info {
