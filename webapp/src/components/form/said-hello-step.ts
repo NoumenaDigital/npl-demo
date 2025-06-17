@@ -19,7 +19,7 @@ export class SaidHelloStep extends HTMLElement {
                 <h1>Success!</h1>
                 <div>
                     <p>See below, you've done it! You are now part of the <a href="https://community.noumenadigital.com/" target="_blank" rel="noopener">NOUMENA Community</a>!</p>
-                    <p>You have used most of the <a href="https://engine-public-npldemo.noumena.cloud/swagger-ui/index.html?urls.primaryName=NPL%20Application%20-%20demo">NPL API</a> for this example. That API comes out of the box when you run the NOUMENA Runtime locally and on NOUMENA Cloud. Continue your Discovery journey <a href="https://documentation.noumenadigital.com" target="_blank" rel="noopener">here</a> to learn more.</p>
+                    <p>You have used most of the <a href="https://engine-public-npldemo.noumena.cloud/swagger-ui/index.html?urls.primaryName=NPL%20Application%20-%20demo">NPL API</a> for this example. That API comes out of the box when you run the NOUMENA Runtime locally and on NOUMENA Cloud. Continue your discovery journey <a href="https://documentation.noumenadigital.com" target="_blank" rel="noopener">here</a> to learn more.</p>
                 </div>
                 <div class="input-container">
                     <button id="backButton" class="back-button">Back</button>
