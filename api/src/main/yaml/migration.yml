@@ -4,5 +4,5 @@ changesets:
   - name: 1.0.0
     changes:
       - reset: true
-      - npl-load:
+      - migrate:
         dir-list: npl
