@@ -25,7 +25,7 @@ export class LoginStep extends HTMLElement {
                 <h1>Authentication</h1>
                 <div>
                     <p>Log in to access the Hello World Protocol API.</p>
-                    <p>alice, bob and carol are valid users for this demo. They share the same password, prepopulated in
+                    <p><code>alice</code>, <code>bob</code> and <code>carol</code> are valid users for this demo. They share the same password, prepopulated in
                         the field below.</p>
                 </div>
                 <div class="form-container">
