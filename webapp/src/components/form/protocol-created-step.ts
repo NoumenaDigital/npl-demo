@@ -20,10 +20,12 @@ export class ProtocolCreatedStep extends HTMLElement {
 
                 <div>
                     <p>Well done!</p>
-                    <p>The protocol is now ready for you. The protocol is in state greeting and the sayHello action is
-                        available to you.</p>
-                    <p>The protocol's innovator party is bound to your preferred_username, so only you can access the
-                        protocol instance and its sayHello action.</p>
+                    <p>The protocol is now ready for you. The protocol is in state
+                        <code>greeting</code> and the <code>sayHello</code> action is available
+                        to you.</p>
+                    <p>The protocol's innovator party is bound to your
+                        <code>preferred_username</code>, so only you can access the protocol
+                        instance and its <code>sayHello</code> action.</p>
                 </div>
 
                 <div class="input-container">

@@ -35,9 +35,21 @@ export class CreateProtocolStep extends HTMLElement {
       <div class="step-content">
         <h1>Create Protocol</h1>
         <div>
-          <p>Create a new instance of the Hello World protocol. The instance will be created in the npl-demo app on NOUMENA Cloud. But you could also run the app locally.</p>
-          <p>The button below uses an endpoint automatically generated out of the NPL code to instantiate a Hello World protocol. Your preferred_username will be bound to the innovator party to prevent access to everyone else.</p>
-          <p>If you see pre-existing Hello World instances, it is because users preceded you as <span id="usernameSpan">${username}</span> on <span style="font-weight: bold">${helloWorldsCount}</span> occasions.</p>
+          <p>
+            Create a new instance of the Hello World protocol. The instance will be
+            created in the <code>npl-demo</code> app on NOUMENA Cloud. You could also
+            run the app locally.
+          </p>
+          <p>
+            The button below uses an endpoint automatically generated out of the NPL
+            code to instantiate a Hello World protocol. Your <code>preferred_username</code>
+            will be bound to the innovator party to prevent access to everyone else.
+          </p>
+          <p>
+            If you see pre-existing Hello World instances, it is because users preceded
+            you as <span id="usernameSpan"><code>${username}</code></span> on
+            <span style="font-weight: bold">${helloWorldsCount}</span> occasions.
+          </p>
         </div>
 
         <div class="input-container">

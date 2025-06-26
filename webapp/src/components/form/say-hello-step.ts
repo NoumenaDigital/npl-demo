@@ -30,8 +30,11 @@ export class SayHelloStep extends HTMLElement {
                 <h1>Call the permission</h1>
                 <div>
                     <p>Are you ready for your first Hello World in NPL?</p>
-                    <p>The endpoint generated from the permission will allow you to say hello. But only you can, other
-                        users cannot access your Hello World protocol.</p>
+                    <p>
+                        The endpoint generated from the permission will allow you to say hello.
+                        But only <em>you</em> can. Other users cannot access your Hello World
+                        protocol.
+                    </p>
                 </div>
 
                 <div class="input-container">
