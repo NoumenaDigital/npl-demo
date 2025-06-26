@@ -1,19 +1,43 @@
 # npl-demo
 
-# get the CLI
-`curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash`
+# Pre-requisite: Get the CLI
+```shell
+curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
+```
 
-# run locally
-`docker compose build && docker compose up -d`
+# Run locally
 
-# deploy npl
-`npl deploy --sourceDir api/src/main/`
+## Start the NOUMENA Runtime
+```shell
+docker compose build && docker compose up -d
+```
 
-# install frontend
+## Deploy NPL to local Runtime
+```shell
+npl deploy --sourceDir api/src/main/
+```
+
+## Install frontend
+```shell
 cd webapp && npm i
 
-# run dev server
+## Run dev server locally
+``shell
 cd webapp && npm run dev
+```
+# Run on NOUMENA Cloud
 
-# build frontend (change webapp/.env for the target)
+# Deploy NPL to NOUMENA Cloud
+```shell
+cd api && npl deploy --appId $YOUR_APP_ID --migration ./src/main/migration.yml
+```
+
+# Build frontend (change webapp/.env for the target)
+```shell
 cd webapp && npm run build
+```
+
+# Create frontend zip for upload (awaiting CLI support for frontend upload)
+```shell
+cd dist && zip -r webapp.zip .
+```
