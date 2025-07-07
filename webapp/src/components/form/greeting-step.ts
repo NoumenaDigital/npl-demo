@@ -21,14 +21,16 @@ export class GreetingStep extends HTMLElement {
             <div class="step-content">
                 <h1>Hello World Protocol Demo</h1>
                 <div>
-                    <p>Illustrating how to build a secure application with NPL in 20 lines:</p>
+                    <p>With NPL, you can build a complete API service and backend in 20 lines of code.</p>
+                    <p>Focus on your core business logic while NPL Runtime automatically generates a full backend infrastructure with database integration.</p>
                     <ul class="feature-list">
-                        <li><strong>Secure</strong>: fine-grained access rights based on JWT</li>
-                        <li><strong>Safe</strong>: persistence and transaction integrity ensured automatically</li>
-                        <li><strong>Simple & Convenient</strong>: generated endpoints and openAPI specs</li>
+                        <li><strong>Complete API Service</strong>: generated REST endpoints with OpenAPI specs</li>
+                        <li><strong>Full Backend</strong>: built-in database ops and persistence layer</li>
+                        <li><strong>Enterprise Security</strong>: fine-grained access control based on JWT</li>
+                        <li><strong>Production Ready</strong>: automatic error handling and data integrity guarantees</li>
                     </ul>
+                    <p>From simple to complex, NPL is the perfect tool for your next project.</p>
                 </div>
-
                 <div class="input-container">
                     <button id="startDemoButton">Start Demo</button>
                 </div>
@@ -65,7 +67,7 @@ export class GreetingStep extends HTMLElement {
 customElements.define('greeting-step', GreetingStep);
 
 declare global {
-  interface HTMLElementTagNameMap {
-    'greeting-step': GreetingStep;
-  }
+    interface HTMLElementTagNameMap {
+        'greeting-step': GreetingStep;
+    }
 }
