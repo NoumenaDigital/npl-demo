@@ -3,6 +3,6 @@ systemUnderAudit: npldemo
 changesets:
   - name: 1.0.0
     changes:
-      - reset: true
       - migrate:
-        dir-list: npl
+          sources:
+          - npl
