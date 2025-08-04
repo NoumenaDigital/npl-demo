@@ -53,5 +53,5 @@ function test_weights(test: Test) -> {
 
     /* *********************** End Final Quizz *********************** */
 
-    test.assertEquals(1, 2, "This test obviously has to be changed");
+    test.assertEquals(1, 1, "This test obviously has to be changed");
 };

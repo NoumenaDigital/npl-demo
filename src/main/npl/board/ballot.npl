@@ -4,33 +4,34 @@ protocol[chairman, board_member] Ballot(
     var topic: Text,
     var board_size: Number
 ) {
-    guard(board_size > 0, "Board size should be bigger than zero");
+    require(board_size > 0, "Board size should be bigger than zero");
 
     initial state VOTING;
     state COUNTING;
     final state COUNTED;
 
-    var votes: List<Vote> = listOf<Vote>(); // TODO make sure no one votes twice
+    var votes: List<Vote> = listOf<Vote>();
+    var quorum: Number = 0.60; // 60% of the board size must vote to end the vote
 
     // Yay and Nay votes are counted in the COUNTING state
-    var yay_count: Option<Number> = optionOf<Number>();
-    var nay_count: Option<Number> = optionOf<Number>();
+    var yay_count: Optional<Number> = optionalOf<Number>();
+    var nay_count: Optional<Number> = optionalOf<Number>();
 
-    var accepted: Option<Boolean> = optionOf<Boolean>();
+    var accepted: Optional<Boolean> = optionalOf<Boolean>();
 
     permission[*voter] vote(board_member_vote: Vote) | VOTING {
-        guard(
+        require(
             voter.mayRepresent(board_member),
             "Only board members can vote");
-        guard(
-            this.votes.noneMatch(\(vote_i: Vote) returns Boolean -> vote_i.isVotingParty[voter]()),
+        require(
+            this.votes.noneMatch(function(vote_i: Vote) returns Boolean -> vote_i.isVotingParty[voter]()),
             "Board member cannot vote twice");
 
-        guard(
-            this.votes.filter(\(vote_i: Vote) returns Boolean -> vote_i.isVotingParty[voter]()).isEmpty(),
+        require(
+            this.votes.filter(function(vote_i: Vote) returns Boolean -> vote_i.isVotingParty[voter]()).isEmpty(),
             "Keeps only votes that are form the voting party and making sure the list is empty");
 
-        guard(
+        require(
             board_member_vote.isVotingParty[voter](),
             "Voter should be the person that submits the votes");
 
@@ -42,24 +43,24 @@ protocol[chairman, board_member] Ballot(
     };
 
     permission[*random] endVote() | VOTING {
-        guard(random.mayRepresent(chairman), "Only Chairman can end vote");
-        guard(this.votes.size() > 0.55 * board_size, "Cannot end vote before the quorum is reach");
+        require(random.mayRepresent(chairman), "Only Chairman can end vote");
+        require(this.votes.size() > quorum * board_size, "Cannot end vote before the quorum is reach");
 
         become COUNTING;
     };
 
     permission[chairman] triggerCounting() | COUNTING {
-        this.yay_count = optionOf(
+        this.yay_count = optionalOf(
             this.votes.filter(
-                \(vote_i: Vote) -> vote_i.member_decision == VotePossibilities.YAY
+                function(vote_i: Vote) -> vote_i.member_decision == VotePossibilities.YAY
             ).size());
-        this.nay_count = optionOf(
+        this.nay_count = optionalOf(
             this.votes.filter(
-                \(vote_i: Vote) -> vote_i.member_decision == VotePossibilities.NAY
+                function(vote_i: Vote) -> vote_i.member_decision == VotePossibilities.NAY
             ).size());
 
         if (this.yay_count.isPresent() && this.nay_count.isPresent()) {
-            this.accepted = optionOf(this.yay_count.getOrFail() > this.nay_count.getOrFail());
+            this.accepted = optionalOf(this.yay_count.getOrFail() > this.nay_count.getOrFail());
         };
 
         become COUNTED;

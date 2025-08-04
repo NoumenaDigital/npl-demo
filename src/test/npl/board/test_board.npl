@@ -1,9 +1,9 @@
 package board
 
 @test
-function test_new_board_creation(test: Test) returns Unit {
+function test_new_board_creation(test: Test) returns Unit -> {
 
-    var names = listOf(0, 1, 2, 3, 4, 5, 6).map(\(n: Number) returns Text -> n.toText()).toSet();
+    var names = listOf(0, 1, 2, 3, 4, 5, 6).map(function(n: Number) returns Text -> n.toText()).toSet();
 
     var SECRETARY = getSecretaryClaims();
     var BOARD_MEMBER: Party = getBoardMemberClaims(names);
@@ -13,7 +13,7 @@ function test_new_board_creation(test: Test) returns Unit {
 
     board.suggestTopic[SECRETARY]("Should we go eat lunch?");
 
-    test.assertFails(\() -> board.selectedTopicForVote[SECRETARY]("Should we go eat lunch?"));
+    test.assertFails(function() -> board.selectedTopicForVote[SECRETARY]("Should we go eat lunch?"));
 
     var ballot = board.selectedTopicForVote[CHAIRMAN]("Should we go eat lunch?");
 
@@ -48,7 +48,7 @@ function test_new_board_creation(test: Test) returns Unit {
 
     /* ************ Implementation starts here ************* */
 
-    for (i in listOfSize(names.size(), \(n: Number) returns Number -> n)) {
+    for (i in listOfSize(names.size(), function(n: Number) returns Number -> n)) {
         var name = names.toList().get(i);
         var currentParty = getNamedBoardMemberClaims(name);
 

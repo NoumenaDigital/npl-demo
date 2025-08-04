@@ -1,6 +1,6 @@
 package board
 
-function getKrzysClaims() returns Party {
+function getKrzysClaims() returns Party -> {
     // @start:simpleParty
     return partyOf(
         mapOf<Text, Set<Text>>( // entity
@@ -14,7 +14,7 @@ function getKrzysClaims() returns Party {
     // @end:simpleParty
 }
 
-function getJeanClaims() returns Party {
+function getJeanClaims() returns Party -> {
     // @start:simpleParty
     return partyOf(
         mapOf(
@@ -29,7 +29,7 @@ function getJeanClaims() returns Party {
     // @end:simpleParty
 }
 
-function getMatthiasClaims() returns Party {
+function getMatthiasClaims() returns Party -> {
     // @start:simpleParty
     return partyOf(
         mapOf(
@@ -43,7 +43,7 @@ function getMatthiasClaims() returns Party {
     // @end:simpleParty
 }
 
-function getAleksasClaims() returns Party {
+function getAleksasClaims() returns Party -> {
     // @start:simpleParty
     return partyOf(
         mapOf(
@@ -57,7 +57,7 @@ function getAleksasClaims() returns Party {
     // @end:simpleParty
 }
 
-function getDraganaClaims() returns Party {
+function getDraganaClaims() returns Party -> {
     // @start:simpleParty
     return partyOf(
         mapOf(
@@ -71,7 +71,7 @@ function getDraganaClaims() returns Party {
     // @end:simpleParty
 }
 
-function getBoardMemberClaims(names: Set<Text>) returns Party {
+function getBoardMemberClaims(names: Set<Text>) returns Party -> {
     // @start:simpleParty
     return partyOf(
         mapOf(
@@ -85,7 +85,7 @@ function getBoardMemberClaims(names: Set<Text>) returns Party {
     // @end:simpleParty
 }
 
-function getNamedBoardMemberClaims(name: Text) returns Party {
+function getNamedBoardMemberClaims(name: Text) returns Party -> {
     // @start:simpleParty
     return partyOf(
         mapOf(
@@ -99,7 +99,7 @@ function getNamedBoardMemberClaims(name: Text) returns Party {
     // @end:simpleParty
 }
 
-function getSecretaryClaims() returns Party {
+function getSecretaryClaims() returns Party -> {
     // @start:simpleParty
     return partyOf(
         mapOf(
@@ -113,7 +113,7 @@ function getSecretaryClaims() returns Party {
     // @end:simpleParty
 }
 
-function getChairmanClaims() returns Party {
+function getChairmanClaims() returns Party -> {
     // @start:simpleParty
     return partyOf(
         mapOf(
@@ -152,15 +152,17 @@ function test_simple(test: Test) returns Unit -> {
     var dragana = getDraganaClaims();
     var matthias = getMatthiasClaims();
 
-    test.assertFails(\() -> board.selectedTopicForVote[dragana](topic)); // fails successfully
-    test.assertFails(\() -> board.selectedTopicForVote[jean](topic)); // fails successfully
+    test.assertFails(function() -> board.selectedTopicForVote[dragana](topic)); // fails successfully
+    test.assertFails(function() -> board.selectedTopicForVote[jean](topic)); // fails successfully
 
-    var ballot = board.selectedTopicForVote[krzys](topic); // chairman only, how can Mike also be a chairman?
+    var ballot: Ballot = board.selectedTopicForVote[krzys](topic); // chairman only, how can Mike also be a chairman?
 
     ballot.vote[krzys](Vote[krzys](VotePossibilities.YAY));
     ballot.vote[dragana](Vote[dragana](VotePossibilities.BLANK));
 
-    test.assertFails(\() -> ballot.vote[dragana](Vote[dragana](VotePossibilities.BLANK)));
+    test.assertFails(function() -> ballot.vote[dragana](Vote[dragana](VotePossibilities.BLANK)));
+
+    ballot.vote[dragana](Vote[dragana](VotePossibilities.BLANK));
 
     /* ************ Task description starts here ************* */
     // Having implemented code and tests that ensure each
@@ -175,13 +177,13 @@ function test_simple(test: Test) returns Unit -> {
     // voting possibilities, can you reuse the pattern?
     /* ************ Task description ends here ************* */
 
-    test.assertFails(\() -> ballot.vote[matthias](Vote[aleksas](VotePossibilities.BLANK)));
+    test.assertFails(function() -> ballot.vote[matthias](Vote[aleksas](VotePossibilities.BLANK)));
 
     ballot.vote[matthias](Vote[matthias](VotePossibilities.YAY));
     ballot.vote[aleksas](Vote[aleksas](VotePossibilities.NAY));
 
-    test.assertFails(\() -> ballot.endVote[jean]());
-    test.assertFails(\() -> ballot.endVote[matthias]());
+    test.assertFails(function() -> ballot.endVote[jean]());
+    test.assertFails(function() -> ballot.endVote[matthias]());
     ballot.endVote[krzys]();
 };
 

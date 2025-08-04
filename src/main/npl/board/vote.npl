@@ -11,7 +11,7 @@ protocol[voter] Vote(
         return getName(voter) == getName(anyone);
     };
 
-    function getName(party: Party) returns Text {
-        return party.access().get("name").getOrFail().toList().first().getOrFail();
+    function getName(party: Party) returns Text -> {
+        return party.access().getOrNone("name").getOrFail().toList().firstOrNone().getOrFail();
     };
 };
