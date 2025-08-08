@@ -21,7 +21,7 @@ export class CreateProtocolStep extends HTMLElement {
     })
   }
 
-  async connectedCallback() {
+  connectedCallback() {
     this.render();
     this.setupCreateProtocolEventListeners();
   }
@@ -31,6 +31,15 @@ export class CreateProtocolStep extends HTMLElement {
   }
 
   template(username: string, helloWorldsCount: number) {
+    const payload = JSON.stringify({
+      "@parties": {
+        greeter: {
+          entity: { preferred_username: [username] },
+          access: {}
+        }
+      }
+    }, null, 2);
+
     return html`
       <div class="step-content">
         <h1>Create Protocol</h1>
@@ -41,12 +50,15 @@ export class CreateProtocolStep extends HTMLElement {
             run the app locally.
           </p>
           <p>
-            The button below uses an endpoint automatically generated out of the NPL
-            code to instantiate a Hello World protocol. Your <code>preferred_username</code>
-            will be bound to the innovator party to prevent access to everyone else.
+            The button below uses an endpoint generated out of the NPL
+            code to instantiate a Hello World protocol (see the payload below). Your <code>preferred_username</code>
+            will be bound to the greeter party to prevent access to everyone else.
           </p>
+          <div id="logged-in-token-info">
+            <pre class="token-info">${payload}</pre>
+          </div>
           <p>
-            If you see pre-existing Hello World instances, it is because users preceded
+            If you see pre-existing Hello World instances when using the list endpoint (see request below), it is because users preceded
             you as <span id="usernameSpan"><code>${username}</code></span> on
             <span style="font-weight: bold">${helloWorldsCount}</span> occasions.
           </p>
@@ -61,7 +73,7 @@ export class CreateProtocolStep extends HTMLElement {
   }
 
   private render() {
-      render(this.template(this._username, this._helloWorldsCount), this);
+    render(this.template(this._username, this._helloWorldsCount), this);
   }
 
   async getProtocolCount(accessToken: string): Promise<number> {
@@ -137,7 +149,7 @@ export class CreateProtocolStep extends HTMLElement {
     this.dispatchEvent(new CustomEvent('show-response', {
       bubbles: true,
       composed: true,
-      detail: { 
+      detail: {
         type: 'loading',
         message: 'Creating Protocol...',
         description: 'Please wait while we create a new protocol instance.'
@@ -163,7 +175,7 @@ export class CreateProtocolStep extends HTMLElement {
       this.dispatchEvent(new CustomEvent('show-response', {
         bubbles: true,
         composed: true,
-        detail: { 
+        detail: {
           type: 'api-response',
           requestInfo: {
             method,
@@ -184,7 +196,7 @@ export class CreateProtocolStep extends HTMLElement {
       this.dispatchEvent(new CustomEvent('show-response', {
         bubbles: true,
         composed: true,
-        detail: { 
+        detail: {
           type: 'error',
           title: 'Protocol Creation Error',
           message: error instanceof Error ? error.message : 'Failed to create protocol. Please try again.'

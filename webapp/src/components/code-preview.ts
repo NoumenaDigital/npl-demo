@@ -23,15 +23,15 @@ export class CodePreviewComponent extends HTMLElement {
         <div class="code-line"><span class="line-number">1</span> <span class="line-code"><span class="keyword">package</span> demo;</span></div>
         <div class="code-line"><span class="line-number">2</span> <span class="line-code"></span></div>
         <div class="code-line"><span class="line-number">3</span> <span class="line-code"><span class="api-annotation">@api</span></span></div>
-        <div class="code-line"><span class="line-number">4</span> <span class="line-code"><span class="keyword">protocol</span>[innovator] HelloWorld() {</span></div>
+        <div class="code-line"><span class="line-number">4</span> <span class="line-code"><span class="keyword">protocol</span>[greeter] HelloWorld() {</span></div>
         <div class="code-line"><span class="line-number">5</span> <span class="line-code"></span></div>
         <div class="code-line"><span class="line-number">6</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">initial</span> <span class="keyword">state</span> greeting;</span></div>
         <div class="code-line"><span class="line-number">7</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">final</span> <span class="keyword">state</span> greeted;</span></div>
         <div class="code-line"><span class="line-number">8</span> <span class="line-code"></span></div>
         <div class="code-line"><span class="line-number">9</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="api-annotation">@api</span></span></div>
-        <div class="code-line"><span class="line-number">10</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permission</span>[innovator] <span class="function">sayHello</span>() <span class="keyword">returns</span> Text | greeting {</span></div>
+        <div class="code-line"><span class="line-number">10</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">permission</span>[greeter] <span class="function">sayHello</span>() <span class="keyword">returns</span> Text | greeting {</span></div>
         <div class="code-line"><span class="line-number">11</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">become</span> greeted;</span></div>
-        <div class="code-line"><span class="line-number">12</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Hello "</span> + <span class="function">getUsername</span>(innovator) + <span class="string">"!"</span>;</span></div>
+        <div class="code-line"><span class="line-number">12</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="keyword">return</span> <span class="string">"Hello "</span> + <span class="function">getUsername</span>(greeter) + <span class="string">"!"</span>;</span></div>
         <div class="code-line"><span class="line-number">13</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;};</span></div>
         <div class="code-line"><span class="line-number">14</span> <span class="line-code">};</span></div>
         <div class="code-line"><span class="line-number">15</span> <span class="line-code"></span></div>

@@ -21,7 +21,7 @@ export class GreetingStep extends HTMLElement {
             <div class="step-content">
                 <h1>Hello World Protocol Demo</h1>
                 <div>
-                    <p><b>Build a complete backend API with just 20 lines of code.</b></p>
+                    <p><b>Build a complete backend API with just 21 lines of code.</b></p>
                     <p><b>No boilerplate. No complex setup. No infrastructure headaches.</b></p>
                     <p><b>Focus on your business logic — let NOUMENA handle the rest.</b></p>
                     <p><b>With this demo, you'll see how NOUMENA delivers:</b></p>

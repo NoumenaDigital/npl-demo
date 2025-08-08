@@ -25,8 +25,15 @@ export class LoggedInStep extends HTMLElement {
         let tokenInfo = '';
         if (accessToken) {
             try {
-                const decodedToken = jwtDecode(accessToken);
-                tokenInfo = JSON.stringify(decodedToken, null, 2);
+                const decodedToken = jwtDecode(accessToken) as any;
+                tokenInfo = JSON.stringify({
+                    "iss": decodedToken.iss,
+                    "sub": decodedToken.sub,
+                    "name": decodedToken.name,
+                    "preferred_username": decodedToken.preferred_username,
+                    "given_name": decodedToken.given_name,
+                    "email": decodedToken.email
+                }, null, 2);
             } catch (error) {
                 console.error('Error decoding token:', error);
             }
@@ -35,7 +42,8 @@ export class LoggedInStep extends HTMLElement {
         return html`
             <div class="step-content">
                 <h1>You are logged in</h1>
-                <p>The authentication token (JWT) attributes include <code>preferred_username</code>, which is used to identify the user.</p>
+                <p>User attributes are stored in the authorization token (JWT). They include the <code>preferred_username</code>, which is used to identify the user in this demo. Let's instantiate the <code>Hello World</code> protocol to see how the <code>preferred_username</code> is attached to the greeter party.</p>
+                <p>Other attributes are available in the token, but not used in this demo. They can be used to implement fine-grained access control.</p>
                 <div id="logged-in-token-info">
                     <pre class="token-info">${tokenInfo}</pre>
                 </div>
@@ -95,7 +103,7 @@ export class LoggedInStep extends HTMLElement {
 customElements.define('logged-in-step', LoggedInStep);
 
 declare global {
-  interface HTMLElementTagNameMap {
-    'logged-in-step': LoggedInStep;
-  }
+    interface HTMLElementTagNameMap {
+        'logged-in-step': LoggedInStep;
+    }
 }

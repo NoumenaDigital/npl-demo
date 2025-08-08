@@ -1,15 +1,15 @@
 package demo;
 
 @api
-protocol[innovator] HelloWorld() {
+protocol[greeter] HelloWorld() {
 
     initial state greeting;
     final state greeted;
 
     @api
-    permission[innovator] sayHello() returns Text | greeting {
+    permission[greeter] sayHello() returns Text | greeting {
         become greeted;
-        return "Hello " + getUsername(innovator) + "!";
+        return "Hello " + getUsername(greeter) + "!";
     };
 };
 

@@ -62,7 +62,7 @@ export class StepsComponent extends HTMLElement {
             case 3:
                 return html`<create-protocol-step .accessToken="${this._accessToken}"></create-protocol-step>`
             case 4:
-                return html`<protocol-created-step></protocol-created-step>`
+                return html`<protocol-created-step .protocolId="${protocolId}"></protocol-created-step>`
             case 5:
                 return html`<say-hello-step .accessToken="${this._accessToken}" .protocolId="${protocolId}"></say-hello-step>`
             case 6:
