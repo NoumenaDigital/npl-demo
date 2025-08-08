@@ -20,9 +20,9 @@ export class ProtocolCreatedStep extends HTMLElement {
         this.removeEventListeners();
     }
 
-    private template(protocolId: string) {
-        const getProtocolByIdEndpoint = html`<code>${SERVER_URL}/${protocolId}/</code>`;
-        const sayHelloEndpoint = html`<code>${SERVER_URL}/${protocolId}/sayHello</code>`;
+    private template(protocolId: string | null) {
+        const getProtocolByIdEndpoint = html`<code>${SERVER_URL}/${protocolId || ''}/</code>`;
+        const sayHelloEndpoint = html`<code>${SERVER_URL}/${protocolId || ''}/sayHello</code>`;
         return html`
             <div class="step-content">
                 <h1>Protocol created</h1>
@@ -31,9 +31,11 @@ export class ProtocolCreatedStep extends HTMLElement {
                     <p>Well done!</p>
                     <p>You have successfully created a <code>Hello World</code> protocol instance attached to your <code>preferred_username</code>. 
                     Only the user you are logged in as and who got bound to the protocol instance you just created, can read the protocol's state and execute the <code>sayHello</code> action.</p>
-                    <p>To challenge this, call the get protocol by ID endpoint or the <code>sayHello</code> action directly using the protocol's unique ID: ${protocolId}.</p>
-                    <p>Get protocol by ID: ${getProtocolByIdEndpoint}</p>
-                    <p>Say Hello: ${sayHelloEndpoint}</p>
+                    ${protocolId ? html`
+                        <p>To challenge this, call the get protocol by ID endpoint or the <code>sayHello</code> action directly using the protocol's unique ID: ${protocolId}.</p>
+                        <p>Get protocol by ID: ${getProtocolByIdEndpoint}</p>
+                        <p>Say Hello: ${sayHelloEndpoint}</p>
+                    ` : ''}
                     <p>The protocol is in state <code>greeting</code> and the <code>sayHello</code> action is available to you. Go to the next step to execute the action.</p>
                 </div>
 
@@ -46,7 +48,7 @@ export class ProtocolCreatedStep extends HTMLElement {
     }
 
     private render() {
-        render(this.template(this._protocolId!), this);
+        render(this.template(this._protocolId), this);
     }
 
     private setupEventListeners() {
