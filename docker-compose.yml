@@ -16,3 +16,5 @@ services:
     environment:
       ENGINE_DB_PASSWORD: welcome123
       ENGINE_DEV_MODE: true
+    volumes:
+      - ./users.yml:/etc/noumena/oidc-users.yaml

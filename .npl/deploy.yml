@@ -6,4 +6,4 @@ targets:
     engineManagementUrl: http://localhost:12400
     authUrl: http://localhost:11000
     username: alice
-    password: password123
+    password: password12345678

@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
-const SERVER_URL = `${import.meta.env.VITE_SERVER_URL}/npl/demo/HelloWorld`;
+export const SERVER_URL = `${import.meta.env.VITE_SERVER_URL}/npl/demo/HelloWorld`;
 const AUTH_URL = import.meta.env.VITE_AUTH_URL;
 const AUTH_CLIENT_ID = import.meta.env.VITE_AUTH_CLIENT_ID;
 
@@ -44,7 +44,7 @@ export const postHelloWorld = async (accessToken: string): Promise<EnhancedRespo
 
     const payload = {
         "@parties": {
-            innovator: {
+            greeter: {
                 entity: { preferred_username: [(decodedToken as any).preferred_username] },
                 access: {}
             }

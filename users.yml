@@ -1,0 +1,29 @@
+# More Details: https://documentation.noumenadigital.com/runtime/deployment/configuration/Engine-Dev-Mode/#embedded-oidc-and-seeded-users
+users:
+  - credentials:
+      username: alice
+      password: password12345678 # A longer password has been set for improved security
+    claims:
+      sub: '012345'
+      name: Alice
+      email: alice@example.com
+      preferred_username: alice
+
+  - credentials:
+      username: bob
+      password: password12345678
+    claims:
+      sub: '012346'
+      name: Bob
+      email: bob@example.com
+      preferred_username: bob
+
+  - credentials:
+      username: carol
+      password: password12345678
+    claims:
+      sub: '012348'
+      name: Carol
+      email: carol@example.com
+      preferred_username: carol
+      role: payee

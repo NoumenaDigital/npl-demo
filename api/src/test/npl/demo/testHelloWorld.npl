@@ -1,22 +1,22 @@
 package demo;
 
-function getInnovator() returns Party -> partyOf(
+function getGreeter() returns Party -> partyOf(
     mapOf(Pair("preferred_username", setOf("Alice"))),
     mapOf<Text, Set<Text>>()
 );
 
 @test
 function initHelloWorld(test: Test) -> {
-    var innovator = getInnovator();
-    var helloWorld = HelloWorld[innovator]();
+    var greeter = getGreeter();
+    var helloWorld = HelloWorld[greeter]();
     test.assertEquals(HelloWorld.States.greeting, helloWorld.activeState().getOrFail());
 };
 
 @test
 function testHelloWorld(test: Test) -> {
-    var innovator = getInnovator();
-    var helloWorld = HelloWorld[innovator]();
-    var greeting = helloWorld.sayHello[innovator]();
+    var greeter = getGreeter();
+    var helloWorld = HelloWorld[greeter]();
+    var greeting = helloWorld.sayHello[greeter]();
     test.assertEquals("Hello Alice!", greeting);
     test.assertEquals(HelloWorld.States.greeted, helloWorld.activeState().getOrFail());
 };

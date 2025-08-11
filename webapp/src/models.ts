@@ -5,7 +5,7 @@ export interface HelloWorld {
         sayHello: string
     },
     "@parties": {
-        innovator: {
+        greeter: {
             access: {}
             entity: {}
         }
