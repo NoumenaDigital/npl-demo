@@ -1,4 +1,4 @@
-systemUnderAudit: npldemo
+$schema: https://documentation.noumenadigital.com/schemas/migration-schema-v2.yml
 
 changesets:
   - name: 1.0.0
