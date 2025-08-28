@@ -5,6 +5,7 @@ import './components/code-preview.ts';
 import {html, render} from 'lit-html';
 import {type Step, Steps} from './types.ts';
 import type {ResponseData} from "./components/response-display.ts";
+import { Analytics } from './analytics.ts';
 
 class App extends HTMLElement {
     private currentStep: Step = Steps.GREETING
@@ -16,6 +17,7 @@ class App extends HTMLElement {
     connectedCallback() {
         render(this.template(this.currentStep, this.responseData), this)
         this.setupEventListeners();
+        Analytics.trackStepView(this.currentStep);
     }
 
     disconnectedCallback() {
@@ -54,15 +56,30 @@ class App extends HTMLElement {
 
 
     private handleNextStep() {
-        this.currentStep = this.currentStep === Steps.SAID_HELLO
+        const previousStep = this.currentStep;
+        const nextStep = this.currentStep === Steps.SAID_HELLO
             ? Steps.GREETING
             : this.currentStep + 1 as Step;
+        
+        if (this.currentStep === Steps.SAID_HELLO) {
+            Analytics.trackDemoRestart(previousStep);
+        } else {
+            Analytics.trackNextClick(previousStep, nextStep);
+        }
+        
+        this.currentStep = nextStep;
+        Analytics.trackStepView(this.currentStep);
         this.render(this.currentStep, this.responseData)
     }
 
     private handlePreviousStep() {
         if (this.currentStep > Steps.GREETING) {
-            this.currentStep = this.currentStep - 1 as Step;
+            const previousStep = this.currentStep;
+            const nextStep = this.currentStep - 1 as Step;
+            
+            Analytics.trackPreviousClick(previousStep, nextStep);
+            this.currentStep = nextStep;
+            Analytics.trackStepView(this.currentStep);
             this.render(this.currentStep, this.responseData);
         }
     }
