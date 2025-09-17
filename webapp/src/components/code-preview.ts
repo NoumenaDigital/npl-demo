@@ -36,7 +36,7 @@ export class CodePreviewComponent extends HTMLElement {
         <div class="code-line"><span class="line-number">14</span> <span class="line-code">};</span></div>
         <div class="code-line"><span class="line-number">15</span> <span class="line-code"></span></div>
         <div class="code-line"><span class="line-number">16</span> <span class="line-code"><span class="keyword">function</span> <span class="function">getUsername</span>(party: Party) <span class="keyword">returns</span> Text -></span></div>
-        <div class="code-line"><span class="line-number">17</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;party.<span class="function">entity</span>()</span></div>
+        <div class="code-line"><span class="line-number">17</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;party.<span class="function">claims</span>()</span></div>
         <div class="code-line"><span class="line-number">18</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="function">getOrNone</span>(<span class="string">"preferred_username"</span>)</span></div>
         <div class="code-line"><span class="line-number">19</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="function">getOrFail</span>()</span></div>
         <div class="code-line"><span class="line-number">20</span> <span class="line-code">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.<span class="function">toList</span>()</span></div>

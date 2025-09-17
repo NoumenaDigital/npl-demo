@@ -6,8 +6,7 @@ export interface HelloWorld {
     },
     "@parties": {
         greeter: {
-            access: {}
-            entity: {}
+            claims: {}
         }
     }
 }

@@ -14,7 +14,7 @@ protocol[greeter] HelloWorld() {
 };
 
 function getUsername(party: Party) returns Text -> 
-    party.entity()
+    party.claims()
     .getOrNone("preferred_username")
     .getOrFail()
     .toList()
