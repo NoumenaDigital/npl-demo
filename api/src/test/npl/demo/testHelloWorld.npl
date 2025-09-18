@@ -1,8 +1,7 @@
 package demo;
 
 function getGreeter() returns Party -> partyOf(
-    mapOf(Pair("preferred_username", setOf("Alice"))),
-    mapOf<Text, Set<Text>>()
+    mapOf(Pair("preferred_username", setOf("Alice")))
 );
 
 @test

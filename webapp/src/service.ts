@@ -45,8 +45,7 @@ export const postHelloWorld = async (accessToken: string): Promise<EnhancedRespo
     const payload = {
         "@parties": {
             greeter: {
-                entity: { preferred_username: [(decodedToken as any).preferred_username] },
-                access: {}
+                claims: { preferred_username: [(decodedToken as any).preferred_username] },
             }
         }
     };

@@ -34,8 +34,7 @@ export class CreateProtocolStep extends HTMLElement {
     const payload = JSON.stringify({
       "@parties": {
         greeter: {
-          entity: { preferred_username: [username] },
-          access: {}
+          claims: { preferred_username: [username] }
         }
       }
     }, null, 2);
