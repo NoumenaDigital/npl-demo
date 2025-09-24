@@ -1,0 +1,22 @@
+package document;
+
+@api
+protocol[editor, approver] Document(
+    var content: Text
+) {
+
+    initial state drafted;
+    final state approved;
+
+    @api
+    permission[editor] edit(
+        newContent: Text
+    ) | drafted {
+        content = newContent;
+    };
+
+    @api
+    permission[approver] approve() | drafted {
+        become approved;
+    };
+};

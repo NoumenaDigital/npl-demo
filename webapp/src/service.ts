@@ -61,13 +61,14 @@ export const postHelloWorld = async (accessToken: string): Promise<EnhancedRespo
     });
 }
 
-export const sayHello = async (helloWorldId: string, accessToken:string): Promise<EnhancedResponse> => {
+export const sayHello = async (helloWorldId: string, accessToken: string, greetee: string): Promise<EnhancedResponse> => {
     return makeAuthenticatedRequest({
         endpoint: `${SERVER_URL}/${helloWorldId}/sayHello`,
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
+        body: { greetee },
         accessToken
     });
 }

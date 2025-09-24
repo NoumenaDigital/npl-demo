@@ -4,8 +4,10 @@ import { html, render } from "lit-html";
 export class SayHelloStep extends HTMLElement {
     private _protocolId: string | null = null;
     private _accessToken?: string
+    private _greetee: string = '';
     private sayHelloHandler: ((event: Event) => void) | null = null;
     private backHandler: ((event: Event) => void) | null = null;
+    private inputHandler: ((event: Event) => void) | null = null;
 
     set protocolId(value: string | null) {
         this._protocolId = value;
@@ -37,9 +39,20 @@ export class SayHelloStep extends HTMLElement {
                     </p>
                 </div>
 
+                <div class="input-section">
+                    <label for="greeteeInput">Who would you like to greet?</label>
+                    <input 
+                        id="greeteeInput" 
+                        type="text" 
+                        placeholder="Enter a name..." 
+                        value="${this._greetee}"
+                        class="greetee-input"
+                    />
+                </div>
+
                 <div class="input-container">
                     <button id="backButton" class="back-button">Back</button>
-                    <button id="sayHelloButton">Say Hello</button>
+                    <button id="sayHelloButton" ?disabled="${!this._greetee.trim()}">Say Hello</button>
                 </div>
             </div>
         `;
@@ -64,6 +77,12 @@ export class SayHelloStep extends HTMLElement {
             this.backHandler = this.handleBackClick.bind(this);
             backButton.addEventListener('click', this.backHandler);
         }
+
+        const greeteeInput = this.querySelector('#greeteeInput') as HTMLInputElement;
+        if (greeteeInput) {
+            this.inputHandler = this.handleInputChange.bind(this);
+            greeteeInput.addEventListener('input', this.inputHandler);
+        }
     }
 
     private removeEventListeners() {
@@ -78,6 +97,18 @@ export class SayHelloStep extends HTMLElement {
             backButton.removeEventListener('click', this.backHandler);
             this.backHandler = null;
         }
+
+        const greeteeInput = this.querySelector('#greeteeInput');
+        if (greeteeInput && this.inputHandler) {
+            greeteeInput.removeEventListener('input', this.inputHandler);
+            this.inputHandler = null;
+        }
+    }
+
+    private handleInputChange(event: Event) {
+        const input = event.target as HTMLInputElement;
+        this._greetee = input.value;
+        this.render();
     }
 
     private handleBackClick() {
@@ -103,7 +134,7 @@ export class SayHelloStep extends HTMLElement {
                 throw new Error("Protocol ID is missing");
             }
 
-            const greetingResponse = await sayHello(this._protocolId, this._accessToken!);
+            const greetingResponse = await sayHello(this._protocolId, this._accessToken!, this._greetee);
             const { method, endpoint, statusCode } = greetingResponse.requestInfo;
             const greetingBody = await greetingResponse.json();
 

@@ -7,9 +7,9 @@ protocol[greeter] HelloWorld() {
     final state greeted;
 
     @api
-    permission[greeter] sayHello() returns Text | greeting {
+    permission[greeter] sayHello(greetee: Text) returns Text | greeting {
         become greeted;
-        return "Hello " + getUsername(greeter) + "!";
+        return "Hi " + greetee + ", " + getUsername(greeter) + " sends greetings!";
     };
 };
 
