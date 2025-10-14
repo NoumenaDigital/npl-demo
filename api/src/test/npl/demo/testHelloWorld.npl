@@ -15,7 +15,7 @@ function initHelloWorld(test: Test) -> {
 function testHelloWorld(test: Test) -> {
     var greeter = getGreeter();
     var helloWorld = HelloWorld[greeter]();
-    var greeting = helloWorld.sayHello[greeter]();
-    test.assertEquals("Hello Alice!", greeting);
+    var greeting = helloWorld.sayHello[greeter]("Bob");
+    test.assertEquals("Hi Bob, Alice sends greetings!", greeting);
     test.assertEquals(HelloWorld.States.greeted, helloWorld.activeState().getOrFail());
 };
