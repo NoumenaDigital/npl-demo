@@ -42,14 +42,14 @@ export class LoggedInStep extends HTMLElement {
         return html`
             <div class="step-content">
                 <h1>You are logged in</h1>
-                <p>User attributes are stored in the authorization token (JWT). They include the <code>preferred_username</code>, which is used to identify the user in this demo. Let's instantiate the <code>Hello World</code> protocol to see how the <code>preferred_username</code> is attached to the greeter party.</p>
+                <p>User attributes are stored in the authorization token (JWT). They include the <code>preferred_username</code>, which is used to identify the user in this demo. On the next screen we will instantiate the <code>Hello World</code> protocol to see how the <code>preferred_username</code> is attached to the greeter party.</p>
                 <p>Other attributes are available in the token, but not used in this demo. They can be used to implement fine-grained access control.</p>
                 <div id="logged-in-token-info">
                     <pre class="token-info">${tokenInfo}</pre>
                 </div>
                 <div class="input-container">
                     <button id="backButton" class="back-button">Back</button>
-                    <button id="loggedInButton">Continue to Create Protocol</button>
+                    <button id="loggedInButton">Continue to Instantiate Protocol</button>
                 </div>
             </div>
         `;
