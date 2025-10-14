@@ -27,7 +27,7 @@ export class LoginStep extends HTMLElement {
                     <p>Log in to access the Hello World Protocol API. All endpoints are protected by fine-grained access control based on a JWT token, that users receive after successful authentication.</p>
                     <p><code>alice</code>, <code>bob</code> and <code>carol</code> are valid users for this demo. They share the same password, prepopulated in
                         the field below.</p>
-                    <p>Start by logging in with one of the three users below. We will match users to the greeter party in the <code>Hello World</code> protocol upon protocol instantiation.</p>
+                    <p>Start by logging in with one of the three users below. That user will act as the greeter party in the <code>Hello World</code> protocol on the left, upon protocol instantiation on one of the next screens.</p>
                 </div>
                 <div class="form-container">
                     <div class="form-group">
