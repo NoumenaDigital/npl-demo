@@ -19,7 +19,7 @@ docker compose build && docker compose up -d
 Deploy NPL to local NOUMENA Runtime
 
 ```shell
-npl deploy --sourceDir api/src/main/
+npl deploy
 ```
 
 Go to the webapp directory and install frontend dependencies
