@@ -1,0 +1,9 @@
+structure:
+  sourceDir: api/src/main
+  migration: api/src/main/migration.yml
+
+local:
+  managementUrl: http://localhost:12400
+  authUrl: http://localhost:11000
+  username: alice
+  password: password12345678
