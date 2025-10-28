@@ -1,6 +1,7 @@
 structure: # Configuration for project structure
   sourceDir: api/src/main
   migration: api/src/main/migration.yml
+  frontend: webapp/dist
 
 cloud: # Configuration for deploying to NOUMENA Cloud
   tenant: my-tenant
