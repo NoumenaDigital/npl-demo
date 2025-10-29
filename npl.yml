@@ -1,0 +1,14 @@
+structure: # Configuration for project structure
+  sourceDir: api/src/main
+  frontend: webapp/dist
+  migration: api/src/main/migration.yml
+
+cloud: # Configuration for deploying to NOUMENA Cloud
+  tenant: my-tenant
+  app: my-npl-app
+
+local: # Configuration for deploying to a local NOUMENA Engine instance
+  managementUrl: http://localhost:12400
+  authUrl: http://localhost:11000
+  username: alice
+  password: password12345678
