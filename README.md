@@ -36,10 +36,17 @@ npm run dev
 
 ## Run on NOUMENA Cloud
 
-From the api directory, deploy NPL to NOUMENA Cloud. Replace $YOUR_APP_SLUG with your app slug and $YOUR_TENANT_SLUG with your tenant slug and run the command:
+Log into NOUMENA Cloud with the NPL CLI
 
 ```shell
-npl cloud deploy npl --app $YOUR_APP_SLUG --tenant $YOUR_TENANT_SLUG --migration ./src/main/migration.yml
+npl cloud login
+```
+
+In `npl.yml`, set the `cloud.tenant` and `cloud.app` parameters to the tenant and applications slugs of your application
+in NOUMENA Cloud. Then, from the project root, deploy NPL to NOUMENA Cloud with:
+
+```shell
+npl cloud deploy npl
 ```
 
 From the webapp directory, set the target environment in the .env file and build the frontend
@@ -48,8 +55,8 @@ From the webapp directory, set the target environment in the .env file and build
 npm run build
 ```
 
-Still from the webapp directory, deploy the frontend to NOUMENA Cloud
+From the project root directory, deploy the frontend to NOUMENA Cloud with
 
 ```shell
-npl cloud deploy frontend --app $YOUR_APP_SLUG --tenant $YOUR_TENANT_SLUG --frontend dist
+npl cloud deploy frontend
 ```
