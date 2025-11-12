@@ -42,16 +42,13 @@ jobs:
         env:
           NOUMENA_SKIP_UPDATE_CHECK: "1"
         run: |
-          set -euxo pipefail
-          for attempt in {1..12}; do
-            if curl -fsS http://localhost:12400/health || curl -fsS http://localhost:12400 > /dev/null; then
-              break
-            fi
-            echo "Waiting for NOUMENA Engine to become ready..."
-            sleep 5
-          done
-          npl version
-          npl deploy
+          set -euo pipefail
+          tmp_deploy="$(mktemp)"
+          npl deploy | tee "$tmp_deploy"
+          if ! grep -Fq "Successfully deployed NPL sources and migrations" "$tmp_deploy"; then
+            echo "::error::Expected success message not found in deployment output."
+            exit 1
+          fi
 
       - name: Install frontend dependencies
         working-directory: webapp
