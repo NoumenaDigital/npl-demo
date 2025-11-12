@@ -15,8 +15,6 @@ jobs:
         shell: bash
         run: |
           curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
-          source ~/.bashrc
-          npl version
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
