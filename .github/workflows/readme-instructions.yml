@@ -23,7 +23,7 @@ jobs:
           echo "$HOME/.noumena/bin" >> "$GITHUB_PATH"
           export PATH="$NPL_CLI_INSTALL_DIR:$HOME/.npl/bin:$HOME/.noumena/bin:$PATH"
           hash -r
-          npl --help > /dev/null
+          command -v npl >/dev/null
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
