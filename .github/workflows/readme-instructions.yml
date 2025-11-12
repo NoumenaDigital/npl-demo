@@ -11,17 +11,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install NPL CLI
+      - name: Get NPL CLI
         shell: bash
         run: |
           set -eu
           curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
           echo "$HOME/.noumena/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/.noumena/bin:$PATH"
+          npl --help > /dev/null
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Start NOUMENA Runtime
         shell: bash
