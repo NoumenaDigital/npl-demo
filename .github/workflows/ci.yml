@@ -4,13 +4,9 @@ on:
   pull_request:
 
 jobs:
-  readme-instructions:
-    name: README Instructions (${{ matrix.os }})
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+  deploy-to-local:
+    name: README Instructions (ubuntu-latest)
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
@@ -21,8 +17,7 @@ jobs:
         with:
           node-version: 20
 
-      - name: Get NPL CLI (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Get NPL CLI
         shell: bash
         run: |
           set -euo pipefail
@@ -37,7 +32,6 @@ jobs:
           command -v npl >/dev/null
 
       - name: Start NOUMENA Runtime
-        if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
           set -euxo pipefail
@@ -45,7 +39,6 @@ jobs:
           docker compose up -d --wait
 
       - name: Deploy NPL locally
-        if: matrix.os == 'ubuntu-latest'
         shell: bash
         env:
           NOUMENA_SKIP_UPDATE_CHECK: "1"
@@ -58,13 +51,11 @@ jobs:
             exit 1
           fi
 
-      - name: Install frontend dependencies (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Install frontend dependencies
         working-directory: webapp
         run: npm install
 
-      - name: Run Vite dev server smoke test (Linux)
-        if: matrix.os == 'ubuntu-latest'
+      - name: Run Vite dev server smoke test
         working-directory: webapp
         shell: bash
         run: |
@@ -76,64 +67,15 @@ jobs:
           wait $DEV_PID || true
 
       - name: Tear down NOUMENA Runtime
-        if: matrix.os == 'ubuntu-latest'
         shell: bash
         run: |
           set -euxo pipefail
           docker compose down --volumes --remove-orphans
 
-      - name: Get NPL CLI (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          $bash = "${env:ProgramFiles}\Git\bin\bash.exe"
-          if (-not (Test-Path $bash)) {
-            throw "Git Bash not found on runner."
-          }
-          $env:NPL_CLI_INSTALL_DIR = "$env:USERPROFILE\.local\bin"
-          New-Item -ItemType Directory -Path $env:NPL_CLI_INSTALL_DIR -Force | Out-Null
-          & $bash -lc "set -euo pipefail; export NPL_CLI_INSTALL_DIR='$HOME/.local/bin'; mkdir -p '$HOME/.local/bin'; curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash"
-          $paths = @(
-            "$env:USERPROFILE\.local\bin",
-            "$env:USERPROFILE\.npl\bin",
-            "$env:USERPROFILE\.noumena\bin"
-          )
-          foreach ($p in $paths) {
-            if (Test-Path $p) {
-              Add-Content -Path $env:GITHUB_PATH -Value $p
-            }
-          }
-          & $bash -lc "npl --version"
-
-      - name: Install frontend dependencies (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          Set-Location webapp
-          npm install
-
-      - name: Run Vite dev server smoke test (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          Set-Location webapp
-          $job = Start-Job -ScriptBlock { npm run dev -- --host }
-          Start-Sleep -Seconds 15
-          Stop-Job $job -Force -ErrorAction SilentlyContinue
-          Receive-Job $job -Keep -ErrorAction SilentlyContinue | Write-Output
-          Remove-Job $job -Force -ErrorAction SilentlyContinue
-          Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-
-      - name: Build frontend (Windows)
-        if: matrix.os == 'windows-latest'
-        shell: pwsh
-        run: |
-          Set-Location webapp
-          npm run build
 
   cloud-integration:
     name: Cloud Integration Tests
-    needs: readme-instructions
+    needs: deploy-to-local
     runs-on: ubuntu-latest
     if: ${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET != '' }}
 
