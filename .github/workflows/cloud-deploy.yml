@@ -2,7 +2,6 @@ name: Cloud Integration Tests
 
 on:
   pull_request:
-  workflow_dispatch:
 
 jobs:
   cloud-integration-tests:
