@@ -80,7 +80,7 @@ jobs:
     name: Cloud Integration Tests
     needs: deploy-to-local
     runs-on: ubuntu-latest
-    if: ${{ env.NPL_SERVICE_ACCOUNT_CLIENT_SECRET != '' }}
+    if: ${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET != '' }}
 
     steps:
       - name: Checkout repository
@@ -111,7 +111,7 @@ jobs:
           TENANT: noumenaintegrationtests
           APP: npldemo
           NOUMENA_SKIP_UPDATE_CHECK: "1"
-          NPL_SERVICE_ACCOUNT_CLIENT_SECRET: ${{ env.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}
+          NPL_SERVICE_ACCOUNT_CLIENT_SECRET: ${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}
         run: |
           set -euo pipefail
           echo "Running cloud integration deploy of NPL (tenant: $TENANT, app: $APP)..."
@@ -140,7 +140,7 @@ jobs:
           TENANT: noumenaintegrationtests
           APP: npldemo
           NOUMENA_SKIP_UPDATE_CHECK: "1"
-          NPL_SERVICE_ACCOUNT_CLIENT_SECRET: ${{ env.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}
+          NPL_SERVICE_ACCOUNT_CLIENT_SECRET: ${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}
         run: |
           set -euo pipefail
           echo "Running cloud integration deploy of frontend (tenant: $TENANT, app: $APP)..."
