@@ -3,9 +3,6 @@ name: CI
 on:
   pull_request:
 
-env:
-  NPL_SERVICE_ACCOUNT_CLIENT_SECRET: "${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}"
-
 jobs:
   deploy-to-local:
     name: README Instructions (ubuntu-latest)
