@@ -101,9 +101,13 @@ jobs:
           hash -r
           command -v npl >/dev/null
 
-      - name: Build frontend
+      - name: Install frontend dependencies
         working-directory: webapp
         run: npm run build
+
+      - name: Build frontend
+        working-directory: webapp
+        run: npm install
 
       - name: deploy to NOUMENA Cloud
         shell: bash
