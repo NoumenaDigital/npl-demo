@@ -8,7 +8,7 @@ env:
 
 jobs:
   deploy-to-local:
-    name: Deploy to Local NOUMENA Runtime (ubuntu-latest)
+    name: Deploy to Local NOUMENA Runtime
     runs-on: ubuntu-latest
 
     steps:
@@ -75,7 +75,7 @@ jobs:
           set -euxo pipefail
           docker compose down --volumes --remove-orphans
   deploy-to-cloud:
-    name: README Instructions (ubuntu-latest)
+    name: Deploy to Noumena Cloud
     runs-on: ubuntu-latest
 
     steps:
