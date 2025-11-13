@@ -1,0 +1,212 @@
+name: CI
+
+on:
+  pull_request:
+
+jobs:
+  readme-instructions:
+    name: README Instructions (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Get NPL CLI (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euo pipefail
+          export NPL_CLI_INSTALL_DIR="$HOME/.local/bin"
+          mkdir -p "$NPL_CLI_INSTALL_DIR"
+          curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
+          echo "$NPL_CLI_INSTALL_DIR" >> "$GITHUB_PATH"
+          echo "$HOME/.npl/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.noumena/bin" >> "$GITHUB_PATH"
+          export PATH="$NPL_CLI_INSTALL_DIR:$HOME/.npl/bin:$HOME/.noumena/bin:$PATH"
+          hash -r
+          command -v npl >/dev/null
+
+      - name: Start NOUMENA Runtime
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          docker compose build
+          docker compose up -d --wait
+
+      - name: Deploy NPL locally
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        env:
+          NOUMENA_SKIP_UPDATE_CHECK: "1"
+        run: |
+          set -euo pipefail
+          tmp_deploy="$(mktemp)"
+          npl deploy | tee "$tmp_deploy"
+          if ! grep -Fq "Successfully deployed NPL sources and migrations" "$tmp_deploy"; then
+            echo "::error::Expected success message not found in deployment output."
+            exit 1
+          fi
+
+      - name: Install frontend dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: webapp
+        run: npm install
+
+      - name: Run Vite dev server smoke test (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: webapp
+        shell: bash
+        run: |
+          set -euxo pipefail
+          npm run dev -- --host &
+          DEV_PID=$!
+          sleep 15
+          kill $DEV_PID || true
+          wait $DEV_PID || true
+
+      - name: Tear down NOUMENA Runtime
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          set -euxo pipefail
+          docker compose down --volumes --remove-orphans
+
+      - name: Get NPL CLI (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $bash = "${env:ProgramFiles}\Git\bin\bash.exe"
+          if (-not (Test-Path $bash)) {
+            throw "Git Bash not found on runner."
+          }
+          $env:NPL_CLI_INSTALL_DIR = "$env:USERPROFILE\.local\bin"
+          New-Item -ItemType Directory -Path $env:NPL_CLI_INSTALL_DIR -Force | Out-Null
+          & $bash -lc "set -euo pipefail; export NPL_CLI_INSTALL_DIR='$HOME/.local/bin'; mkdir -p '$HOME/.local/bin'; curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash"
+          $paths = @(
+            "$env:USERPROFILE\.local\bin",
+            "$env:USERPROFILE\.npl\bin",
+            "$env:USERPROFILE\.noumena\bin"
+          )
+          foreach ($p in $paths) {
+            if (Test-Path $p) {
+              Add-Content -Path $env:GITHUB_PATH -Value $p
+            }
+          }
+          & $bash -lc "npl --version"
+
+      - name: Install frontend dependencies (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Set-Location webapp
+          npm install
+
+      - name: Run Vite dev server smoke test (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Set-Location webapp
+          $job = Start-Job -ScriptBlock { npm run dev -- --host }
+          Start-Sleep -Seconds 15
+          Stop-Job $job -Force -ErrorAction SilentlyContinue
+          Receive-Job $job -Keep -ErrorAction SilentlyContinue | Write-Output
+          Remove-Job $job -Force -ErrorAction SilentlyContinue
+          Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+
+      - name: Build frontend (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          Set-Location webapp
+          npm run build
+
+  cloud-integration:
+    name: Cloud Integration Tests
+    needs: readme-instructions
+    runs-on: ubuntu-latest
+    if: ${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get NPL CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          export NPL_CLI_INSTALL_DIR="$HOME/.local/bin"
+          mkdir -p "$NPL_CLI_INSTALL_DIR"
+          curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
+          echo "$NPL_CLI_INSTALL_DIR" >> "$GITHUB_PATH"
+          echo "$HOME/.npl/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.noumena/bin" >> "$GITHUB_PATH"
+          export PATH="$NPL_CLI_INSTALL_DIR:$HOME/.npl/bin:$HOME/.noumena/bin:$PATH"
+          hash -r
+          command -v npl >/dev/null
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Deploy NPL to NOUMENA Cloud (integration)
+        shell: bash
+        env:
+          TENANT: noumenaintegrationtests
+          APP: npldemo
+          NOUMENA_SKIP_UPDATE_CHECK: "1"
+          NPL_SERVICE_ACCOUNT_CLIENT_SECRET: ${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}
+        run: |
+          set -euo pipefail
+          echo "Running cloud integration deploy of NPL (tenant: $TENANT, app: $APP)..."
+          tmp_deploy="$(mktemp)"
+          npl cloud deploy npl --tenant "$TENANT" --app "$APP" | tee "$tmp_deploy" || {
+            echo "::error::Failed to deploy NPL to NOUMENA Cloud"
+            exit 1
+          }
+          if ! grep -FqiE "(deployed|success|complete)" "$tmp_deploy"; then
+            echo "::error::Deployment output does not indicate success"
+            exit 1
+          fi
+          echo "::notice::Cloud integration NPL deployment completed successfully"
+
+      - name: Install frontend dependencies
+        working-directory: webapp
+        run: npm install
+
+      - name: Build frontend
+        working-directory: webapp
+        run: npm run build
+
+      - name: Deploy frontend to NOUMENA Cloud (integration)
+        shell: bash
+        env:
+          TENANT: noumenaintegrationtests
+          APP: npldemo
+          NOUMENA_SKIP_UPDATE_CHECK: "1"
+          NPL_SERVICE_ACCOUNT_CLIENT_SECRET: ${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}
+        run: |
+          set -euo pipefail
+          echo "Running cloud integration deploy of frontend (tenant: $TENANT, app: $APP)..."
+          tmp_frontend="$(mktemp)"
+          npl cloud deploy frontend --tenant "$TENANT" --app "$APP" --frontend webapp/dist | tee "$tmp_frontend" || {
+            echo "::error::Failed to deploy frontend to NOUMENA Cloud"
+            exit 1
+          }
+          if ! grep -FqiE "(deployed|success|complete|uploaded)" "$tmp_frontend"; then
+            echo "::error::Frontend deployment output does not indicate success"
+            exit 1
+          }
+          echo "::notice::Cloud integration frontend deployment completed successfully"
+
