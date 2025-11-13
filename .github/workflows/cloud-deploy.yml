@@ -1,0 +1,104 @@
+name: Cloud Integration Tests
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  cloud-integration-tests:
+    name: Cloud Integration Test Deployment
+    runs-on: ubuntu-latest
+    # Only run if cloud credentials are available
+    if: ${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET != '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get NPL CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          export NPL_CLI_INSTALL_DIR="$HOME/.local/bin"
+          mkdir -p "$NPL_CLI_INSTALL_DIR"
+          curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
+          echo "$NPL_CLI_INSTALL_DIR" >> "$GITHUB_PATH"
+          echo "$HOME/.npl/bin" >> "$GITHUB_PATH"
+          echo "$HOME/.noumena/bin" >> "$GITHUB_PATH"
+          export PATH="$NPL_CLI_INSTALL_DIR:$HOME/.npl/bin:$HOME/.noumena/bin:$PATH"
+          hash -r
+          command -v npl >/dev/null
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Deploy NPL to NOUMENA Cloud (integration)
+        shell: bash
+        env:
+          TENANT: noumenaintegrationtests
+          APP: npldemo
+          NOUMENA_SKIP_UPDATE_CHECK: "1"
+        run: |
+          set -euo pipefail
+          echo "Running cloud integration deploy of NPL (tenant: $TENANT, app: $APP)..."
+          tmp_deploy="$(mktemp)"
+          npl cloud deploy npl --tenant "$TENANT" --app "$APP" | tee "$tmp_deploy" || {
+            echo "::error::Failed to deploy NPL to NOUMENA Cloud"
+            exit 1
+          }
+          if ! grep -FqiE "(deployed|success|complete)" "$tmp_deploy"; then
+            echo "::error::Deployment output does not indicate success"
+            exit 1
+          fi
+          echo "::notice::Cloud integration NPL deployment completed successfully"
+
+      - name: Install frontend dependencies
+        working-directory: webapp
+        run: npm install
+
+      - name: Build frontend
+        working-directory: webapp
+        run: npm run build
+
+      - name: Deploy frontend to NOUMENA Cloud (integration)
+        shell: bash
+        env:
+          TENANT: noumenaintegrationtests
+          APP: npldemo
+          NOUMENA_SKIP_UPDATE_CHECK: "1"
+        run: |
+          set -euo pipefail
+          echo "Running cloud integration deploy of frontend (tenant: $TENANT, app: $APP)..."
+          tmp_frontend="$(mktemp)"
+          npl cloud deploy frontend --tenant "$TENANT" --app "$APP" --frontend webapp/dist | tee "$tmp_frontend" || {
+            echo "::error::Failed to deploy frontend to NOUMENA Cloud"
+            exit 1
+          }
+          if ! grep -FqiE "(deployed|success|complete|uploaded)" "$tmp_frontend"; then
+            echo "::error::Frontend deployment output does not indicate success"
+            exit 1
+          fi
+          echo "::notice::Cloud integration frontend deployment completed successfully"
+
+      - name: Restore original npl.yml
+        if: always()
+        shell: bash
+        run: |
+          if [ -f npl.yml.bak ]; then
+            mv npl.yml.bak npl.yml
+          fi
+
+  cloud-integration-skip:
+    runs-on: ubuntu-latest
+    # Run if credentials are not available
+    if: ${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET == '' }}
+    steps:
+      - name: Skip cloud integration tests
+        run: |
+          echo "::notice::Skipping cloud integration tests - required secrets not configured"
+          echo "Required secrets: NPL_SERVICE_ACCOUNT_CLIENT_SECRET"
+          echo "Intended tenant: noumenaintegrationtests"
+          echo "Intended app: npldemo"
+
