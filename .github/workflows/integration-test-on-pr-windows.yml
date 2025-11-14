@@ -39,9 +39,10 @@ jobs:
           $exePath = Join-Path $installDir $asset.name
           Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $exePath
 
+          Copy-Item -Path $exePath -Destination (Join-Path $installDir "npl.exe") -Force
           Add-Content -Path $env:GITHUB_PATH -Value $installDir
           $env:Path = "$installDir;$env:Path"
-          & $exePath version
+          npl version
 
       - name: Install frontend dependencies
         working-directory: webapp
