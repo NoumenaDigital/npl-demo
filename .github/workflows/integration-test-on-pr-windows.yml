@@ -41,7 +41,7 @@ jobs:
 
           Add-Content -Path $env:GITHUB_PATH -Value $installDir
           $env:Path = "$installDir;$env:Path"
-          & $exePath --version
+          & $exePath version
 
       - name: Start NOUMENA Runtime
         shell: pwsh
@@ -117,7 +117,7 @@ jobs:
 
           Add-Content -Path $env:GITHUB_PATH -Value $installDir
           $env:Path = "$installDir;$env:Path"
-          & $exePath --version
+          & $exePath version
 
       - name: Install frontend dependencies
         working-directory: webapp
