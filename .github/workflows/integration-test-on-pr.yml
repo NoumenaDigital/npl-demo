@@ -62,15 +62,34 @@ jobs:
         working-directory: webapp
         shell: bash
         run: |
-          set -euxo pipefail
-          npm run dev -- --host &
+          set -euo pipefail
+          npm run dev -- --host 127.0.0.1 --port 5173 >"${RUNNER_TEMP}/vite-dev.log" 2>&1 &
           DEV_PID=$!
-          sleep 15
-          kill $DEV_PID || true
-          wait $DEV_PID || true
+          trap 'kill "$DEV_PID" >/dev/null 2>&1 || true' EXIT
+
+          success=0
+          for attempt in $(seq 1 12); do
+            if curl -fsS http://127.0.0.1:5173 >/dev/null; then
+              success=1
+              break
+            fi
+            sleep 5
+          done
+
+          if [ "$success" -ne 1 ]; then
+            echo "::error::Vite dev server did not reach HTTP 200 within 60 seconds."
+            echo "===== Vite server logs ====="
+            cat "${RUNNER_TEMP}/vite-dev.log" || true
+            exit 1
+          fi
+
+          kill "$DEV_PID" || true
+          wait "$DEV_PID" || true
+          trap - EXIT
 
       - name: Tear down NOUMENA Runtime
         shell: bash
+        if: always()
         run: |
           set -euxo pipefail
           docker compose down --volumes --remove-orphans
