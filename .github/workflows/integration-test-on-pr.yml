@@ -109,8 +109,12 @@ jobs:
         working-directory: webapp
         run: npm run build
 
-      - name: deploy to NOUMENA Cloud
+      - name: deploy backend to NOUMENA Cloud
         shell: bash
         run: |
-          npl cloud deploy npl --tenant noumenaintegrationtests --app npldemo1 --migration api/src/main/migration.yml
-          npl cloud deploy frontend --tenant noumenaintegrationtests --app npldemo1 --frontend webapp/dist
+          npl cloud deploy npl --tenant noumenaintegrationtests --app npldemo --migration api/src/main/migration.yml
+
+      - name: deploy frontend to NOUMENA Cloud
+        shell: bash
+        run: |
+          npl cloud deploy frontend --tenant noumenaintegrationtests --app npldemo --frontend webapp/dist
