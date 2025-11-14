@@ -27,29 +27,21 @@ jobs:
           $apiUrl = "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/latest"
           $headers = @{ "User-Agent" = "github-actions-npl-demo" }
           $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
-          $asset = $release.assets | Where-Object { $_.name -match "windows" -and $_.name -match "\.zip$" } | Select-Object -First 1
+          $asset = $release.assets | Where-Object { $_.name -match "windows" -and $_.name -match "\.exe$" } | Select-Object -First 1
           if (-not $asset) {
-            throw "Unable to find Windows asset for the NPL CLI release."
+            throw "Unable to find Windows executable asset for the NPL CLI release."
           }
 
-          $zipPath = Join-Path $env:RUNNER_TEMP $asset.name
-          $extractPath = Join-Path $env:RUNNER_TEMP "npl-cli"
-          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath
-
-          if (Test-Path $extractPath) {
-            Remove-Item -Path $extractPath -Recurse -Force
+          $installDir = Join-Path $env:RUNNER_TEMP "npl-cli"
+          if (-not (Test-Path $installDir)) {
+            New-Item -Path $installDir -ItemType Directory | Out-Null
           }
-          Expand-Archive -Path $zipPath -DestinationPath $extractPath
+          $exePath = Join-Path $installDir $asset.name
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $exePath
 
-          $cliExe = Get-ChildItem -Path $extractPath -Recurse -Filter "npl.exe" | Select-Object -First 1
-          if (-not $cliExe) {
-            throw "NPL CLI executable not found after extraction."
-          }
-
-          $cliDir = $cliExe.DirectoryName
-          Add-Content -Path $env:GITHUB_PATH -Value $cliDir
-          $env:Path = "$cliDir;$env:Path"
-          & $cliExe.FullName --version
+          Add-Content -Path $env:GITHUB_PATH -Value $installDir
+          $env:Path = "$installDir;$env:Path"
+          & $exePath --version
 
       - name: Start NOUMENA Runtime
         shell: pwsh
@@ -111,29 +103,21 @@ jobs:
           $apiUrl = "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/latest"
           $headers = @{ "User-Agent" = "github-actions-npl-demo" }
           $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
-          $asset = $release.assets | Where-Object { $_.name -match "windows" -and $_.name -match "\.zip$" } | Select-Object -First 1
+          $asset = $release.assets | Where-Object { $_.name -match "windows" -and $_.name -match "\.exe$" } | Select-Object -First 1
           if (-not $asset) {
-            throw "Unable to find Windows asset for the NPL CLI release."
+            throw "Unable to find Windows executable asset for the NPL CLI release."
           }
 
-          $zipPath = Join-Path $env:RUNNER_TEMP $asset.name
-          $extractPath = Join-Path $env:RUNNER_TEMP "npl-cli"
-          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath
-
-          if (Test-Path $extractPath) {
-            Remove-Item -Path $extractPath -Recurse -Force
+          $installDir = Join-Path $env:RUNNER_TEMP "npl-cli"
+          if (-not (Test-Path $installDir)) {
+            New-Item -Path $installDir -ItemType Directory | Out-Null
           }
-          Expand-Archive -Path $zipPath -DestinationPath $extractPath
+          $exePath = Join-Path $installDir $asset.name
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $exePath
 
-          $cliExe = Get-ChildItem -Path $extractPath -Recurse -Filter "npl.exe" | Select-Object -First 1
-          if (-not $cliExe) {
-            throw "NPL CLI executable not found after extraction."
-          }
-
-          $cliDir = $cliExe.DirectoryName
-          Add-Content -Path $env:GITHUB_PATH -Value $cliDir
-          $env:Path = "$cliDir;$env:Path"
-          & $cliExe.FullName --version
+          Add-Content -Path $env:GITHUB_PATH -Value $installDir
+          $env:Path = "$installDir;$env:Path"
+          & $exePath --version
 
       - name: Install frontend dependencies
         working-directory: webapp
