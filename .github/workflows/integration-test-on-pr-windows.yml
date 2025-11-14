@@ -1,0 +1,157 @@
+name: integration-tests-windows
+
+on:
+  pull_request:
+
+env:
+  NPL_SERVICE_ACCOUNT_CLIENT_SECRET: "${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}"
+
+jobs:
+  deploy-to-local-windows:
+    name: Deploy to Local NOUMENA Runtime (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Get NPL CLI (Windows)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $apiUrl = "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/latest"
+          $headers = @{ "User-Agent" = "github-actions-npl-demo" }
+          $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
+          $asset = $release.assets | Where-Object { $_.name -match "windows" -and $_.name -match "\.zip$" } | Select-Object -First 1
+          if (-not $asset) {
+            throw "Unable to find Windows asset for the NPL CLI release."
+          }
+
+          $zipPath = Join-Path $env:RUNNER_TEMP $asset.name
+          $extractPath = Join-Path $env:RUNNER_TEMP "npl-cli"
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath
+
+          if (Test-Path $extractPath) {
+            Remove-Item -Path $extractPath -Recurse -Force
+          }
+          Expand-Archive -Path $zipPath -DestinationPath $extractPath
+
+          $cliExe = Get-ChildItem -Path $extractPath -Recurse -Filter "npl.exe" | Select-Object -First 1
+          if (-not $cliExe) {
+            throw "NPL CLI executable not found after extraction."
+          }
+
+          $cliDir = $cliExe.DirectoryName
+          Add-Content -Path $env:GITHUB_PATH -Value $cliDir
+          $env:Path = "$cliDir;$env:Path"
+          & $cliExe.FullName --version
+
+      - name: Start NOUMENA Runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          docker compose build
+          docker compose up -d --wait
+
+      - name: Deploy NPL locally
+        env:
+          NOUMENA_SKIP_UPDATE_CHECK: "1"
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $logPath = Join-Path $env:RUNNER_TEMP "npl-deploy.log"
+          npl deploy | Tee-Object -FilePath $logPath
+          $success = Select-String -Path $logPath -Pattern "Successfully deployed NPL sources and migrations" -Quiet
+          if (-not $success) {
+            throw "Expected success message not found in deployment output."
+          }
+
+      - name: Install frontend dependencies
+        working-directory: webapp
+        run: npm install
+
+      - name: Run Vite dev server smoke test
+        working-directory: webapp
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $job = Start-Job -ScriptBlock { npm run dev -- --host }
+          Start-Sleep -Seconds 15
+          Stop-Job -Job $job -Force -ErrorAction SilentlyContinue
+          Receive-Job -Job $job -ErrorAction SilentlyContinue
+
+      - name: Tear down NOUMENA Runtime
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          docker compose down --volumes --remove-orphans
+
+  deploy-to-cloud-windows:
+    name: Deploy to NOUMENA Cloud (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Get NPL CLI (Windows)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $apiUrl = "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/latest"
+          $headers = @{ "User-Agent" = "github-actions-npl-demo" }
+          $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
+          $asset = $release.assets | Where-Object { $_.name -match "windows" -and $_.name -match "\.zip$" } | Select-Object -First 1
+          if (-not $asset) {
+            throw "Unable to find Windows asset for the NPL CLI release."
+          }
+
+          $zipPath = Join-Path $env:RUNNER_TEMP $asset.name
+          $extractPath = Join-Path $env:RUNNER_TEMP "npl-cli"
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $zipPath
+
+          if (Test-Path $extractPath) {
+            Remove-Item -Path $extractPath -Recurse -Force
+          }
+          Expand-Archive -Path $zipPath -DestinationPath $extractPath
+
+          $cliExe = Get-ChildItem -Path $extractPath -Recurse -Filter "npl.exe" | Select-Object -First 1
+          if (-not $cliExe) {
+            throw "NPL CLI executable not found after extraction."
+          }
+
+          $cliDir = $cliExe.DirectoryName
+          Add-Content -Path $env:GITHUB_PATH -Value $cliDir
+          $env:Path = "$cliDir;$env:Path"
+          & $cliExe.FullName --version
+
+      - name: Install frontend dependencies
+        working-directory: webapp
+        run: npm install
+
+      - name: Build frontend
+        working-directory: webapp
+        run: npm run build
+
+      - name: Deploy backend to NOUMENA Cloud
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          npl cloud deploy npl --tenant noumenaintegrationtests --app npldemo --migration api/src/main/migration.yml
+
+      - name: Deploy frontend to NOUMENA Cloud
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          npl cloud deploy frontend --tenant noumenaintegrationtests --app npldemo --frontend webapp/dist
+
