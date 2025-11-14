@@ -112,23 +112,5 @@ jobs:
       - name: deploy to NOUMENA Cloud
         shell: bash
         run: |
-          npl cloud deploy npl --tenant noumenaintegrationtests --app npldemo --migration api/src/main/migration.yml
-
-      - name: Deploy frontend to NOUMENA Cloud (integration)
-        shell: bash
-        env:
-          TENANT: noumenaintegrationtests
-          APP: npldemo
-        run: |
-          set -euo pipefail
-          echo "Running cloud integration deploy of frontend (tenant: $TENANT, app: $APP)..."
-          tmp_frontend="$(mktemp)"
-          npl cloud deploy frontend --tenant "$TENANT" --app "$APP" --frontend webapp/dist | tee "$tmp_frontend" || {
-            echo "::error::Failed to deploy frontend to NOUMENA Cloud"
-            exit 1
-          }
-          if ! grep -FqiE "(deployed|success|complete|uploaded)" "$tmp_frontend"; then
-            echo "::error::Frontend deployment output does not indicate success"
-            exit 1
-          }
-          echo "::notice::Cloud integration frontend deployment completed successfully"
+          npl cloud deploy npl --tenant noumenaintegrationtests --app npldemo1 --migration api/src/main/migration.yml
+          npl cloud deploy frontend --tenant noumenaintegrationtests --app npldemo1 --frontend webapp/dist
