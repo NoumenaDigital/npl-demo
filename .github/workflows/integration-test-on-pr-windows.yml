@@ -1,0 +1,66 @@
+name: integration-tests-windows
+
+on:
+  pull_request:
+
+env:
+  NPL_SERVICE_ACCOUNT_CLIENT_SECRET: "${{ secrets.NPL_SERVICE_ACCOUNT_CLIENT_SECRET }}"
+
+jobs:
+  deploy-to-cloud-windows:
+    name: Deploy to NOUMENA Cloud (Windows)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Get NPL CLI (Windows)
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $apiUrl = "https://api.github.com/repos/NoumenaDigital/npl-cli/releases/latest"
+          $headers = @{ "User-Agent" = "github-actions-npl-demo" }
+          $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers
+          $asset = $release.assets | Where-Object { $_.name -match "windows" -and $_.name -match "\.exe$" } | Select-Object -First 1
+          if (-not $asset) {
+            throw "Unable to find Windows executable asset for the NPL CLI release."
+          }
+
+          $installDir = Join-Path $env:RUNNER_TEMP "npl-cli"
+          if (-not (Test-Path $installDir)) {
+            New-Item -Path $installDir -ItemType Directory | Out-Null
+          }
+          $exePath = Join-Path $installDir $asset.name
+          Invoke-WebRequest -Uri $asset.browser_download_url -OutFile $exePath
+
+          Copy-Item -Path $exePath -Destination (Join-Path $installDir "npl.exe") -Force
+          Add-Content -Path $env:GITHUB_PATH -Value $installDir
+          $env:Path = "$installDir;$env:Path"
+          npl version
+
+      - name: Install frontend dependencies
+        working-directory: webapp
+        run: npm install
+
+      - name: Build frontend
+        working-directory: webapp
+        run: npm run build
+
+      - name: Deploy backend to NOUMENA Cloud
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          npl cloud deploy npl --tenant noumenaintegrationtests --app npldemo --migration api/src/main/migration.yml
+
+      - name: Deploy frontend to NOUMENA Cloud
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          npl cloud deploy frontend --tenant noumenaintegrationtests --app npldemo --frontend webapp/dist
+
