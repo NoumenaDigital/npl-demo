@@ -18,9 +18,3 @@ services:
       ENGINE_DEV_MODE: true
     volumes:
       - ./users.yml:/etc/noumena/oidc-users.yaml
-    healthcheck:
-      test: ["CMD", "/busybox/sh", "-c", "wget -qO- http://localhost:12000/actuator/health 2>/dev/null | grep -q '\"UP\"'"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 10s

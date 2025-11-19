@@ -13,7 +13,7 @@ curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
 Start the NOUMENA Runtime
 
 ```shell
-docker compose build && docker compose up -d
+docker compose build && docker compose up -d --wait
 ```
 
 Deploy NPL to local NOUMENA Runtime
