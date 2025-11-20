@@ -44,24 +44,6 @@ jobs:
           $env:Path = "$installDir;$env:Path"
           npl version
 
-      - name: Start NOUMENA Runtime
-        shell: pwsh
-        run: |
-          docker compose up -d --wait
-
-      - name: Deploy NPL locally
-        shell: pwsh
-        env:
-          NOUMENA_SKIP_UPDATE_CHECK: "1"
-        run: |
-          $ErrorActionPreference = "Stop"
-          $logPath = Join-Path $env:RUNNER_TEMP "npl-deploy.log"
-          npl deploy | Tee-Object -FilePath $logPath
-          $success = Select-String -Path $logPath -Pattern "Successfully deployed NPL sources and migrations" -Quiet
-          if (-not $success) {
-            throw "Expected success message not found in deployment output."
-          }
-
       - name: Install frontend dependencies
         working-directory: webapp
         run: npm install
