@@ -1,11 +1,4 @@
 services:
-  postgres:
-    image: postgres:14
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_PASSWORD: welcome123
-
   engine:
     image: ghcr.io/noumenadigital/images/engine:latest
     ports:

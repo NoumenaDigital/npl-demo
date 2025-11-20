@@ -8,7 +8,7 @@ env:
 
 jobs:
   local-runtime-windows:
-    name: Docker runtime + UI smoke (Windows)
+    name: Docker local NOUMENA Runtime and NPL deployment (Windows)
     runs-on: windows-latest
 
     steps:
