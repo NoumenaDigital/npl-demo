@@ -47,8 +47,6 @@ jobs:
       - name: Start NOUMENA Runtime
         shell: pwsh
         run: |
-          $ErrorActionPreference = "Stop"
-          docker compose build
           docker compose up -d --wait
 
       - name: Deploy NPL locally
