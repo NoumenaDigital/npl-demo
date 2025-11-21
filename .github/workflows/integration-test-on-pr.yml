@@ -15,11 +15,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
       - name: Get NPL CLI
         shell: bash
         run: |
@@ -54,19 +49,10 @@ jobs:
             exit 1
           fi
 
-      - name: Install frontend dependencies
-        working-directory: webapp
-        run: npm install
-
       - name: Run Vite dev server smoke test
         working-directory: webapp
         shell: bash
         run: |
-          set -euo pipefail
-          npm run dev -- --host 127.0.0.1 --port 5173 >"${RUNNER_TEMP}/vite-dev.log" 2>&1 &
-          DEV_PID=$!
-          trap 'kill "$DEV_PID" >/dev/null 2>&1 || true' EXIT
-
           success=0
           for attempt in $(seq 1 12); do
             if curl -fsS http://127.0.0.1:5173 >/dev/null; then
@@ -83,8 +69,6 @@ jobs:
             exit 1
           fi
 
-          kill "$DEV_PID" || true
-          wait "$DEV_PID" || true
           trap - EXIT
 
       - name: Tear down NOUMENA Runtime
@@ -93,6 +77,7 @@ jobs:
         run: |
           set -euxo pipefail
           docker compose down --volumes --remove-orphans
+
   deploy-to-cloud:
     name: Deploy to Noumena Cloud
     runs-on: ubuntu-latest
@@ -100,11 +85,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
 
       - name: Get NPL CLI
         shell: bash
@@ -122,11 +102,9 @@ jobs:
 
       - name: Build frontend
         working-directory: webapp
-        run: npm install
-
-      - name: Install frontend dependencies
-        working-directory: webapp
-        run: npm run build
+        shell: bash
+        run: |
+          docker compose run --build webapp-dist
 
       - name: deploy backend to NOUMENA Cloud
         shell: bash

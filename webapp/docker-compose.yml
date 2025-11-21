@@ -1,0 +1,14 @@
+services:
+
+  webapp-nginx:
+    build:
+      dockerfile: nginx.Dockerfile
+    ports:
+      - "8000:80"
+    restart: unless-stopped
+
+  webapp-dist:
+    build:
+      dockerfile: build.Dockerfile
+    volumes:
+      - ./dist:/app/dist

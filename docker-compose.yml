@@ -18,3 +18,13 @@ services:
       ENGINE_DEV_MODE: true
     volumes:
       - ./users.yml:/etc/noumena/oidc-users.yaml
+
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: dev.Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./webapp:/app
+      - /app/node_modules #keep the node modules in the image (cached)
