@@ -22,17 +22,9 @@ Deploy NPL to local NOUMENA Runtime
 npl deploy
 ```
 
-Go to the webapp directory and install frontend dependencies
-
-```shell
-npm i
-```
-
-Still from the webapp directory, run the dev server locally
-
-```shell
-npm run dev
-```
+The front end is deployed in development mode at http//localhost:5173. 
+The front end source code is mounted as a volume, allowing hot code fixes without the need to rebuild
+and restart the front end.
 
 ## Run on NOUMENA Cloud
 
@@ -52,7 +44,7 @@ npl cloud deploy npl
 From the webapp directory, set the target environment in the .env file and build the frontend
 
 ```shell
-npm run build
+docker compose build webapp
 ```
 
 From the project root directory, deploy the frontend to NOUMENA Cloud with

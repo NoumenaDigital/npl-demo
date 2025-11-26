@@ -54,19 +54,10 @@ jobs:
             exit 1
           fi
 
-      - name: Install frontend dependencies
-        working-directory: webapp
-        run: npm install
-
       - name: Run Vite dev server smoke test
         working-directory: webapp
         shell: bash
         run: |
-          set -euo pipefail
-          npm run dev -- --host 127.0.0.1 --port 5173 >"${RUNNER_TEMP}/vite-dev.log" 2>&1 &
-          DEV_PID=$!
-          trap 'kill "$DEV_PID" >/dev/null 2>&1 || true' EXIT
-
           success=0
           for attempt in $(seq 1 12); do
             if curl -fsS http://127.0.0.1:5173 >/dev/null; then
