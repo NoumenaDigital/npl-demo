@@ -20,7 +20,7 @@ export class SaidHelloStep extends HTMLElement {
                 <div>
                     <p>See below, you've been greeted! The <code>Hello World</code> protocol has returned the greeting message tailored to you. It is now in state greeted and cannot react to the sayHello permission anymore.</p>
                     <p>You are now ready to <a href="https://community.noumenadigital.com/t/congrats-you-have-completed-the-npl-demo/259" target="_blank" rel="noopener">claim your NPL DEMO completion badge</a> in the NOUMENA Community!</p>
-                    <p>You have used most of the <code>Hello World</code> protocol's <a href="https://engine-public-npldemo.noumena.cloud/swagger-ui/index.html?urls.primaryName=NPL%20Application%20-%20demo">NPL API</a> for this example. That API comes out of the box when you run the NOUMENA Runtime locally and on NOUMENA Cloud. Continue your discovery journey <a href="https://documentation.noumenadigital.com" target="_blank" rel="noopener">in the documentation</a> to learn more.</p>
+                    <p>You have used most of the <code>Hello World</code> protocol's <a href="https://engine-public-npldemo.noumena.cloud/">NPL API</a> for this example. That API comes out of the box when you run the NOUMENA Runtime locally and on NOUMENA Cloud. Continue your discovery journey <a href="https://documentation.noumenadigital.com" target="_blank" rel="noopener">in the documentation</a> to learn more.</p>
                     <p>Browse the code for this example <a href="https://github.com/NoumenaDigital/npl-demo" target="_blank" rel="noopener">here</a>.</p>
                 </div>
                 <div class="input-container">
