@@ -1,13 +1,13 @@
 # NPL Demo - Walkthrough
 
-This walkthrough demonstrates the NOUMENA Technology using the Hello World Protocol and a series of API calls. You'll:
+This walkthrough demonstrates the NOUMENA Technology using the `HelloWorld` protocol and a series of API calls. You'll:
 
 1. Start the system and upload NPL code
 2. Authenticate and get an access token
 3. View user information from the JWT
-4. Create an authorised instance of the Hello World protocol
-5. Explore access rights to the Hello World protocol instance
-6. Execute the sayHello permission as allowed and disallowed users
+4. Create an authorized instance of the `HelloWorld` protocol
+5. Explore access rights to the `HelloWorld` protocol instance
+6. Execute the `sayHello` permission as allowed and disallowed users
 
 ## Introduction
 
@@ -31,7 +31,7 @@ npl deploy
 
 ## Step 2: Authentication
 
-Log in to access the Hello World Protocol API. All endpoints are protected by fine-grained access control based on a JWT token.
+Log in to access the `HelloWorld` Protocol API. All endpoints are protected by fine-grained access control based on a JWT token.
 
 Valid users for this demo: **alice**, **bob**, **carol** (password: `password12345678`)
 
@@ -76,11 +76,11 @@ PREFERRED_USERNAME=$(echo "$DECODED_TOKEN" | grep -o '"preferred_username":"[^"]
 echo "Logged in as: $PREFERRED_USERNAME"
 ```
 
-## Step 4: Create an Authorised Instance of the Hello World Protocol
+## Step 4: Create an Authorized Instance of the `HelloWorld` protocol
 
-The [Hello World protocol](./api/src/main/npl/demo/helloWorld.npl) can be instantiated from the api thanks to the `@api` annotation on the constructor. Once instantiated, it will be persisted automatically in the database.
+The [HelloWorld protocol](./api/src/main/npl/demo/helloWorld.npl) can be instantiated from the api thanks to the `@api` annotation on the constructor. Once instantiated, it will be persisted automatically in the database.
 
-Create a new instance of the Hello World protocol. Your `preferred_username` will be bound to the greeter party, granting you exclusive access rights.
+Create a new instance of the `HelloWorld` protocol. Your `preferred_username` will be bound to the greeter party, granting you exclusive access rights.
 
 ```sh
 # Set API base URL
@@ -91,7 +91,7 @@ COUNT_RESPONSE=$(curl -s -X GET "${API_BASE}/?pageSize=1&includeCount=true" \
     -H "Authorization: Bearer $ACCESS_TOKEN")
 
 TOTAL_ITEMS=$(echo "$COUNT_RESPONSE" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
-echo "Found ${TOTAL_ITEMS:-0} existing Hello World instance(s) for $PREFERRED_USERNAME"
+echo "Found ${TOTAL_ITEMS:-0} existing HelloWorld instance(s) for $PREFERRED_USERNAME"
 
 # Create new protocol instance bound to the current user
 CREATE_RESPONSE=$(curl -s -X POST "${API_BASE}/" \
@@ -107,7 +107,7 @@ echo "Greeter party bound to: $PREFERRED_USERNAME"
 echo "$CREATE_RESPONSE" | jq .
 ```
 
-## Step 5: Explore Access Rights to the Hello World Protocol Instance
+## Step 5: Explore Access Rights to the `HelloWorld` protocol Instance
 
 The protocol is now in the 'greeting' state. Let's verify that only the authorized user (the greeter party) can access it.
 
@@ -156,7 +156,7 @@ HELLO_RESPONSE=$(curl -s -X POST "${API_BASE}/${PROTOCOL_ID}/sayHello" \
     -H "Authorization: Bearer $ACCESS_TOKEN" \
     -H "Content-Type: application/json")
 
-echo "Hello response:"
+echo "sayHello response:"
 echo "$HELLO_RESPONSE" | jq .
 ```
 
@@ -188,7 +188,7 @@ curl -s -X GET "${API_BASE}/${PROTOCOL_ID}/" \
 
 ## Success!
 
-You've been greeted! The Hello World protocol has returned a greeting message tailored to you. It is now in state 'greeted' and cannot react to the sayHello permission anymore.
+You've been greeted! The `HelloWorld` protocol has returned a greeting message tailored to you. It is now in state 'greeted' and cannot react to the sayHello permission anymore.
 
 ---
 

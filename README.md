@@ -10,7 +10,7 @@ curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
 
 ## Walkthrough
 
-The [WALKTHROUGH.md](./WALKTHROUGH.md) helps you understand what is going on in the demo app without leaving your shell or command line.
+The [WALKTHROUGH.md](./WALKTHROUGH.md) helps you understand what is going on in the demo app without leaving your shell.
 
 ## Run locally
 
