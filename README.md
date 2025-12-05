@@ -14,29 +14,26 @@ The [WALKTHROUGH.md](./WALKTHROUGH.md) helps you understand what is going on in 
 
 ## Run locally
 
+Make sure the NPL is correct
+```shell
+npl check
+npl test
+```
+
 Start the NOUMENA Runtime
 
 ```shell
-docker compose build && docker compose up -d --wait
+docker compose up -d --build --wait
 ```
-
 Deploy NPL to local NOUMENA Runtime
 
 ```shell
 npl deploy
 ```
 
-Go to the webapp directory and install frontend dependencies
-
-```shell
-npm i
-```
-
-Still from the webapp directory, run the dev server locally
-
-```shell
-npm run dev
-```
+The front end is deployed in development mode at http://localhost:5173. 
+The front end source code is mounted as a volume, allowing hot code fixes without the need to rebuild
+and restart the front end.
 
 ## Run on NOUMENA Cloud
 
@@ -53,13 +50,20 @@ in NOUMENA Cloud. Then, from the project root, deploy NPL to NOUMENA Cloud with:
 npl cloud deploy npl
 ```
 
-From the webapp directory, set the target environment in the .env file and build the frontend
+From the webapp directory  (`cd webapp`), edit the target .env file and set the environment variables to point to the 
+deployed npl, replacing `[your-tenant-slug]` and `[your-app-slug]` with the appropriate values for your application
 
 ```shell
-npm run build
+VITE_SERVER_URL=https://engine-[your-tenant-slug]-[your-app-slug].noumena.cloud
+VITE_AUTH_URL=https://keycloak-[your-tenant-slug]-[your-app-slug].noumena.cloud/realms/[your-app-slug]/protocol/openid-connect/token
+VITE_AUTH_CLIENT_ID=[your-app-slug]
 ```
 
-From the project root directory, deploy the frontend to NOUMENA Cloud with
+```shell
+docker run --build webapp-dist
+```
+
+From the project root directory (`cd ..`), deploy the frontend to NOUMENA Cloud with
 
 ```shell
 npl cloud deploy frontend
