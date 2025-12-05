@@ -15,6 +15,7 @@ The [WALKTHROUGH.md](./WALKTHROUGH.md) helps you understand what is going on in 
 ## Run locally
 
 Make sure the NPL is correct
+
 ```shell
 npl check
 npl test
@@ -25,6 +26,7 @@ Start the NOUMENA Runtime
 ```shell
 docker compose up -d --build --wait
 ```
+
 Deploy NPL to local NOUMENA Runtime
 
 ```shell
@@ -50,7 +52,7 @@ in NOUMENA Cloud. Then, from the project root, deploy NPL to NOUMENA Cloud with:
 npl cloud deploy npl
 ```
 
-From the webapp directory  (`cd webapp`), edit the target .env file and set the environment variables to point to the 
+From the webapp directory  (`cd webapp`), edit the target `.env` file and set the environment variables to point to the 
 deployed npl, replacing `[your-tenant-slug]` and `[your-app-slug]` with the appropriate values for your application
 
 ```shell
@@ -60,7 +62,7 @@ VITE_AUTH_CLIENT_ID=[your-app-slug]
 ```
 
 ```shell
-docker run --build webapp-dist
+docker compose run --build webapp-dist
 ```
 
 From the project root directory (`cd ..`), deploy the frontend to NOUMENA Cloud with
