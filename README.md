@@ -1,5 +1,9 @@
 # npl-demo
 
+`npl-demo` is a demo application that features a simple `Hello World` backend developed in
+[NPL](https://documentation.noumenadigital.com/) and a purpose-built frontend that illustrates key tenets of NPL
+technology. Follow the instructions below to run the demo application.
+
 ## Pre-requisite
 
 Get the CLI
@@ -8,11 +12,11 @@ Get the CLI
 curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
 ```
 
-## Walkthrough
+## Shell walkthrough (backend)
 
 The [WALKTHROUGH.md](./WALKTHROUGH.md) helps you understand what is going on in the demo app without leaving your shell.
 
-## Run locally
+## Run locally (backend and frontend)
 
 Make sure the NPL is correct
 
@@ -37,7 +41,7 @@ The front end is deployed in development mode at http://localhost:5173.
 The front end source code is mounted as a volume, allowing hot code fixes without the need to rebuild
 and restart the front end.
 
-## Run on NOUMENA Cloud
+## Run on NOUMENA Cloud (backend and frontend)
 
 Log into NOUMENA Cloud with the NPL CLI
 
