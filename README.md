@@ -1,7 +1,7 @@
 # npl-demo
 
 `npl-demo` is a demo application that features a simple `Hello World` backend developed in
-[NPL](https://https://documentation.noumenadigital.com/) and a purpose-built frontend that illustrates key tenets of NPL
+[NPL](https://documentation.noumenadigital.com/) and a purpose-built frontend that illustrates key tenets of NPL
 technology. Follow the instructions below to run the demo application.
 
 ## Pre-requisite
