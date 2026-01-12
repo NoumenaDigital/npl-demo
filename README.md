@@ -67,7 +67,7 @@ VITE_AUTH_CLIENT_ID=[your-app-slug]
 Still from the webapp directory, build the static frontend with Docker by running:
 
 ```shell
-docker compose run --build webapp-dist
+docker compose -f webapp/docker-compose.yml run --build webapp-dist
 ```
 
 From the project root directory (`cd ..`), deploy the frontend to NOUMENA Cloud with
