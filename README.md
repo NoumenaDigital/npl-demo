@@ -75,3 +75,14 @@ From the project root directory (`cd ..`), deploy the frontend to NOUMENA Cloud 
 ```shell
 npl cloud deploy frontend
 ```
+
+Configure users on the NOUMENA Cloud portal. You will need to create `alice`, `bob` and `carol` users according to the
+<a href="/cloud/portal/create-users/" target="_blank" rel="noopener">create application users</a> guide.
+
+   > The hardcoded demo password in the webapp is `password12345678` for all users. Feel free to change it to your
+   > liking, ensuring that the password of application users created on NOUMENA Cloud is matching the one used across
+   > the webapp.
+
+Navigate to the `https://TENANT_SLUG-APPLICATION_SLUG.noumena.cloud` frontend URL of your NOUMENA Cloud application and
+try out the Hello World application flow
+
