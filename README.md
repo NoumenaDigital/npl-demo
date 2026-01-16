@@ -6,7 +6,7 @@ technology. Follow the instructions below to run the demo application.
 
 ## Pre-requisite
 
-Get the CLI
+Get the CLI (note: If opening this repo in Codespaces, the CLI will automatically be installed for you)
 
 ```shell
 curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
@@ -67,7 +67,7 @@ VITE_AUTH_CLIENT_ID=[your-app-slug]
 Still from the webapp directory, build the static frontend with Docker by running:
 
 ```shell
-docker compose run --build webapp-dist
+docker compose -f webapp/docker-compose.yml run --build webapp-dist
 ```
 
 From the project root directory (`cd ..`), deploy the frontend to NOUMENA Cloud with
@@ -75,3 +75,15 @@ From the project root directory (`cd ..`), deploy the frontend to NOUMENA Cloud 
 ```shell
 npl cloud deploy frontend
 ```
+
+Configure users on the NOUMENA Cloud portal. You will need to create `alice`, `bob` and `carol` users according to the
+<a href="https://documentation.noumenadigital.com/cloud/portal/create-users/" target="_blank" rel="noopener">create
+application users</a> guide.
+
+   > The hardcoded demo password in the webapp is `password12345678` for all users. Feel free to change it to your
+   > liking, ensuring that the password of application users created on NOUMENA Cloud is matching the one used across
+   > the webapp.
+
+Navigate to the `https://TENANT_SLUG-APPLICATION_SLUG.noumena.cloud` frontend URL of your NOUMENA Cloud application and
+try out the Hello World application flow
+
