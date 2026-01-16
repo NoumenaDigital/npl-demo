@@ -6,7 +6,7 @@ technology. Follow the instructions below to run the demo application.
 
 ## Pre-requisite
 
-Get the CLI (note: If opening this repo in Codespaces, the CLI will automatically be available to you)
+Get the CLI (note: If opening this repo in Codespaces, the CLI will automatically be installed for you)
 
 ```shell
 curl -s https://documentation.noumenadigital.com/get-npl-cli.sh | bash
