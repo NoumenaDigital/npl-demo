@@ -77,7 +77,8 @@ npl cloud deploy frontend
 ```
 
 Configure users on the NOUMENA Cloud portal. You will need to create `alice`, `bob` and `carol` users according to the
-<a href="/cloud/portal/create-users/" target="_blank" rel="noopener">create application users</a> guide.
+<a href="https://documentation.noumenadigital.com/cloud/portal/create-users/" target="_blank" rel="noopener">create
+application users</a> guide.
 
    > The hardcoded demo password in the webapp is `password12345678` for all users. Feel free to change it to your
    > liking, ensuring that the password of application users created on NOUMENA Cloud is matching the one used across
