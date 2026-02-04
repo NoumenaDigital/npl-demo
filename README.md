@@ -64,7 +64,7 @@ VITE_SERVER_URL=https://engine-[your-tenant-slug]-[your-app-slug].noumena.cloud
 VITE_AUTH_URL=https://keycloak-[your-tenant-slug]-[your-app-slug].noumena.cloud/realms/[your-app-slug]/protocol/openid-connect/token
 VITE_AUTH_CLIENT_ID=[your-app-slug]
 ```
-Still from the webapp directory, build the static frontend with Docker by running:
+Still from the project root directory, build the static frontend with Docker by running:
 
 ```shell
 docker compose -f webapp/docker-compose.yml run --build webapp-dist
